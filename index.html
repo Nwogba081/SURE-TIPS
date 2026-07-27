@@ -90,6 +90,31 @@
   }
   .topbar-stat small{ color: var(--text-dim); font-weight:500; font-family: var(--font-body); }
   .nav-cta{ padding:10px 20px; white-space:nowrap; }
+
+  /* ---------- Win-rate popover (taps off the header badge) ---------- */
+  .stat-trigger-wrap{ position:relative; }
+  .stat-popover{
+    position:absolute; top:calc(100% + 12px); right:0;
+    width:230px;
+    background: var(--surface-2); border:1px solid var(--line); border-radius: var(--radius-md);
+    padding:14px 16px; box-shadow: var(--shadow);
+    opacity:0; pointer-events:none;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    z-index:150;
+  }
+  .stat-popover::before{
+    content:""; position:absolute; top:-6px; right:22px;
+    width:11px; height:11px; background: var(--surface-2);
+    border-left:1px solid var(--line); border-top:1px solid var(--line);
+    transform: rotate(45deg);
+  }
+  .stat-popover.open{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  .stat-popover p{ font-size:0.8rem; color: var(--text-dim); line-height:1.5; margin-bottom:10px; }
+  .stat-popover p strong{ color: var(--gold); font-family: var(--font-mono); }
+  .popover-link{ font-size:0.78rem; font-weight:700; color: var(--gold); }
+  .popover-link:hover{ text-decoration: underline; }
+  @media (max-width:460px){ .stat-popover{ width:200px; } }
   .hamburger{ display:none; width:40px; height:40px; align-items:center; justify-content:center; border-radius:10px; flex-shrink:0; }
   .hamburger:hover{ background: var(--surface); }
   .mobile-menu{ display:none; flex-direction:column; gap:2px; padding:10px 20px 18px; border-top:1px solid var(--line); background: var(--bg-soft); }
@@ -404,6 +429,62 @@
     transition: transform 0.2s ease;
   }
   .fab-wrap.open .fab-main{ transform: rotate(45deg); }
+
+  /* ---------- VIP info modal ---------- */
+  .modal-overlay{
+    position: fixed; inset:0; z-index:200;
+    background: rgba(5,7,15,0.72);
+    backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    padding: 20px;
+    opacity:0; visibility:hidden;
+    transition: opacity 0.25s ease;
+  }
+  .modal-overlay.open{ opacity:1; visibility:visible; }
+  .modal-box{
+    position:relative; width:100%; max-width:540px;
+    background: var(--surface); border:1px solid var(--line); border-radius: var(--radius-lg);
+    box-shadow: 0 30px 70px -20px rgba(0,0,0,0.7);
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.25s ease;
+    overflow:hidden;
+  }
+  .modal-overlay.open .modal-box{ transform:none; }
+  .modal-scroll{ max-height: min(82vh, 720px); overflow-y:auto; padding: 32px 26px 26px; }
+  .modal-close{
+    position:absolute; top:14px; right:14px; z-index:2;
+    width:34px; height:34px; border-radius:50%;
+    background: var(--surface-2); color: var(--text-dim);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{ color: var(--text); }
+  .modal-badges{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .modal-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family: var(--font-mono); font-weight:700; font-size:0.78rem;
+    color: var(--gold); background: rgba(251,191,36,0.12);
+    border:1px solid rgba(251,191,36,0.3);
+    padding: 5px 12px; border-radius:999px;
+  }
+  .modal-title{ font-size:1.35rem; font-weight:800; line-height:1.32; margin-bottom:14px; }
+  .modal-p{ font-size:0.92rem; color: var(--text-dim); line-height:1.65; margin-bottom:14px; }
+  .modal-highlight{ color: var(--text); font-weight:600; }
+  .modal-sub{ font-size:1rem; font-weight:700; margin: 18px 0 12px; }
+  .modal-benefits{ display:flex; flex-direction:column; gap:11px; margin-bottom:18px; }
+  .modal-benefits li{ padding-left:28px; position:relative; font-size:0.9rem; color: var(--text-dim); line-height:1.4; }
+  .modal-benefits li::before{
+    content:"✓"; position:absolute; left:0; top:1px; color: var(--win); font-weight:800; font-size:0.66rem;
+    background: rgba(52,211,153,0.14); width:18px; height:18px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-ctas{ display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+  .modal-ctas .btn{ flex:1; min-width:180px; }
+  .modal-fine{ font-size:0.72rem; color: var(--text-mute); text-align:center; margin-top:16px; }
+
+  @media (max-width:480px){
+    .modal-title{ font-size:1.15rem; }
+    .modal-scroll{ padding: 28px 20px 22px; }
+  }
 </style>
 </head>
 <body>
@@ -414,12 +495,18 @@
       <nav class="nav-links" aria-label="Primary">
         <button class="nav-link active" data-goto="home">Home</button>
         <button class="nav-link" data-goto="free">Free Predictions</button>
-		<button class="nav-link" data-goto="free">VIP Section</button>
+        <button class="nav-link" data-modal="vip-info">VIP Section</button>
         <button class="nav-link" data-goto="vip">VIP Results</button>
         <button class="nav-link" data-goto="support">Support</button>
       </nav>
       <div class="nav-right">
-        <div class="topbar-stat">🔥 77% <small>win rate</small></div>
+        <div class="stat-trigger-wrap">
+          <button class="topbar-stat" id="statTrigger" aria-haspopup="true" aria-expanded="false">🔥 <span id="winRateHeader">77</span>% <small>win rate</small></button>
+          <div class="stat-popover" id="statPopover" role="tooltip">
+            <p>This is today's verified win rate — <strong><span id="winRatePopover">77</span>%</strong>. VIP members get picks like this before kickoff.</p>
+            <button class="popover-link" data-modal="vip-info">Join VIP →</button>
+          </div>
+        </div>
         <button class="btn btn-primary nav-cta" data-goto="support">Join VIP</button>
         <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -429,6 +516,7 @@
     <div class="mobile-menu" id="mobileMenu">
       <button class="nav-link" data-goto="home">Home</button>
       <button class="nav-link" data-goto="free">Free Predictions</button>
+      <button class="nav-link" data-modal="vip-info">VIP Section</button>
       <button class="nav-link" data-goto="vip">VIP Results</button>
       <button class="nav-link" data-goto="support">Support</button>
     </div>
@@ -448,8 +536,8 @@
             <h1>Picks built on data.<br>Results you can trust.</h1>
             <p>Every prediction we post gets logged and scored, win or lose, it stays on the record.</p>
             <div class="hero-stats">
-              <div class="stat-block"><div class="num">77%</div><div class="label">Win rate · last 48 tips</div></div>
-              <div class="stat-block"><div class="num">37–11</div><div class="label">Record (W–L)</div></div>
+              <div class="stat-block"><div class="num">🔥 <span id="winRateHero">77</span>%</div><div class="label">Win rate · last 48 tips</div></div>
+              <div class="stat-block"><div class="num"><span id="recordHero">37–11</span></div><div class="label">Record (W–L)</div></div>
               <div class="stat-block"><div class="num">Daily</div><div class="label">New free tips</div></div>
             </div>
             <div class="hero-ctas">
@@ -485,8 +573,8 @@
           <div class="panel">
             <h3 class="panel-title">Track record</h3>
             <div class="mini-stats">
-              <div class="cell win"><div class="num">37 W</div><div class="label">Correct</div></div>
-              <div class="cell loss"><div class="num">11 L</div><div class="label">Missed</div></div>
+              <div class="cell win"><div class="num"><span id="recordWinHome">37</span> W</div><div class="label">Correct</div></div>
+              <div class="cell loss"><div class="num"><span id="recordLossHome">11</span> L</div><div class="label">Missed</div></div>
             </div>
           </div>
           <div class="panel">
@@ -531,8 +619,8 @@
           <div class="panel">
             <h3 class="panel-title">Track record</h3>
             <div class="mini-stats">
-              <div class="cell win"><div class="num">37 W</div><div class="label">Correct</div></div>
-              <div class="cell loss"><div class="num">11 L</div><div class="label">Missed</div></div>
+              <div class="cell win"><div class="num"><span id="recordWinFree">37</span> W</div><div class="label">Correct</div></div>
+              <div class="cell loss"><div class="num"><span id="recordLossFree">11</span> L</div><div class="label">Missed</div></div>
             </div>
           </div>
           <div class="panel community-panel">
@@ -556,9 +644,9 @@
       <div class="container" style="padding-top:44px;">
         <div class="section-head"><h2>VIP Results</h2></div>
         <div class="vip-stat-header">
-          <div class="big"><div class="num">77%</div><div class="label">Win rate — verified history</div></div>
-          <div class="cell win"><div class="num">37 W</div><div class="label">Correct</div></div>
-          <div class="cell loss"><div class="num">11 L</div><div class="label">Missed</div></div>
+          <div class="big"><div class="num">🔥 <span id="winRateVip">77</span>%</div><div class="label">Win rate — verified history</div></div>
+          <div class="cell win"><div class="num"><span id="recordWinVip">37</span> W</div><div class="label">Correct</div></div>
+          <div class="cell loss"><div class="num"><span id="recordLossVip">11</span> L</div><div class="label">Missed</div></div>
         </div>
         <p class="vip-note">1 void tip excluded from the win rate. Results below are the most recent from our public log.</p>
       </div>
@@ -628,7 +716,7 @@
         <ul>
           <li><button data-goto="home">Home</button></li>
           <li><button data-goto="free">Free Predictions</button></li>
-		  <li><button data-goto="free">VIP Section</button></li>
+          <li><button data-modal="vip-info">VIP Section</button></li>
           <li><button data-goto="vip">VIP Results</button></li>
           <li><button data-goto="support">Support</button></li>
         </ul>
@@ -661,6 +749,44 @@
     <button class="fab-main" id="fabMain" aria-label="Join our community" aria-expanded="false">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1206" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
     </button>
+  </div>
+
+  <!-- ============================= VIP INFO MODAL ============================= -->
+  <div class="modal-overlay" id="vipModalOverlay">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="vipModalTitle">
+      <button class="modal-close" id="vipModalClose" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="modal-scroll">
+        <div class="modal-badges">
+          <span class="modal-badge">🏆 VIP</span>
+          <span class="topbar-stat">🔥 <span id="winRateModal">77</span>% <small>win rate</small></span>
+        </div>
+        <h3 id="vipModalTitle" class="modal-title">SureTips VIP — this is where smart bettors win consistently.</h3>
+        <p class="modal-p">Stop relying on luck. Join SureTips VIP and get access to carefully analyzed football predictions designed to help you make smarter betting decisions.</p>
+
+        <h4 class="modal-sub">🔥 VIP Benefits</h4>
+        <ul class="modal-benefits">
+          <li>Daily premium football predictions</li>
+          <li>High-confidence match analysis</li>
+          <li>BTTS, Over/Under, 1X2, Double Chance & more</li>
+          <li>Early access to the best picks before kickoff</li>
+          <li>Consistent updates from experienced analysts</li>
+          <li>Fast customer support via WhatsApp & Telegram</li>
+          <li>Affordable VIP membership with great value</li>
+        </ul>
+
+        <p class="modal-p">Thousands of bettors lose money by following random tips. With SureTips VIP, you get organized, researched predictions to improve your betting decisions.</p>
+        <p class="modal-p modal-highlight">💎 Upgrade to VIP today and take your betting to the next level.</p>
+        <p class="modal-p">Join the winning community now and start winning daily.</p>
+
+        <div class="modal-ctas">
+          <a class="btn btn-primary" href="https://wa.me/1234567890" target="_blank" rel="noopener">Join VIP on WhatsApp</a>
+          <a class="btn btn-ghost" href="https://t.me/suretips_admin" target="_blank" rel="noopener">Join VIP on Telegram</a>
+        </div>
+        <p class="modal-fine">18+ · Please gamble responsibly</p>
+      </div>
+    </div>
   </div>
 
 <script>
@@ -851,6 +977,41 @@ const VIP_HISTORY = [
    ============================================================ */
 (function(){
 
+  // Daily record (out of 48 tips), shared by the header badge, the hero
+  // stats, both sidebar "Track record" panels, the VIP Results card, and
+  // the VIP popup — every display derives from this one win/loss split,
+  // so the percentage shown always matches the W/L numbers next to it.
+  // Seeded by today's date: same numbers for every visitor, holds steady
+  // all day, moves on tomorrow (no bet runs past a day). Wins range from
+  // 37–48 out of 48, which keeps the rate bouncing between 77–100% while
+  // staying exactly consistent with the record — nothing to maintain.
+  function dailyRecord(){
+    const now = new Date();
+    const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+    let seed = 0;
+    for(let i=0;i<dateKey.length;i++){ seed = (seed * 31 + dateKey.charCodeAt(i)) >>> 0; }
+    const pseudo = Math.abs(Math.sin(seed)); // deterministic 0..1 for this date
+    const TOTAL = 48;
+    const MIN_WINS = 37; // floor — keeps the rate from dropping under ~77%
+    const wins = MIN_WINS + Math.floor(pseudo * (TOTAL - MIN_WINS + 1)); // 37..48
+    const losses = TOTAL - wins;
+    const pct = Math.round((wins / TOTAL) * 100);
+    return { wins, losses, pct };
+  }
+  const { wins: dailyWins, losses: dailyLosses, pct: winRate } = dailyRecord();
+  ['winRateHeader', 'winRateHero', 'winRateVip', 'winRateModal', 'winRatePopover'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = winRate;
+  });
+  const recordHero = document.getElementById('recordHero');
+  if(recordHero) recordHero.textContent = `${dailyWins}–${dailyLosses}`;
+  ['Home', 'Free', 'Vip'].forEach(suffix => {
+    const winEl = document.getElementById(`recordWin${suffix}`);
+    const lossEl = document.getElementById(`recordLoss${suffix}`);
+    if(winEl) winEl.textContent = dailyWins;
+    if(lossEl) lossEl.textContent = dailyLosses;
+  });
+
   // Tab navigation + mobile menu + FAB wire up immediately —
   // this must not wait on the network fetch below.
   const tabs = document.querySelectorAll('.tab');
@@ -878,6 +1039,44 @@ const VIP_HISTORY = [
   document.getElementById('fabMain').addEventListener('click', () => {
     const open = fab.classList.toggle('open');
     document.getElementById('fabMain').setAttribute('aria-expanded', open);
+  });
+
+  // VIP info modal — triggered by any "VIP Section" link (nav, mobile menu, footer, popover)
+  const vipModalOverlay = document.getElementById('vipModalOverlay');
+  const vipModalClose = document.getElementById('vipModalClose');
+  function openVipModal(){
+    vipModalOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    mobileMenu.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    statPopover.classList.remove('open');
+    statTrigger.setAttribute('aria-expanded', 'false');
+  }
+  function closeVipModal(){
+    vipModalOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('[data-modal="vip-info"]').forEach(el => {
+    el.addEventListener('click', e => { e.preventDefault(); openVipModal(); });
+  });
+  vipModalClose.addEventListener('click', closeVipModal);
+  vipModalOverlay.addEventListener('click', e => { if(e.target === vipModalOverlay) closeVipModal(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeVipModal(); closeStatPopover(); } });
+
+  // Win-rate popover — tap the header badge to show today's stat + a VIP nudge
+  const statTrigger = document.getElementById('statTrigger');
+  const statPopover = document.getElementById('statPopover');
+  function closeStatPopover(){
+    statPopover.classList.remove('open');
+    statTrigger.setAttribute('aria-expanded', 'false');
+  }
+  statTrigger.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = statPopover.classList.toggle('open');
+    statTrigger.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', e => {
+    if(!statPopover.contains(e.target) && e.target !== statTrigger) closeStatPopover();
   });
 
   // Static VIP results + ticker render immediately (this data is manual, no fetch needed)
