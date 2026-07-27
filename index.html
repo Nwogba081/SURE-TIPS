@@ -59,7 +59,7 @@
   :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
 
   @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+    *:not(.ticker-track){ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
   }
 
   .container{ max-width:1200px; margin:0 auto; padding:0 32px; }
@@ -210,7 +210,8 @@
   .match-row-top{ display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; margin-bottom:12px; position:relative; z-index:1; }
   .league{ font-weight:600; color:#fff; opacity:0.92; }
   .kickoff{ font-family: var(--font-mono); background: rgba(0,0,0,0.28); padding:3px 8px; border-radius:6px; }
-  .teams{ font-family: var(--font-display); font-weight:700; font-size:1.08rem; color:#fff; margin-bottom:14px; position:relative; z-index:1; }
+  .teams{ font-family: var(--font-display); font-weight:700; font-size:1.08rem; color:#fff; margin-bottom:14px; position:relative; z-index:1; display:flex; align-items:center; flex-wrap:wrap; gap:2px; }
+  .teams .team-badge{ width:22px; height:22px; border-radius:50%; object-fit:cover; background:#fff; flex-shrink:0; margin:0 2px; }
   .teams .vs{ opacity:0.6; font-weight:400; padding: 0 6px; }
   .match-row-bottom{ display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
   .pick-tag{ font-size:0.76rem; font-weight:700; color:#1a1206; background: var(--gold); padding:5px 11px; border-radius:999px; letter-spacing:0.01em; }
@@ -413,6 +414,7 @@
       <nav class="nav-links" aria-label="Primary">
         <button class="nav-link active" data-goto="home">Home</button>
         <button class="nav-link" data-goto="free">Free Predictions</button>
+		<button class="nav-link" data-goto="free">VIP Section</button>
         <button class="nav-link" data-goto="vip">VIP Results</button>
         <button class="nav-link" data-goto="support">Support</button>
       </nav>
@@ -457,7 +459,11 @@
           </div>
           <div class="hero-spotlight">
             <div class="spotlight-label">Today's top pick</div>
-            <div class="spot-carousel" id="spotCarousel"></div>
+            <div class="spot-carousel" id="spotCarousel">
+              <div class="spot-slide is-active" style="align-items:center; justify-content:center; opacity:1;">
+                <span style="color:rgba(255,255,255,0.75); font-family:var(--font-mono); font-size:0.82rem;">Loading today's pick…</span>
+              </div>
+            </div>
             <div class="spot-dots" id="spotDots"></div>
           </div>
         </div>
@@ -473,7 +479,7 @@
             <h2>Today's featured matches</h2>
             <span class="sub" id="todayDate"></span>
           </div>
-          <div class="matches-grid" id="featuredMatches"></div>
+          <div class="matches-grid" id="featuredMatches"><p style="color:var(--text-mute); font-size:0.85rem;">Loading fixtures…</p></div>
         </div>
         <aside class="sidebar">
           <div class="panel">
@@ -518,7 +524,7 @@
             <span class="sub">No sign-up needed</span>
           </div>
           <div class="date-heading" id="freeDateHeading"></div>
-          <div class="matches-grid" id="freeMatches"></div>
+          <div class="matches-grid" id="freeMatches"><p style="color:var(--text-mute); font-size:0.85rem;">Loading fixtures…</p></div>
           <p class="vip-note">Want the full slate plus higher-odds VIP picks? <a href="#" data-goto="support" style="color:var(--gold); font-weight:600;">Join VIP →</a></p>
         </div>
         <aside class="sidebar">
@@ -612,7 +618,7 @@
   <footer class="site-footer">
     <div class="container footer-grid">
       <div>
-        <div class="brand">SURE<span class="accent">TIPS</span></div>
+       <div class="brand">SURE<span class="accent">TIPS</span></div>
         <p class="footer-tagline"><b>SURE TIPS</b>delivers reliable football predictions backed by expert analysis and smart data insights.<br> Get daily match tips, high-confidence picks, and accurate odds across top leagues worldwide. <br>Designed for both beginners and experienced bettors, SURE TIPS helps you make informed decisions with ease.
 
 <br>Stay consistent. Stay winning with SURE TIPS. ⚽📈</p>
@@ -622,6 +628,7 @@
         <ul>
           <li><button data-goto="home">Home</button></li>
           <li><button data-goto="free">Free Predictions</button></li>
+		  <li><button data-goto="free">VIP Section</button></li>
           <li><button data-goto="vip">VIP Results</button></li>
           <li><button data-goto="support">Support</button></li>
         </ul>
@@ -658,56 +665,52 @@
 
 <script>
 /* ============================================================
-   EDIT ME — content lives in these arrays.
-   Swap in real fixtures / VIP history without touching layout.
+   EDIT ME — you only fill in ONE team plus pick, odds, and bet.
+   Everything else — the opponent, league, date, kickoff time,
+   and both club badges — is pulled live from that team's next
+   scheduled fixture on TheSportsDB.
+
+   HOW TO USE:
+   1. Get your free key at https://www.thesportsdb.com/api.php
+      (key "3" below is the public test key — fine for trying this
+      out, but swap in your own free key before going live, since
+      the shared test key is rate-limited across every site using it)
+   2. "team" = the club your pick is about. Type it as it appears
+      on TheSportsDB (most common spellings resolve fine, e.g.
+      "Man City", "Arsenal", "Real Madrid")
+   3. The site automatically finds that team's next fixture and
+      fills in the opponent, league, date/time, and both logos
+   4. pick / odds / bet are always yours to set — the API has no
+      opinion on those, only fixtures and badges
    ============================================================ */
 
-// Home hero: rotating "today's top pick" carousel (Eagle-Predict style).
-// kickoff = ISO datetime string, used to drive the live countdown.
-// homeLogo / awayLogo are placeholder club badge images for now.
+const SPORTSDB_KEY = "3"; // <-- replace with your own free key from thesportsdb.com/api.php
+
+// Home hero: rotating "today's top pick" carousel (Eagle-Predict style)
 const SPOTLIGHT = [
-  {
-    league: "Italy - Serie A",
-    date: "Sun - 26 Jul 2026",
-    kickoff: "2026-07-26T22:30:00",
-    home: "RB Bragantino", homeLogo: "https://picsum.photos/seed/bragantino/80/80",
-    away: "Coritiba", awayLogo: "https://picsum.photos/seed/coritiba/80/80",
-    pick: "RB Bragantino Win", odds: "1.66", bet: "₦100"
-  },
-  {
-    league: "England - Premier League",
-    date: "Sun - 26 Jul 2026",
-    kickoff: "2026-07-26T17:30:00",
-    home: "Arsenal", homeLogo: "https://picsum.photos/seed/arsenal/80/80",
-    away: "Man City", awayLogo: "https://picsum.photos/seed/mancity/80/80",
-    pick: "GG + Over 2.5", odds: "2.65", bet: "₦100"
-  },
-  {
-    league: "Spain - La Liga",
-    date: "Sun - 26 Jul 2026",
-    kickoff: "2026-07-26T20:00:00",
-    home: "Real Madrid", homeLogo: "https://picsum.photos/seed/realmadrid/80/80",
-    away: "Sevilla", awayLogo: "https://picsum.photos/seed/sevilla/80/80",
-    pick: "Home + Over 1.5", odds: "2.40", bet: "₦100"
-  }
+  { team: "RB Bragantino", pick: "RB Bragantino Win",   odds: "1.66", bet: "₦100" },
+  { team: "Arsenal",       pick: "GG + Over 2.5",       odds: "2.65", bet: "₦100" },
+  { team: "Real Madrid",   pick: "Home + Over 1.5",     odds: "2.40", bet: "₦100" }
 ];
 
 // Home: 1-3 featured matches for today
 const FEATURED = [
-  { league: "England - Premier League", time: "17:30", home: "Arsenal", away: "Man City", pick: "GG + Over 2.5", odds: "2.65" },
-  { league: "Spain - La Liga", time: "20:00", home: "Real Madrid", away: "Sevilla", pick: "Home + Over 1.5", odds: "2.40" }
+  { team: "Arsenal",     pick: "GG + Over 2.5",   odds: "2.65" },
+  { team: "Real Madrid", pick: "Home + Over 1.5", odds: "2.40" }
 ];
 
 // Free Predictions tab
 const FREE_PICKS = [
-  { league: "England - Championship", time: "15:00", home: "Ipswich", away: "Birmingham City", pick: "Home + GG", odds: "2.75" },
-  { league: "Netherlands - Eredivisie", time: "20:00", home: "Excelsior Rotterdam", away: "NEC Nijmegen", pick: "Away + Over 1.5", odds: "2.75" },
-  { league: "Spain - LaLiga Hypermotion", time: "17:30", home: "Almeria", away: "CD Legenes", pick: "Home + Over 2.5", odds: "2.95" },
-  { league: "Norway - Eliteserien", time: "13:30", home: "Valerenga", away: "Viking", pick: "Away win", odds: "2.90" },
-  { league: "Spain - LaLiga", time: "20:00", home: "Alaves", away: "Osasuna", pick: "GG + Over 2.5", odds: "2.60" }
+  { team: "Ipswich",             pick: "Home + GG",       odds: "2.75" },
+  { team: "Excelsior Rotterdam", pick: "Away + Over 1.5", odds: "2.75" },
+  { team: "Almeria",             pick: "Home + Over 2.5", odds: "2.95" },
+  { team: "Valerenga",           pick: "Away win",        odds: "2.90" },
+  { team: "Alaves",              pick: "GG + Over 2.5",   odds: "2.60" }
 ];
 
-// VIP Results tab — most recent first. result: "win" | "loss" | "void"
+// VIP Results tab — this is YOUR track record, not fetched from anywhere.
+// Keep this manual: it's a log of picks you already made and how they landed.
+// most recent first. result: "win" | "loss" | "void"
 const VIP_HISTORY = [
   { date: "11/07/26", league: "International — World Cup", time: "22:00", home: "Norway", away: "England", pick: "Away/Draw + GG", odds: "2.80", score: "1:1", result: "win" },
   { date: "11/07/26", league: "Argentina — Primera Nacional", time: "19:00", home: "Deportivo Moron", away: "Deportivo Madryn", pick: "GG", odds: "2.50", score: "2:2", result: "win" },
@@ -727,30 +730,209 @@ const VIP_HISTORY = [
 </script>
 <script>
 /* ============================================================
+   LIVE DATA LAYER — resolves a team name to its full next
+   fixture (opponent, league, date, kickoff, both badges) via
+   TheSportsDB. Falls back to placeholder badges and "TBD" text
+   if a lookup fails, so the site never breaks if the API is
+   down or a team name isn't found.
+   ============================================================ */
+(function(){
+  window.SureTipsData = window.SureTipsData || {};
+  const CACHE_KEY = "suretips_fixture_cache_v2";
+  const FALLBACK_BADGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='38' fill='%231a2140' stroke='%236b7591' stroke-width='2'/%3E%3Ctext x='40' y='48' font-size='30' text-anchor='middle' fill='%236b7591' font-family='sans-serif'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E";
+
+  let fixtureCache = {};
+  try { fixtureCache = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "{}"); } catch(e){ fixtureCache = {}; }
+
+  function saveCache(){
+    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(fixtureCache)); } catch(e){ /* storage unavailable, skip caching */ }
+  }
+
+  // Resolve a team name to its TheSportsDB team object (id + badge)
+  async function lookupTeam(name){
+    try{
+      const res = await fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/searchteams.php?t=${encodeURIComponent(name)}`);
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      return (data && data.teams && data.teams[0]) || null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  // Given a team ID, fetch its opponent's badge too (for the next fixture)
+  async function badgeForTeamId(id){
+    if(!id) return FALLBACK_BADGE;
+    try{
+      const res = await fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/lookupteam.php?id=${id}`);
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      const team = data && data.teams && data.teams[0];
+      return (team && team.strTeamBadge) ? team.strTeamBadge : FALLBACK_BADGE;
+    }catch(e){
+      return FALLBACK_BADGE;
+    }
+  }
+
+  // Full fixture resolution: team name -> { league, home, away, homeLogo, awayLogo, kickoff, date, time }
+  async function resolveFixture(teamName){
+    if(fixtureCache[teamName]) return fixtureCache[teamName];
+
+    const team = await lookupTeam(teamName);
+    if(!team){
+      const fallback = {
+        league: "Fixture unavailable", home: teamName, away: "TBD",
+        homeLogo: FALLBACK_BADGE, awayLogo: FALLBACK_BADGE,
+        kickoff: null, date: "Fixture TBD", time: "TBD"
+      };
+      fixtureCache[teamName] = fallback;
+      return fallback;
+    }
+
+    let ev = null;
+    try{
+      const res = await fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/eventsnext.php?id=${team.idTeam}`);
+      if(res.ok){
+        const data = await res.json();
+        ev = (data && data.events && data.events[0]) || null;
+      }
+    }catch(e){ /* leave ev as null, handled below */ }
+
+    let result;
+    if(!ev){
+      result = {
+        league: team.strLeague || "League TBD",
+        home: team.strTeam, away: "Opponent TBD",
+        homeLogo: team.strTeamBadge || FALLBACK_BADGE, awayLogo: FALLBACK_BADGE,
+        kickoff: null, date: "Fixture TBD", time: "TBD"
+      };
+    }else{
+      // Figure out which side our team is on, and fetch the opponent's badge
+      const isHome = ev.idHomeTeam === team.idTeam;
+      const ourBadge = team.strTeamBadge || FALLBACK_BADGE;
+      const opponentId = isHome ? ev.idAwayTeam : ev.idHomeTeam;
+      const opponentBadge = await badgeForTeamId(opponentId);
+      const kickoff = (ev.dateEvent && ev.strTime) ? `${ev.dateEvent}T${ev.strTime}` : null;
+      result = {
+        league: ev.strLeague || team.strLeague || "League TBD",
+        home: isHome ? ev.strHomeTeam : ev.strAwayTeam,
+        away: isHome ? ev.strAwayTeam : ev.strHomeTeam,
+        homeLogo: isHome ? ourBadge : opponentBadge,
+        awayLogo: isHome ? opponentBadge : ourBadge,
+        kickoff: kickoff,
+        date: kickoff ? new Date(kickoff).toLocaleDateString(undefined, { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) : "Fixture TBD",
+        time: kickoff ? kickoff.slice(11,16) : "TBD"
+      };
+    }
+
+    fixtureCache[teamName] = result;
+    saveCache();
+    return result;
+  }
+
+  // Enrich a { team, pick, odds, bet } entry with the full live fixture, keeping pick/odds/bet untouched
+  async function enrichPick(entry){
+    const fixture = await resolveFixture(entry.team);
+    return Object.assign({}, fixture, {
+      pick: entry.pick,
+      odds: entry.odds,
+      bet: entry.bet
+    });
+  }
+
+  window.SureTipsData.enrichAll = async function(list){
+    return Promise.all(list.map(enrichPick));
+  };
+})();
+</script>
+<script>
+/* ============================================================
    RENDER — no need to edit below this line
    ============================================================ */
 (function(){
 
+  // Tab navigation + mobile menu + FAB wire up immediately —
+  // this must not wait on the network fetch below.
+  const tabs = document.querySelectorAll('.tab');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+  function goTo(id){
+    tabs.forEach(t => t.classList.toggle('active', t.id === id));
+    navLinks.forEach(b => b.classList.toggle('active', b.dataset.goto === id));
+    mobileMenu.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    window.scrollTo({ top:0, behavior:'auto' });
+  }
+  document.querySelectorAll('[data-goto]').forEach(el => {
+    el.addEventListener('click', e => { e.preventDefault(); goTo(el.dataset.goto); });
+  });
+
+  hamburgerBtn.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburgerBtn.setAttribute('aria-expanded', open);
+  });
+
+  const fab = document.getElementById('fabWrap');
+  document.getElementById('fabMain').addEventListener('click', () => {
+    const open = fab.classList.toggle('open');
+    document.getElementById('fabMain').setAttribute('aria-expanded', open);
+  });
+
+  // Static VIP results + ticker render immediately (this data is manual, no fetch needed)
   function matchCardHTML(m, showResult){
     const resultHTML = showResult
       ? `<span class="result-pill">${m.score} ${m.result === 'win' ? '<span class="icon-win">✓</span>' : '<span class="icon-loss">✕</span>'}</span>`
       : `<span class="odds"><small>odds </small>${m.odds}</span>`;
+    const homeBadge = m.homeLogo ? `<img class="team-badge" src="${m.homeLogo}" alt="${m.home} badge" loading="lazy">` : '';
+    const awayBadge = m.awayLogo ? `<img class="team-badge" src="${m.awayLogo}" alt="${m.away} badge" loading="lazy">` : '';
     return `
       <div class="match-card">
         <div class="match-row-top">
           <span class="league">${m.league}</span>
-          <span class="kickoff">${m.time}</span>
+          <span class="kickoff">${m.time || ''}</span>
         </div>
-        <div class="teams">${m.home}<span class="vs">vs</span>${m.away}</div>
+        <div class="teams">${homeBadge}${m.home}<span class="vs">vs</span>${m.away}${awayBadge}</div>
         <div class="match-row-bottom">
           <span class="pick-tag">${m.pick}</span>
           ${resultHTML}
         </div>
       </div>`;
   }
+  window.SureTipsRender = window.SureTipsRender || {};
+  window.SureTipsRender.matchCardHTML = matchCardHTML;
+
+  let lastDate = null, vipHTML = '';
+  VIP_HISTORY.forEach(m => {
+    if(m.date !== lastDate){ vipHTML += `<div class="date-heading">${m.date}</div>`; lastDate = m.date; }
+    vipHTML += matchCardHTML(m, true);
+  });
+  document.getElementById('vipResults').innerHTML = vipHTML;
+
+  const tickerItems = VIP_HISTORY.map(m =>
+    `<span class="chip">${m.home} v ${m.away} <span class="${m.result === 'win' ? 'win' : 'loss'}">${m.result === 'win' ? '✓' : '✕'} ${m.score}</span></span>`
+  ).join('');
+  document.getElementById('tickerTrack').innerHTML = tickerItems + tickerItems;
+
+  const today = new Date();
+  document.getElementById('todayDate').textContent = today.toLocaleDateString(undefined, { day:'2-digit', month:'short' });
+  document.getElementById('freeDateHeading').textContent = "TODAY · " + today.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
+
+})();
+</script>
+<script>
+/* ============================================================
+   ASYNC RENDER — spotlight carousel + featured/free picks,
+   which depend on the live TheSportsDB fetch for logos/kickoff.
+   ============================================================ */
+(async function(){
+
+  const matchCardHTML = window.SureTipsRender.matchCardHTML;
 
   /* ---------- Spotlight carousel: auto-rotating "today's top pick" ---------- */
   function formatCountdown(ms){
+    if(ms === null || isNaN(ms)) return "TBD";
     if(ms <= 0) return "Kicked off";
     const totalSec = Math.floor(ms/1000);
     const h = Math.floor(totalSec/3600);
@@ -760,13 +942,14 @@ const VIP_HISTORY = [
   }
 
   function spotSlideHTML(m, idx){
+    const timeLabel = m.kickoff ? m.kickoff.slice(11,16) : "TBD";
     return `
       <div class="spot-slide" data-idx="${idx}">
         <div class="spot-top">
           <span class="league">${m.league}</span>
           <span class="meta">
-            <span class="kickoff">${m.kickoff.slice(11,16)}</span>
-            <span class="spot-date">${m.date}</span>
+            <span class="kickoff">${timeLabel}</span>
+            <span class="spot-date">${m.date || ''}</span>
           </span>
         </div>
         <div class="spot-teams">
@@ -776,7 +959,7 @@ const VIP_HISTORY = [
           </div>
           <div class="spot-vs-block">
             <span class="vs-label">V.S</span>
-            <span class="spot-countdown" data-countdown="${m.kickoff}">--h --m --s</span>
+            <span class="spot-countdown" data-countdown="${m.kickoff || ''}">--h --m --s</span>
           </div>
           <div class="spot-club">
             <img src="${m.awayLogo}" alt="${m.away} badge" loading="lazy">
@@ -802,8 +985,16 @@ const VIP_HISTORY = [
 
   const carouselEl = document.getElementById('spotCarousel');
   const dotsEl = document.getElementById('spotDots');
-  carouselEl.innerHTML = SPOTLIGHT.map(spotSlideHTML).join('');
-  dotsEl.innerHTML = SPOTLIGHT.map((_, i) => `<button data-slide="${i}" aria-label="Show pick ${i+1}"></button>`).join('');
+
+  // Fetch live badges + kickoff for the spotlight, and live badges for featured/free lists
+  const [spotlightLive, featuredLive, freeLive] = await Promise.all([
+    window.SureTipsData.enrichAll(SPOTLIGHT),
+    window.SureTipsData.enrichAll(FEATURED),
+    window.SureTipsData.enrichAll(FREE_PICKS)
+  ]);
+
+  carouselEl.innerHTML = spotlightLive.map(spotSlideHTML).join('');
+  dotsEl.innerHTML = spotlightLive.map((_, i) => `<button data-slide="${i}" aria-label="Show pick ${i+1}"></button>`).join('');
 
   const slides = carouselEl.querySelectorAll('.spot-slide');
   const dots = dotsEl.querySelectorAll('button');
@@ -829,6 +1020,7 @@ const VIP_HISTORY = [
   function tickCountdowns(){
     const now = Date.now();
     carouselEl.querySelectorAll('[data-countdown]').forEach(el => {
+      if(!el.dataset.countdown){ el.textContent = "TBD"; return; }
       const kickoff = new Date(el.dataset.countdown).getTime();
       el.textContent = formatCountdown(kickoff - now);
     });
@@ -837,57 +1029,10 @@ const VIP_HISTORY = [
   setInterval(tickCountdowns, 1000);
 
   // Home — featured matches
-  document.getElementById('featuredMatches').innerHTML = FEATURED.map(m => matchCardHTML(m, false)).join('');
+  document.getElementById('featuredMatches').innerHTML = featuredLive.map(m => matchCardHTML(m, false)).join('');
 
   // Free predictions
-  document.getElementById('freeMatches').innerHTML = FREE_PICKS.map(m => matchCardHTML(m, false)).join('');
-
-  const today = new Date();
-  document.getElementById('todayDate').textContent = today.toLocaleDateString(undefined, { day:'2-digit', month:'short' });
-  document.getElementById('freeDateHeading').textContent = "TODAY · " + today.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
-
-  // VIP results, grouped by date
-  let lastDate = null, vipHTML = '';
-  VIP_HISTORY.forEach(m => {
-    if(m.date !== lastDate){ vipHTML += `<div class="date-heading">${m.date}</div>`; lastDate = m.date; }
-    vipHTML += matchCardHTML(m, true);
-  });
-  document.getElementById('vipResults').innerHTML = vipHTML;
-
-  // Ticker — built from VIP_HISTORY, duplicated once for a seamless loop
-  const tickerItems = VIP_HISTORY.map(m =>
-    `<span class="chip">${m.home} v ${m.away} <span class="${m.result === 'win' ? 'win' : 'loss'}">${m.result === 'win' ? '✓' : '✕'} ${m.score}</span></span>`
-  ).join('');
-  document.getElementById('tickerTrack').innerHTML = tickerItems + tickerItems;
-
-  // Tab navigation — shared by top nav, mobile menu, footer links and in-page CTAs
-  const tabs = document.querySelectorAll('.tab');
-  const navLinks = document.querySelectorAll('.nav-link');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-
-  function goTo(id){
-    tabs.forEach(t => t.classList.toggle('active', t.id === id));
-    navLinks.forEach(b => b.classList.toggle('active', b.dataset.goto === id));
-    mobileMenu.classList.remove('open');
-    hamburgerBtn.setAttribute('aria-expanded', 'false');
-    window.scrollTo({ top:0, behavior:'auto' });
-  }
-  document.querySelectorAll('[data-goto]').forEach(el => {
-    el.addEventListener('click', e => { e.preventDefault(); goTo(el.dataset.goto); });
-  });
-
-  hamburgerBtn.addEventListener('click', () => {
-    const open = mobileMenu.classList.toggle('open');
-    hamburgerBtn.setAttribute('aria-expanded', open);
-  });
-
-  // Floating community button
-  const fab = document.getElementById('fabWrap');
-  document.getElementById('fabMain').addEventListener('click', () => {
-    const open = fab.classList.toggle('open');
-    document.getElementById('fabMain').setAttribute('aria-expanded', open);
-  });
+  document.getElementById('freeMatches').innerHTML = freeLive.map(m => matchCardHTML(m, false)).join('');
 
 })();
 </script>
