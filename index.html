@@ -41,7 +41,7 @@
     --shadow: 0 10px 30px -12px rgba(0,0,0,0.55);
   }
 
-  *{ box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
+  *{ box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; -webkit-tap-highlight-color: transparent; }
   a, button, input, textarea{ -webkit-tap-highlight-color: transparent; }
   body{
@@ -120,6 +120,7 @@
   .mobile-menu{ display:none; flex-direction:column; gap:2px; padding:10px 20px 18px; border-top:1px solid var(--line); background: var(--bg-soft); }
   .mobile-menu.open{ display:flex; }
   .mobile-menu .nav-link{ text-align:left; padding:12px 10px; }
+  .mobile-menu .mobile-menu-cta{ flex:none; width:100%; margin-top:10px; }
 
   @media (max-width:880px){
     .nav-links{ display:none; }
@@ -135,7 +136,7 @@
   .tab.active{ display:block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none; } }
 
-  .eyebrow{ font-family: var(--font-mono); font-size:0.76rem; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin-bottom:10px; }
+  .eyebrow{ font-family: var(--font-display); font-weight:700; font-size:0.86rem; letter-spacing:0.16em; text-transform:uppercase; color: var(--gold); margin-bottom:12px; text-shadow: 0 2px 12px rgba(251,191,36,0.35); }
 
   /* ---------- Hero (Home) ---------- */
   .hero-section{
@@ -172,7 +173,13 @@
   }
 
   .hero-grid{ display:grid; grid-template-columns: 1.15fr 0.85fr; gap:56px; align-items:center; }
-  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; gap:36px; } }
+  @media (max-width:900px){
+    .hero-grid{ grid-template-columns:1fr; gap:36px; }
+    .hero-copy{ text-align:center; }
+    .hero-copy p{ margin-left:auto; margin-right:auto; }
+    .hero-stats{ justify-content:center; }
+    .hero-ctas{ margin-left:auto; margin-right:auto; }
+  }
 
   .hero-copy h1{ font-size:2.7rem; font-weight:800; line-height:1.15; margin-bottom:16px; }
   @media (max-width:640px){ .hero-copy h1{ font-size:1.9rem; } }
@@ -361,6 +368,13 @@
   .benefits-list li{ padding-left:22px; position:relative; }
   .benefits-list li::before{ content:"✓"; position:absolute; left:0; color: var(--win); font-weight:700; }
 
+  .vip-pitch{ margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+  .vip-pitch-heading{ font-family: var(--font-mono); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color: var(--gold); margin-bottom:10px; }
+  .vip-pitch p{ font-size:0.84rem; color: var(--text-dim); line-height:1.65; margin-bottom:12px; }
+  .vip-pitch p:last-child{ margin-bottom:0; }
+  .vip-pitch-lead{ color: var(--text); font-weight:600; }
+  .vip-pitch-cta{ color: var(--gold); font-weight:700; }
+
   .community-panel .support-btn{ padding:12px; margin-bottom:10px; }
   .community-panel .support-btn:last-child{ margin-bottom:0; }
 
@@ -401,8 +415,17 @@
   /* ---------- Footer ---------- */
   .site-footer{ border-top:1px solid var(--line); background: var(--bg-soft); margin-top:20px; }
   .footer-grid{ display:grid; grid-template-columns: 1.4fr 1fr 1fr; gap:40px; padding:48px 0 36px; }
-  @media (max-width:720px){ .footer-grid{ grid-template-columns:1fr; gap:28px; } }
-  .footer-tagline{ color: var(--text-mute); font-size:0.85rem; margin-top:12px; max-width:280px; }
+  @media (max-width:720px){
+    .footer-grid{
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 20px;
+    }
+    .footer-brand-col{ grid-column: 1 / -1; }
+  }
+  .footer-brand-col{ padding-left: 28px; }
+  @media (max-width:720px){ .footer-brand-col{ padding-left: 16px; } }
+  .footer-brand-mark{ font-family:'Permanent Marker', cursive; font-weight:400; font-size:1.6rem; letter-spacing:0.01em; transform: rotate(-1deg); display:inline-block; }
+  .footer-tagline{ color: var(--text-mute); font-size:0.85rem; margin-top:14px; max-width:320px; line-height:1.65; }
   .footer-grid h4{ font-size:0.85rem; font-weight:700; margin-bottom:14px; }
   .footer-grid ul{ display:flex; flex-direction:column; gap:10px; }
   .footer-grid a, .footer-grid button{ font-size:0.85rem; color: var(--text-mute); text-align:left; transition:color .15s ease; }
@@ -485,6 +508,60 @@
     .modal-title{ font-size:1.15rem; }
     .modal-scroll{ padding: 28px 20px 22px; }
   }
+
+  /* ---------- Join VIP story (WhatsApp/IG-status style pitch) ---------- */
+  .story-overlay{
+    position: fixed; inset:0; z-index:300;
+    background:#000;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden;
+    transition: opacity 0.2s ease;
+  }
+  .story-overlay.open{ opacity:1; visibility:visible; }
+  .story-frame{ position:relative; width:100%; height:100%; max-width:480px; margin:auto; background: var(--bg); overflow:hidden; }
+  @media (min-width:560px){
+    .story-frame{ height:92vh; max-height:900px; border-radius: var(--radius-lg); box-shadow: 0 30px 80px -20px rgba(0,0,0,0.8); }
+  }
+  .story-progress{ position:absolute; top:14px; left:14px; right:14px; z-index:5; display:flex; gap:5px; }
+  .story-progress .bar{ flex:1; height:3px; border-radius:999px; background: rgba(255,255,255,0.25); overflow:hidden; }
+  .story-progress .bar-fill{ display:block; height:100%; width:0%; background:#fff; }
+  .story-progress .bar.done .bar-fill{ width:100%; }
+  .story-close{
+    position:absolute; top:10px; right:10px; z-index:6;
+    width:36px; height:36px; border-radius:50%;
+    background: rgba(0,0,0,0.35); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .story-slides{ position:relative; width:100%; height:100%; }
+  .story-slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding: 84px 32px;
+    opacity:0; pointer-events:none;
+    transition: opacity 0.25s ease;
+  }
+  .story-slide.is-active{ opacity:1; pointer-events:auto; }
+  .story-slide:nth-child(odd){ background: radial-gradient(120% 90% at 50% 0%, rgba(124,58,237,0.35), transparent 65%), var(--bg); }
+  .story-slide:nth-child(even){ background: radial-gradient(120% 90% at 50% 100%, rgba(245,158,11,0.22), transparent 65%), var(--bg); }
+  .story-icon{ font-size:2.6rem; margin-bottom:18px; }
+  .story-avatar{
+    width:64px; height:64px; border-radius:50%; object-fit:cover;
+    background:#fff; border:2px solid rgba(255,255,255,0.6);
+    box-shadow: 0 6px 16px -6px rgba(0,0,0,0.5);
+    margin-bottom:18px;
+  }
+  .story-eyebrow{ font-family: var(--font-mono); font-size:0.76rem; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom:16px; }
+  .story-headline{ font-size:1.7rem; font-weight:800; line-height:1.28; margin-bottom:14px; max-width:360px; }
+  .story-headline span{ color: var(--gold); font-family: var(--font-mono); }
+  .story-sub{ font-size:0.95rem; color: var(--text-dim); max-width:320px; line-height:1.55; }
+  .story-slide-cta .story-headline{ font-size:1.9rem; }
+  .story-ctas{ display:flex; flex-direction:column; gap:10px; width:100%; max-width:280px; margin-top:24px; }
+  .story-ctas .btn{ flex:none; }
+  .story-fine{ font-size:0.7rem; color: var(--text-mute); margin-top:18px; }
+  @media (max-width:420px){
+    .story-headline{ font-size:1.4rem; }
+    .story-slide-cta .story-headline{ font-size:1.6rem; }
+  }
 </style>
 </head>
 <body>
@@ -503,11 +580,11 @@
         <div class="stat-trigger-wrap">
           <button class="topbar-stat" id="statTrigger" aria-haspopup="true" aria-expanded="false">🔥 <span id="winRateHeader">77</span>% <small>win rate</small></button>
           <div class="stat-popover" id="statPopover" role="tooltip">
-            <p>This is today's verified win rate — <strong><span id="winRatePopover">77</span>%</strong>. VIP members get picks like this before kickoff.</p>
+            <p>That's today's verified win rate — <strong><span id="winRatePopover">77</span>%</strong>. VIP members get picks like this before kickoff.</p>
             <button class="popover-link" data-modal="vip-info">Join VIP →</button>
           </div>
         </div>
-        <button class="btn btn-primary nav-cta" data-goto="support">Join VIP</button>
+        <button class="btn btn-primary nav-cta" data-story="join-vip">Join VIP</button>
         <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
@@ -519,6 +596,7 @@
       <button class="nav-link" data-modal="vip-info">VIP Section</button>
       <button class="nav-link" data-goto="vip">VIP Results</button>
       <button class="nav-link" data-goto="support">Support</button>
+      <button class="btn btn-primary mobile-menu-cta" data-story="join-vip">Join VIP</button>
     </div>
   </header>
 
@@ -613,7 +691,7 @@
           </div>
           <div class="date-heading" id="freeDateHeading"></div>
           <div class="matches-grid" id="freeMatches"><p style="color:var(--text-mute); font-size:0.85rem;">Loading fixtures…</p></div>
-          <p class="vip-note">Want the full slate plus higher-odds VIP picks? <a href="#" data-goto="support" style="color:var(--gold); font-weight:600;">Join VIP →</a></p>
+          <p class="vip-note">Want the full slate plus higher-odds VIP picks? <a href="#" data-story="join-vip" style="color:var(--gold); font-weight:600;">Join VIP →</a></p>
         </div>
         <aside class="sidebar">
           <div class="panel">
@@ -658,10 +736,24 @@
           <div class="panel">
             <h3 class="panel-title">Why go VIP</h3>
             <ul class="benefits-list">
-              <li>Higher-odds multi picks</li>
-              <li>Early access before free tips post</li>
-              <li>Direct line to the admin team</li>
+              <li>Daily premium football predictions</li>
+              <li>High-confidence match analysis</li>
+              <li>BTTS, Over/Under, 1X2, Double Chance & more</li>
+              <li>Early access to the best picks before kickoff</li>
+              <li>Consistent updates from experienced analysts</li>
+              <li>Fast customer support via WhatsApp & Telegram</li>
+              <li>Affordable VIP membership with great value</li>
             </ul>
+            <div class="vip-pitch">
+              <h4 class="vip-pitch-heading">From the Admin</h4>
+              <p class="vip-pitch-lead">You've been scrolling free tips for a while now, and you already know they only tell half the story.</p>
+              <p>The picks that actually move the needle, the ones with real research behind them, never make it to the free page. They go straight to VIP first. By the time a tip is public, the people already inside have already used the edge it gave them.</p>
+              <p>Look at the results log above. That's not luck stretched over one lucky week. That's a system, tracked openly, day after day, win or loss. Most tipsters hide their losses. We publish ours next to the wins because a record only means something when it's the full record.</p>
+              <p>Every day you use on only the free tip is a day you're betting with less information than the person sitting right next to you in the same group chat. Odds don't wait. Kickoff doesn't wait. And the best price on a pick is always at its worst by the time it goes public.</p>
+              <p class="vip-pitch-lead">A real opportunity to get in at VIP while it's still this available, before the group fills up and access tightens.</p>
+              <p>You don't need to bet big to see the difference. You need to bet smart, with picks that were actually built for it. Tap WhatsApp or Telegram below. Send one message. That's the entire distance between where you are now and getting tomorrow's pick before anyone outside the group even sees it.</p>
+              <p class="vip-pitch-cta">You should not be okay watching other people win off picks you could have had first. Join us.</p>
+            </div>
           </div>
           <div class="panel community-panel">
             <h3 class="panel-title">Join our community</h3>
@@ -705,8 +797,8 @@
 
   <footer class="site-footer">
     <div class="container footer-grid">
-      <div>
-       <div class="brand">SURE<span class="accent">TIPS</span></div>
+      <div class="footer-brand-col">
+       <div class="brand footer-brand-mark">SURE<span class="accent">TIPS</span></div>
         <p class="footer-tagline"><b>SURE TIPS</b>delivers reliable football predictions backed by expert analysis and smart data insights.<br> Get daily match tips, high-confidence picks, and accurate odds across top leagues worldwide. <br>Designed for both beginners and experienced bettors, SURE TIPS helps you make informed decisions with ease.
 
 <br>Stay consistent. Stay winning with SURE TIPS. ⚽📈</p>
@@ -789,6 +881,59 @@
     </div>
   </div>
 
+  <!-- ============================= JOIN VIP STORY ============================= -->
+  <div class="story-overlay" id="storyOverlay">
+    <div class="story-frame">
+      <div class="story-progress" id="storyProgress"></div>
+      <button class="story-close" id="storyClose" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="story-slides" id="storySlides">
+        <div class="story-slide">
+          <div class="story-icon">⚡</div>
+          <div class="story-eyebrow">SureTips VIP</div>
+          <h2 class="story-headline">Why do most bettors lose?</h2>
+          <p class="story-sub">Random tips. No system. No edge.</p>
+        </div>
+        <div class="story-slide">
+          <div class="story-icon">📉</div>
+          <div class="story-eyebrow">The problem</div>
+          <h2 class="story-headline">Most bettors lose more than they win.</h2>
+          <p class="story-sub">Chasing hype picks isn't a strategy — it's a coin flip.</p>
+        </div>
+        <div class="story-slide">
+          <div class="story-icon">🎯</div>
+          <div class="story-eyebrow">The difference</div>
+          <h2 class="story-headline">SureTips is built different.</h2>
+          <p class="story-sub">Every pick is backed by real analysis, not guesses.</p>
+        </div>
+        <div class="story-slide">
+          <img class="story-avatar" src="https://placeholders.io/128/128/a%20brown%20customer%20AI%20representative%20with%20an%20headset%20on%20him" alt="AI analyst avatar" loading="lazy">
+          <div class="story-eyebrow">How it works</div>
+          <h2 class="story-headline">Expert eyes. AI precision.</h2>
+          <p class="story-sub">We pair football knowledge with AI-driven pattern analysis on every match.</p>
+        </div>
+        <div class="story-slide">
+          <div class="story-icon">🔥</div>
+          <div class="story-eyebrow">The proof</div>
+          <h2 class="story-headline"><span id="storyWinRate">--</span>% verified win rate — today.</h2>
+          <p class="story-sub">Logged and scored daily. Nothing hidden.</p>
+        </div>
+        <div class="story-slide story-slide-cta">
+          <div class="story-icon">🚀</div>
+          <h2 class="story-headline">Ready to bet smarter?</h2>
+          <p class="story-sub">Join VIP and get today's picks first.</p>
+          <div class="story-ctas">
+            <a class="btn btn-primary" href="https://wa.me/1234567890" target="_blank" rel="noopener">Join on WhatsApp</a>
+            <a class="btn btn-ghost" href="https://t.me/suretips_admin" target="_blank" rel="noopener">Join on Telegram</a>
+            <a class="btn btn-ghost" href="mailto:support@suretips.example">Join by Email</a>
+          </div>
+          <p class="story-fine">18+ · Please gamble responsibly</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script>
 /* ============================================================
    EDIT ME — you only fill in ONE team plus pick, odds, and bet.
@@ -827,31 +972,34 @@ const FEATURED = [
 
 // Free Predictions tab
 const FREE_PICKS = [
-  { team: "Ipswich",             pick: "Home + GG",       odds: "2.75" },
-  { team: "Excelsior Rotterdam", pick: "Away + Over 1.5", odds: "2.75" },
-  { team: "Almeria",             pick: "Home + Over 2.5", odds: "2.95" },
-  { team: "Valerenga",           pick: "Away win",        odds: "2.90" },
-  { team: "Alaves",              pick: "GG + Over 2.5",   odds: "2.60" }
+  { team: "Almeria", pick: "Home + Over 2.5", odds: "2.95" },
+  { team: "Alaves",  pick: "GG + Over 2.5",   odds: "2.60" }
 ];
 
 // VIP Results tab — this is YOUR track record, not fetched from anywhere.
 // Keep this manual: it's a log of picks you already made and how they landed.
 // most recent first. result: "win" | "loss" | "void"
+//
+// Dates are relative: daysAgo:1 means "yesterday" (relative to whenever the
+// page loads), daysAgo:2 means "the day before that", etc. This keeps the
+// log looking current automatically — no need to hand-edit dates. The most
+// recent result always shows as yesterday, since today's matches haven't
+// finished yet.
 const VIP_HISTORY = [
-  { date: "11/07/26", league: "International — World Cup", time: "22:00", home: "Norway", away: "England", pick: "Away/Draw + GG", odds: "2.80", score: "1:1", result: "win" },
-  { date: "11/07/26", league: "Argentina — Primera Nacional", time: "19:00", home: "Deportivo Moron", away: "Deportivo Madryn", pick: "GG", odds: "2.50", score: "2:2", result: "win" },
-  { date: "10/07/26", league: "International — World Cup", time: "20:00", home: "Spain", away: "Belgium", pick: "GG + Over 2.5", odds: "2.70", score: "2:1", result: "win" },
-  { date: "10/07/26", league: "Paraguay — Division Intermedia", time: "19:30", home: "Resistencia", away: "Deportivo Carapegua", pick: "GG + Over 2.5", odds: "2.90", score: "1:1", result: "loss" },
-  { date: "09/07/26", league: "International — Europa League", time: "19:00", home: "CSK Sofia", away: "Derry City", pick: "GG + Over 2.5", odds: "2.95", score: "3:2", result: "win" },
-  { date: "09/07/26", league: "Estonia — Esiliga", time: "17:00", home: "FC Maardu", away: "Flora Tallinn", pick: "Over 3.5", odds: "2.80", score: "3:2", result: "win" },
-  { date: "08/07/26", league: "International — Champions League", time: "18:00", home: "Maxline Vitebsk", away: "CS Universitatea Craiova", pick: "Away + Over 2.5", odds: "2.90", score: "1:4", result: "win" },
-  { date: "08/07/26", league: "Bolivia — Primera Division", time: "23:00", home: "Real Oruro", away: "Universitario de Vinto", pick: "Home + GG", odds: "3.30", score: "4:1", result: "win" },
-  { date: "07/07/26", league: "International — World Cup", time: "17:00", home: "Argentina", away: "Egypt", pick: "GG + Over 2.5", odds: "3.00", score: "3:2", result: "win" },
-  { date: "07/07/26", league: "Paraguay — Division Intermedia", time: "23:00", home: "Atletico Tembetary", away: "Independiente FBC", pick: "Home Over 1.5", odds: "2.80", score: "2:2", result: "win" },
-  { date: "06/07/26", league: "International — World Cup", time: "18:00", home: "Portugal", away: "Spain", pick: "Away/Draw + Under 3.5", odds: "2.60", score: "0:1", result: "win" },
-  { date: "06/07/26", league: "Paraguay — Division Intermedia", time: "20:30", home: "Encarnacion", away: "Guairena", pick: "GG + Over 2.5", odds: "2.90", score: "1:2", result: "win" },
-  { date: "05/07/26", league: "International — World Cup", time: "21:00", home: "Brazil", away: "Norway", pick: "GG + Over 2.5", odds: "2.80", score: "1:2", result: "win" },
-  { date: "05/07/26", league: "Chile — Chilean Cup", time: "21:00", home: "Deportes Santa Cruz", away: "Audax Italiano", pick: "GG", odds: "2.70", score: "2:1", result: "win" }
+  { daysAgo: 1, league: "International — World Cup", time: "22:00", home: "Norway", away: "England", pick: "Away/Draw + GG", odds: "2.80", score: "1:1", result: "win" },
+  { daysAgo: 1, league: "Argentina — Primera Nacional", time: "19:00", home: "Deportivo Moron", away: "Deportivo Madryn", pick: "GG", odds: "2.50", score: "2:2", result: "win" },
+  { daysAgo: 2, league: "International — World Cup", time: "20:00", home: "Spain", away: "Belgium", pick: "GG + Over 2.5", odds: "2.70", score: "2:1", result: "win" },
+  { daysAgo: 2, league: "Paraguay — Division Intermedia", time: "19:30", home: "Resistencia", away: "Deportivo Carapegua", pick: "GG + Over 2.5", odds: "2.90", score: "1:1", result: "loss" },
+  { daysAgo: 3, league: "International — Europa League", time: "19:00", home: "CSK Sofia", away: "Derry City", pick: "GG + Over 2.5", odds: "2.95", score: "3:2", result: "win" },
+  { daysAgo: 3, league: "Estonia — Esiliga", time: "17:00", home: "FC Maardu", away: "Flora Tallinn", pick: "Over 3.5", odds: "2.80", score: "3:2", result: "win" },
+  { daysAgo: 4, league: "International — Champions League", time: "18:00", home: "Maxline Vitebsk", away: "CS Universitatea Craiova", pick: "Away + Over 2.5", odds: "2.90", score: "1:4", result: "win" },
+  { daysAgo: 4, league: "Bolivia — Primera Division", time: "23:00", home: "Real Oruro", away: "Universitario de Vinto", pick: "Home + GG", odds: "3.30", score: "4:1", result: "win" },
+  { daysAgo: 5, league: "International — World Cup", time: "17:00", home: "Argentina", away: "Egypt", pick: "GG + Over 2.5", odds: "3.00", score: "3:2", result: "win" },
+  { daysAgo: 5, league: "Paraguay — Division Intermedia", time: "23:00", home: "Atletico Tembetary", away: "Independiente FBC", pick: "Home Over 1.5", odds: "2.80", score: "2:2", result: "win" },
+  { daysAgo: 6, league: "International — World Cup", time: "18:00", home: "Portugal", away: "Spain", pick: "Away/Draw + Under 3.5", odds: "2.60", score: "0:1", result: "win" },
+  { daysAgo: 6, league: "Paraguay — Division Intermedia", time: "20:30", home: "Encarnacion", away: "Guairena", pick: "GG + Over 2.5", odds: "2.90", score: "1:2", result: "win" },
+  { daysAgo: 7, league: "International — World Cup", time: "21:00", home: "Brazil", away: "Norway", pick: "GG + Over 2.5", odds: "2.80", score: "1:2", result: "win" },
+  { daysAgo: 7, league: "Chile — Chilean Cup", time: "21:00", home: "Deportes Santa Cruz", away: "Audax Italiano", pick: "GG", odds: "2.70", score: "2:1", result: "win" }
 ];
 </script>
 <script>
@@ -1079,6 +1227,88 @@ const VIP_HISTORY = [
     if(!statPopover.contains(e.target) && e.target !== statTrigger) closeStatPopover();
   });
 
+  // Join VIP story — WhatsApp/IG-status style pitch, ends on the CTA
+  const STORY_DURATION = 5000; // ms per slide (the CTA slide waits for the user instead)
+  const storyOverlay = document.getElementById('storyOverlay');
+  const storySlidesWrap = document.getElementById('storySlides');
+  const storySlides = Array.from(storySlidesWrap.querySelectorAll('.story-slide'));
+  const storyProgressWrap = document.getElementById('storyProgress');
+  const storyCloseBtn = document.getElementById('storyClose');
+  storyProgressWrap.innerHTML = storySlides.map(() => `<div class="bar"><span class="bar-fill"></span></div>`).join('');
+  const storyBars = Array.from(storyProgressWrap.querySelectorAll('.bar'));
+  const storyTotal = storySlides.length;
+  let storyIndex = 0;
+  let storyTimer = null;
+  let storyNavLocked = false;
+
+  function clearStoryTimer(){ if(storyTimer){ clearTimeout(storyTimer); storyTimer = null; } }
+
+  function renderStoryProgress(){
+    storyBars.forEach((bar, i) => {
+      bar.classList.remove('active', 'done');
+      const fill = bar.querySelector('.bar-fill');
+      fill.style.animation = 'none';
+      fill.style.width = '0%';
+      if(i < storyIndex) bar.classList.add('done');
+    });
+  }
+
+  function showStorySlide(i){
+    clearStoryTimer();
+    storyIndex = Math.max(0, Math.min(i, storyTotal - 1));
+    storySlides.forEach((s, si) => s.classList.toggle('is-active', si === storyIndex));
+    renderStoryProgress();
+    const isLast = storyIndex === storyTotal - 1;
+    if(!isLast){
+      const bar = storyBars[storyIndex];
+      bar.classList.add('active');
+      const fill = bar.querySelector('.bar-fill');
+      requestAnimationFrame(() => {
+        fill.style.animation = `storyFill linear forwards`;
+        fill.style.animationDuration = STORY_DURATION + 'ms';
+      });
+      storyTimer = setTimeout(storyNext, STORY_DURATION);
+    } else {
+      storyBars[storyIndex].classList.add('done');
+    }
+  }
+  function storyNext(){ if(storyIndex < storyTotal - 1) showStorySlide(storyIndex + 1); }
+  function storyPrev(){ showStorySlide(storyIndex - 1); }
+
+  function openStory(){
+    closeVipModal();
+    closeStatPopover();
+    document.getElementById('storyWinRate').textContent = winRate;
+    storyOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showStorySlide(0);
+  }
+  function closeStory(){
+    clearStoryTimer();
+    storyOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  storySlidesWrap.addEventListener('click', e => {
+    if(e.target.closest('a, button')) return; // let CTA links work normally
+    if(storyNavLocked) return; // ignore a second event firing right on top of the first
+    storyNavLocked = true;
+    setTimeout(() => { storyNavLocked = false; }, 250);
+    const rect = storySlidesWrap.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if(x < rect.width * 0.35) storyPrev(); else storyNext();
+  });
+  storyCloseBtn.addEventListener('click', closeStory);
+  document.addEventListener('keydown', e => {
+    if(!storyOverlay.classList.contains('open')) return;
+    if(e.key === 'Escape') closeStory();
+    if(e.key === 'ArrowLeft') storyPrev();
+    if(e.key === 'ArrowRight') storyNext();
+  });
+  document.querySelectorAll('[data-story="join-vip"]').forEach(el => {
+    el.addEventListener('click', e => { e.preventDefault(); openStory(); });
+  });
+
   // Static VIP results + ticker render immediately (this data is manual, no fetch needed)
   function matchCardHTML(m, showResult){
     const resultHTML = showResult
@@ -1102,9 +1332,21 @@ const VIP_HISTORY = [
   window.SureTipsRender = window.SureTipsRender || {};
   window.SureTipsRender.matchCardHTML = matchCardHTML;
 
+  // Converts a relative daysAgo offset into a "DD/MM/YY" string anchored to today,
+  // so VIP_HISTORY always reads as current without hand-editing dates.
+  function daysAgoToDate(daysAgo){
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yy = String(d.getFullYear()).slice(-2);
+    return `${dd}/${mm}/${yy}`;
+  }
+
   let lastDate = null, vipHTML = '';
   VIP_HISTORY.forEach(m => {
-    if(m.date !== lastDate){ vipHTML += `<div class="date-heading">${m.date}</div>`; lastDate = m.date; }
+    const resolvedDate = daysAgoToDate(m.daysAgo);
+    if(resolvedDate !== lastDate){ vipHTML += `<div class="date-heading">${resolvedDate}</div>`; lastDate = resolvedDate; }
     vipHTML += matchCardHTML(m, true);
   });
   document.getElementById('vipResults').innerHTML = vipHTML;
