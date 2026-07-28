@@ -255,6 +255,29 @@
 
   .date-heading{ font-family: var(--font-mono); font-size:0.74rem; color: var(--text-mute); text-transform:uppercase; letter-spacing:0.08em; margin: 4px 0 2px; }
 
+  /* ---------- Skeleton loading state for prediction cards (Featured
+     Matches + today's Free Predictions) — shown before the live
+     TheSportsDB/Wikipedia lookup resolves. Flat surface colour + shimmer
+     instead of the gradient, so it reads as "loading" not "a real pick". ---------- */
+  .match-card.skeleton-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    pointer-events: none;
+  }
+  .match-card.skeleton-card::after{ display:none; }
+  .skeleton-teams-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .skeleton-line{
+    display:inline-block; border-radius:6px;
+    background: linear-gradient(90deg, var(--surface-2) 25%, rgba(255,255,255,0.08) 37%, var(--surface-2) 63%);
+    background-size: 400% 100%;
+    animation: skeletonShimmer 1.4s ease-in-out infinite;
+  }
+  .skeleton-badge{ width:22px; height:22px; border-radius:50%; flex-shrink:0; }
+  @keyframes skeletonShimmer{
+    0%{ background-position: 200% 0; }
+    100%{ background-position: -200% 0; }
+  }
+
   /* ---------- Spotlight carousel (Eagle-Predict style auto-rotating top pick) ---------- */
   .spot-carousel{
     position:relative;
@@ -668,7 +691,39 @@
             <h2>Today's featured matches</h2>
             <span class="sub" id="todayDate"></span>
           </div>
-          <div class="matches-grid" id="featuredMatches"><p style="color:var(--text-mute); font-size:0.85rem;">Loading fixtures…</p></div>
+          <div class="matches-grid" id="featuredMatches">
+            <div class="match-card skeleton-card">
+              <div class="match-row-top">
+                <span class="skeleton-line" style="width:72px; height:12px;"></span>
+                <span class="skeleton-line" style="width:42px; height:12px; border-radius:6px;"></span>
+              </div>
+              <div class="skeleton-teams-row">
+                <span class="skeleton-line skeleton-badge"></span>
+                <span class="skeleton-line" style="width:55%; height:16px;"></span>
+                <span class="skeleton-line skeleton-badge"></span>
+              </div>
+              <div class="match-row-bottom">
+                <span class="skeleton-line" style="width:92px; height:24px; border-radius:999px;"></span>
+                <span class="skeleton-line" style="width:46px; height:16px;"></span>
+              </div>
+            </div>
+            <div class="match-card skeleton-card">
+              <div class="match-row-top">
+                <span class="skeleton-line" style="width:72px; height:12px;"></span>
+                <span class="skeleton-line" style="width:42px; height:12px; border-radius:6px;"></span>
+              </div>
+              <div class="skeleton-teams-row">
+                <span class="skeleton-line skeleton-badge"></span>
+                <span class="skeleton-line" style="width:55%; height:16px;"></span>
+                <span class="skeleton-line skeleton-badge"></span>
+              </div>
+              <div class="match-row-bottom">
+                <span class="skeleton-line" style="width:92px; height:24px; border-radius:999px;"></span>
+                <span class="skeleton-line" style="width:46px; height:16px;"></span>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-ghost" data-goto="free" style="display:inline-block; width:auto; margin-top:18px; padding:12px 24px;">See more predictions →</button>
         </div>
         <aside class="sidebar">
           <div class="panel">
@@ -707,7 +762,43 @@
             <span class="sub">No sign-up needed</span>
           </div>
           <div class="date-heading" id="freeDateHeading"></div>
-          <div class="matches-grid" id="freeMatches"><p style="color:var(--text-mute); font-size:0.85rem;">Loading fixtures…</p></div>
+          <div class="matches-grid" id="freeMatches">
+            <div class="match-card skeleton-card">
+              <div class="match-row-top">
+                <span class="skeleton-line" style="width:72px; height:12px;"></span>
+                <span class="skeleton-line" style="width:42px; height:12px; border-radius:6px;"></span>
+              </div>
+              <div class="skeleton-teams-row">
+                <span class="skeleton-line skeleton-badge"></span>
+                <span class="skeleton-line" style="width:55%; height:16px;"></span>
+                <span class="skeleton-line skeleton-badge"></span>
+              </div>
+              <div class="match-row-bottom">
+                <span class="skeleton-line" style="width:92px; height:24px; border-radius:999px;"></span>
+                <span class="skeleton-line" style="width:46px; height:16px;"></span>
+              </div>
+            </div>
+            <div class="match-card skeleton-card">
+              <div class="match-row-top">
+                <span class="skeleton-line" style="width:72px; height:12px;"></span>
+                <span class="skeleton-line" style="width:42px; height:12px; border-radius:6px;"></span>
+              </div>
+              <div class="skeleton-teams-row">
+                <span class="skeleton-line skeleton-badge"></span>
+                <span class="skeleton-line" style="width:55%; height:16px;"></span>
+                <span class="skeleton-line skeleton-badge"></span>
+              </div>
+              <div class="match-row-bottom">
+                <span class="skeleton-line" style="width:92px; height:24px; border-radius:999px;"></span>
+                <span class="skeleton-line" style="width:46px; height:16px;"></span>
+              </div>
+            </div>
+          </div>
+          <div class="section-head" style="margin-top:32px;">
+            <h2 style="font-size:1.1rem;">Recent Results</h2>
+            <span class="sub">Last 2 days</span>
+          </div>
+          <div class="matches-grid" id="freeHistory"></div>
           <p class="vip-note">Want the full slate plus higher-odds VIP picks? <a href="#" data-story="join-vip" style="color:var(--gold); font-weight:600;">Join VIP →</a></p>
         </div>
         <aside class="sidebar">
@@ -981,19 +1072,27 @@ const SPOTLIGHT = [
   { team: "Real Madrid",   pick: "Home + Over 1.5",     odds: "2.40", bet: "₦100" }
 ];
 
-// Home: 1-5 featured matches for today
-const FEATURED = [
-  { team: "Arsenal",       pick: "GG + Over 2.5",   odds: "2.65" },
-  { team: "Real Madrid",   pick: "Home + Over 1.5", odds: "2.40" },
-  { team: "Barcelona",     pick: "Away Win",        odds: "1.85" },
-  { team: "Chelsea",       pick: "GG",              odds: "1.90" },
-  { team: "Bayern Munich", pick: "Over 3.5",        odds: "2.10" }
-];
-
-// Free Predictions tab
+// Free Predictions tab — today's 2 live picks (fixture, kickoff, and both
+// club badges are resolved live via TheSportsDB + Wikipedia fallback, same
+// as the spotlight picks above) plus the last 2 days of already-settled
+// results (static, same shape as VIP_HISTORY — no live lookup needed since
+// those matches are done).
+//
+// The daysAgo:0 entries are also what populates "Today's Featured Matches"
+// on the home page — no separate list or API needed for that section.
+// To update today's home page picks, just edit the daysAgo:0 rows below
+// with the team name plus pick/odds; the opponent, league, kickoff time
+// and both badges are looked up automatically from that team name.
 const FREE_PICKS = [
-  { team: "Almeria", pick: "Home + Over 2.5", odds: "2.95" },
-  { team: "Alaves",  pick: "GG + Over 2.5",   odds: "2.60" }
+  // Today — live, no result yet. Also shown in "Today's Featured Matches".
+  { daysAgo: 0, team: "Arsenal",     pick: "GG + Over 2.5",   odds: "2.65" },
+  { daysAgo: 0, team: "Real Madrid", pick: "Home + Over 1.5", odds: "2.40" },
+
+  // Last 2 days — settled results, shown under "Recent Results"
+  { daysAgo: 1, league: "Spain — La Liga",        time: "20:00", home: "Almeria", away: "Sevilla",  pick: "Home + Over 2.5", odds: "2.95", score: "2:1", result: "win" },
+  { daysAgo: 1, league: "Spain — La Liga 2",      time: "18:00", home: "Alaves",  away: "Mirandes", pick: "GG + Over 2.5",   odds: "2.60", score: "1:1", result: "win" },
+  { daysAgo: 2, league: "England — Championship", time: "19:45", home: "Leeds",   away: "Norwich",  pick: "Over 2.5",        odds: "1.95", score: "2:2", result: "win" },
+  { daysAgo: 2, league: "Italy — Serie A",        time: "17:30", home: "Napoli",  away: "Roma",     pick: "GG",              odds: "1.85", score: "1:0", result: "loss" }
 ];
 
 // Popular leagues panel (sidebar): several upcoming fixtures per league,
@@ -1074,18 +1173,68 @@ const VIP_HISTORY = [
     }
   }
 
-  // Given a team ID, fetch its opponent's badge too (for the next fixture)
+  // Given a team ID, fetch its badge from TheSportsDB. Returns null (not
+  // FALLBACK_BADGE) on failure so callers can tell "no badge yet" apart
+  // from "we already gave up" and still try a fallback source.
   async function badgeForTeamId(id){
-    if(!id) return FALLBACK_BADGE;
+    if(!id) return null;
     try{
       const res = await fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/lookupteam.php?id=${id}`);
       if(!res.ok) throw new Error("bad response");
       const data = await res.json();
       const team = data && data.teams && data.teams[0];
-      return (team && team.strTeamBadge) ? team.strTeamBadge : FALLBACK_BADGE;
+      return (team && team.strTeamBadge) ? team.strTeamBadge : null;
     }catch(e){
-      return FALLBACK_BADGE;
+      return null;
     }
+  }
+
+  // Wikipedia fallback badge lookup — free, no key, no rate-limit worries,
+  // and works for any club name (not just the top European leagues).
+  // Wikimedia enables CORS on this endpoint (Access-Control-Allow-Origin: *),
+  // so it's safe to call straight from the browser. Most football club
+  // articles use the crest as the page's lead image, which the summary
+  // endpoint returns as `thumbnail.source` — not guaranteed for every club,
+  // but a solid free fallback when TheSportsDB's shared demo key comes up empty.
+  const wikiBadgeCache = {};
+  async function wikipediaBadge(teamName){
+    if(!teamName) return null;
+    if(wikiBadgeCache[teamName] !== undefined) return wikiBadgeCache[teamName];
+
+    // Plain team names often collide with a place, a person, or something
+    // else entirely on Wikipedia ("Chelsea" -> the London district,
+    // "Birmingham City" -> the city itself) and land on a disambiguation
+    // page with no thumbnail. Try the conventional football-club article
+    // title first, then fall back to the plain name as a last resort.
+    const candidates = [`${teamName} F.C.`, `${teamName} FC`, teamName];
+
+    for(const title of candidates){
+      try{
+        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+        if(!res.ok) continue;
+        const data = await res.json();
+        if(data && data.type === 'disambiguation') continue; // wrong page, try next candidate
+        if(data && data.thumbnail && data.thumbnail.source){
+          wikiBadgeCache[teamName] = data.thumbnail.source;
+          return data.thumbnail.source;
+        }
+      }catch(e){ /* try next candidate */ }
+    }
+
+    wikiBadgeCache[teamName] = null;
+    return null;
+  }
+
+  // Shared badge resolver used everywhere a logo is needed: TheSportsDB
+  // first (also gets us fixture data elsewhere), then Wikipedia, then the
+  // placeholder ball icon as a last resort. Needs both the team's
+  // TheSportsDB id (for the primary lookup) and its name (for the
+  // Wikipedia fallback, which doesn't know about TheSportsDB ids).
+  async function resolveBadge(teamId, teamName){
+    const sportsDbBadge = await badgeForTeamId(teamId);
+    if(sportsDbBadge) return sportsDbBadge;
+    const wikiBadge = await wikipediaBadge(teamName);
+    return wikiBadge || FALLBACK_BADGE;
   }
 
   // Full fixture resolution: team name -> { league, home, away, homeLogo, awayLogo, kickoff, date, time }
@@ -1114,18 +1263,22 @@ const VIP_HISTORY = [
 
     let result;
     if(!ev){
+      const homeLogo = team.strTeamBadge || await resolveBadge(team.idTeam, team.strTeam);
       result = {
         league: team.strLeague || "League TBD",
         home: team.strTeam, away: "Opponent TBD",
-        homeLogo: team.strTeamBadge || FALLBACK_BADGE, awayLogo: FALLBACK_BADGE,
+        homeLogo: homeLogo, awayLogo: FALLBACK_BADGE,
         kickoff: null, date: "Fixture TBD", time: "TBD"
       };
     }else{
       // Figure out which side our team is on, and fetch the opponent's badge
       const isHome = ev.idHomeTeam === team.idTeam;
-      const ourBadge = team.strTeamBadge || FALLBACK_BADGE;
       const opponentId = isHome ? ev.idAwayTeam : ev.idHomeTeam;
-      const opponentBadge = await badgeForTeamId(opponentId);
+      const opponentName = isHome ? ev.strAwayTeam : ev.strHomeTeam;
+      const [ourBadge, opponentBadge] = await Promise.all([
+        team.strTeamBadge ? Promise.resolve(team.strTeamBadge) : resolveBadge(team.idTeam, team.strTeam),
+        resolveBadge(opponentId, opponentName)
+      ]);
       const kickoff = (ev.dateEvent && ev.strTime) ? `${ev.dateEvent}T${ev.strTime}` : null;
       result = {
         league: ev.strLeague || team.strLeague || "League TBD",
@@ -1174,8 +1327,8 @@ const VIP_HISTORY = [
       const fixtures = await Promise.all(events.map(async ev => {
         const kickoff = (ev.dateEvent && ev.strTime) ? `${ev.dateEvent}T${ev.strTime}` : null;
         const [homeBadge, awayBadge] = await Promise.all([
-          badgeForTeamId(ev.idHomeTeam),
-          badgeForTeamId(ev.idAwayTeam)
+          resolveBadge(ev.idHomeTeam, ev.strHomeTeam),
+          resolveBadge(ev.idAwayTeam, ev.strAwayTeam)
         ]);
         return {
           home: ev.strHomeTeam,
@@ -1448,6 +1601,7 @@ const VIP_HISTORY = [
     const yy = String(d.getFullYear()).slice(-2);
     return `${dd}/${mm}/${yy}`;
   }
+  window.SureTipsRender.daysAgoToDate = daysAgoToDate;
 
   let lastDate = null, vipHTML = '';
   VIP_HISTORY.forEach(m => {
@@ -1533,11 +1687,17 @@ const VIP_HISTORY = [
   const carouselEl = document.getElementById('spotCarousel');
   const dotsEl = document.getElementById('spotDots');
 
-  // Fetch live badges + kickoff for the spotlight, and live badges for featured/free lists
-  const [spotlightLive, featuredLive, freeLive] = await Promise.all([
+  // Today's free picks (daysAgo: 0) double as "Today's Featured Matches" on
+  // the home page — same 2 entries, resolved live via TheSportsDB +
+  // Wikipedia fallback (no football-data.org / proxy needed for this
+  // section anymore). The last 2 days of settled results render as static
+  // cards, same as VIP Results, since those matches are already over.
+  const todayPicks = FREE_PICKS.filter(p => p.daysAgo === 0);
+  const pastPicks = FREE_PICKS.filter(p => p.daysAgo > 0);
+
+  const [spotlightLive, todayLive] = await Promise.all([
     window.SureTipsData.enrichAll(SPOTLIGHT),
-    window.SureTipsData.enrichAll(FEATURED),
-    window.SureTipsData.enrichAll(FREE_PICKS)
+    window.SureTipsData.enrichAll(todayPicks)
   ]);
 
   carouselEl.innerHTML = spotlightLive.map(spotSlideHTML).join('');
@@ -1575,11 +1735,21 @@ const VIP_HISTORY = [
   tickCountdowns();
   setInterval(tickCountdowns, 1000);
 
-  // Home — featured matches
-  document.getElementById('featuredMatches').innerHTML = featuredLive.map(m => matchCardHTML(m, false)).join('');
+  // Home — featured matches (today's free picks, live-resolved)
+  document.getElementById('featuredMatches').innerHTML = todayLive.map(m => matchCardHTML(m, false)).join('');
 
-  // Free predictions
-  document.getElementById('freeMatches').innerHTML = freeLive.map(m => matchCardHTML(m, false)).join('');
+  // Free predictions — today's live picks (same cards as the home page)
+  document.getElementById('freeMatches').innerHTML = todayLive.map(m => matchCardHTML(m, false)).join('');
+
+  // Free predictions — last 2 days of settled results, grouped by date like VIP Results
+  const daysAgoToDate = window.SureTipsRender.daysAgoToDate;
+  let lastFreeDate = null, freeHistoryHTML = '';
+  pastPicks.forEach(m => {
+    const resolvedDate = daysAgoToDate(m.daysAgo);
+    if(resolvedDate !== lastFreeDate){ freeHistoryHTML += `<div class="date-heading">${resolvedDate}</div>`; lastFreeDate = resolvedDate; }
+    freeHistoryHTML += matchCardHTML(m, true);
+  });
+  document.getElementById('freeHistory').innerHTML = freeHistoryHTML;
 
   // Popular leagues — 3 upcoming fixtures per league, schedule only
   const leaguesEl = document.getElementById('popularLeagues');
