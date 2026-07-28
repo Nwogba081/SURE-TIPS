@@ -380,6 +380,29 @@
 
   .vip-note{ font-size:0.8rem; color: var(--text-mute); margin: 14px 0 4px; }
 
+  /* ---------- Popular leagues: several upcoming fixtures per league, schedule only ---------- */
+  .league-block{ margin-top:16px; }
+  .league-block:first-of-type{ margin-top:0; }
+  .league-block-head{ font-size:0.8rem; font-weight:700; color: var(--text); margin-bottom:8px; }
+  .league-fixture-list{ display:flex; flex-direction:column; gap:6px; }
+  .league-fixture-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background: var(--surface-2); border:1px solid var(--line); border-radius: var(--radius-sm);
+    padding:9px 11px; font-size:0.78rem;
+  }
+  .league-fixture-row .lf-teams{ display:flex; align-items:center; gap:5px; color: var(--text-dim); min-width:0; overflow:hidden; flex:1; }
+  .league-fixture-row .lf-teams strong{ color: var(--text); font-weight:600; }
+  .league-fixture-row .lf-club-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; flex-shrink:1; }
+  .league-fixture-row .lf-teams > span:not(.lf-club-name){ flex-shrink:0; opacity:0.6; font-size:0.72rem; }
+  .league-fixture-row .lf-badge{ width:16px; height:16px; border-radius:50%; object-fit:cover; background:#fff; flex-shrink:0; }
+  @media (max-width:400px){
+    .league-fixture-row{ flex-wrap:wrap; }
+    .league-fixture-row .lf-when{ text-align:left; }
+  }
+  .league-fixture-row .lf-when{ flex-shrink:0; text-align:right; font-family: var(--font-mono); color: var(--text-mute); font-size:0.7rem; line-height:1.3; }
+  .league-fixture-row .lf-when .lf-time{ display:block; color: var(--gold); font-weight:600; }
+  .league-fixture-loading, .league-fixture-empty{ font-size:0.78rem; color: var(--text-mute); padding:6px 2px; }
+
   /* ---------- VIP stat header ---------- */
   .vip-stat-header{ display:grid; grid-template-columns: 2fr 1fr 1fr; gap:16px; margin-bottom:8px; }
   @media (max-width:700px){ .vip-stat-header{ grid-template-columns:1fr; } }
@@ -657,13 +680,7 @@
           </div>
           <div class="panel">
             <h3 class="panel-title">Popular leagues</h3>
-            <div class="chip-row">
-              <span class="chip-pill">Premier League</span>
-              <span class="chip-pill">La Liga</span>
-              <span class="chip-pill">Champions League</span>
-              <span class="chip-pill">Bundesliga</span>
-              <span class="chip-pill">Serie A</span>
-            </div>
+            <div id="popularLeagues"></div>
           </div>
           <div class="panel community-panel">
             <h3 class="panel-title">Join our community</h3>
@@ -799,7 +816,7 @@
     <div class="container footer-grid">
       <div class="footer-brand-col">
        <div class="brand footer-brand-mark">SURE<span class="accent">TIPS</span></div>
-        <p class="footer-tagline"><b>SURE TIPS</b>delivers reliable football predictions backed by expert analysis and smart data insights.<br> Get daily match tips, high-confidence picks, and accurate odds across top leagues worldwide. <br>Designed for both beginners and experienced bettors, SURE TIPS helps you make informed decisions with ease.
+        <p class="footer-tagline"><b>SURE TIPS</b> delivers reliable football predictions backed by expert analysis and smart data insights.<br> Get daily match tips, high-confidence picks, and accurate odds across top leagues worldwide. <br>Designed for both beginners and experienced bettors, SURE TIPS helps you make informed decisions with ease.
 
 <br>Stay consistent. Stay winning with SURE TIPS. ⚽📈</p>
       </div>
@@ -964,16 +981,31 @@ const SPOTLIGHT = [
   { team: "Real Madrid",   pick: "Home + Over 1.5",     odds: "2.40", bet: "₦100" }
 ];
 
-// Home: 1-3 featured matches for today
+// Home: 1-5 featured matches for today
 const FEATURED = [
-  { team: "Arsenal",     pick: "GG + Over 2.5",   odds: "2.65" },
-  { team: "Real Madrid", pick: "Home + Over 1.5", odds: "2.40" }
+  { team: "Arsenal",       pick: "GG + Over 2.5",   odds: "2.65" },
+  { team: "Real Madrid",   pick: "Home + Over 1.5", odds: "2.40" },
+  { team: "Barcelona",     pick: "Away Win",        odds: "1.85" },
+  { team: "Chelsea",       pick: "GG",              odds: "1.90" },
+  { team: "Bayern Munich", pick: "Over 3.5",        odds: "2.10" }
 ];
 
 // Free Predictions tab
 const FREE_PICKS = [
   { team: "Almeria", pick: "Home + Over 2.5", odds: "2.95" },
   { team: "Alaves",  pick: "GG + Over 2.5",   odds: "2.60" }
+];
+
+// Popular leagues panel (sidebar): several upcoming fixtures per league,
+// schedule only, no picks/odds. Ids are TheSportsDB's stable league ids.
+const POPULAR_LEAGUES = [
+  { name: "Premier League",       leagueId: "4328" },
+  { name: "La Liga",              leagueId: "4335" },
+  { name: "Champions League",     leagueId: "4480" },
+  { name: "Bundesliga",           leagueId: "4331" },
+  { name: "Serie A",              leagueId: "4332" },
+  { name: "Ligue 1",              leagueId: "4334" },
+  { name: "Eredivisie",           leagueId: "4337" }
 ];
 
 // VIP Results tab — this is YOUR track record, not fetched from anywhere.
@@ -1013,6 +1045,7 @@ const VIP_HISTORY = [
 (function(){
   window.SureTipsData = window.SureTipsData || {};
   const CACHE_KEY = "suretips_fixture_cache_v2";
+  const LEAGUE_CACHE_KEY = "suretips_league_cache_v1";
   const FALLBACK_BADGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='38' fill='%231a2140' stroke='%236b7591' stroke-width='2'/%3E%3Ctext x='40' y='48' font-size='30' text-anchor='middle' fill='%236b7591' font-family='sans-serif'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E";
 
   let fixtureCache = {};
@@ -1020,6 +1053,13 @@ const VIP_HISTORY = [
 
   function saveCache(){
     try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(fixtureCache)); } catch(e){ /* storage unavailable, skip caching */ }
+  }
+
+  let leagueCache = {};
+  try { leagueCache = JSON.parse(sessionStorage.getItem(LEAGUE_CACHE_KEY) || "{}"); } catch(e){ leagueCache = {}; }
+
+  function saveLeagueCache(){
+    try { sessionStorage.setItem(LEAGUE_CACHE_KEY, JSON.stringify(leagueCache)); } catch(e){ /* storage unavailable, skip caching */ }
   }
 
   // Resolve a team name to its TheSportsDB team object (id + badge)
@@ -1117,6 +1157,45 @@ const VIP_HISTORY = [
   window.SureTipsData.enrichAll = async function(list){
     return Promise.all(list.map(enrichPick));
   };
+
+  // Fetches a league's next scheduled fixtures (schedule only, no picks/odds),
+  // sliced to the first 6 so a real matchday's worth of games can show, not
+  // just a single game. Also resolves each side's club badge via
+  // badgeForTeamId so logos can render next to the team names. Cached per
+  // session so switching tabs doesn't re-fetch. Returns null on failure so
+  // the caller can show a fallback.
+  async function fetchLeagueFixtures(leagueId){
+    if(leagueCache[leagueId]) return leagueCache[leagueId];
+    try{
+      const res = await fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/eventsnextleague.php?id=${leagueId}`);
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      const events = (data && data.events) ? data.events.slice(0, 6) : [];
+      const fixtures = await Promise.all(events.map(async ev => {
+        const kickoff = (ev.dateEvent && ev.strTime) ? `${ev.dateEvent}T${ev.strTime}` : null;
+        const [homeBadge, awayBadge] = await Promise.all([
+          badgeForTeamId(ev.idHomeTeam),
+          badgeForTeamId(ev.idAwayTeam)
+        ]);
+        return {
+          home: ev.strHomeTeam,
+          away: ev.strAwayTeam,
+          homeLogo: homeBadge,
+          awayLogo: awayBadge,
+          kickoff: kickoff,
+          dateLabel: kickoff ? new Date(kickoff).toLocaleDateString(undefined, { day:'2-digit', month:'short' }) : "TBD",
+          timeLabel: kickoff ? kickoff.slice(11,16) : "TBD"
+        };
+      }));
+      leagueCache[leagueId] = fixtures;
+      saveLeagueCache();
+      return fixtures;
+    }catch(e){
+      return null; // signals failure, distinct from an empty but successful fetch
+    }
+  }
+
+  window.SureTipsData.fetchLeagueFixtures = fetchLeagueFixtures;
 })();
 </script>
 <script>
@@ -1167,16 +1246,43 @@ const VIP_HISTORY = [
   const mobileMenu = document.getElementById('mobileMenu');
   const hamburgerBtn = document.getElementById('hamburgerBtn');
 
-  function goTo(id){
+  const VALID_TABS = ['home', 'free', 'vip', 'support'];
+
+  function goTo(id, { pushHistory = true } = {}){
+    if(!VALID_TABS.includes(id)) id = 'home';
     tabs.forEach(t => t.classList.toggle('active', t.id === id));
     navLinks.forEach(b => b.classList.toggle('active', b.dataset.goto === id));
     mobileMenu.classList.remove('open');
     hamburgerBtn.setAttribute('aria-expanded', 'false');
     window.scrollTo({ top:0, behavior:'auto' });
+    if(pushHistory){
+      // Only push a new entry if we're actually changing tabs — avoids
+      // stacking duplicate history entries on repeated taps of the same link.
+      if(history.state?.tab !== id){
+        history.pushState({ tab: id }, '', `#${id}`);
+      }
+    }
   }
+
   document.querySelectorAll('[data-goto]').forEach(el => {
     el.addEventListener('click', e => { e.preventDefault(); goTo(el.dataset.goto); });
   });
+
+  // Back/forward button support: restore the tab instead of leaving the page.
+  window.addEventListener('popstate', e => {
+    const tabId = e.state?.tab || 'home';
+    goTo(tabId, { pushHistory: false });
+  });
+
+  // On first load, honor a deep-link hash (e.g. index.html#vip) and seed
+  // the initial history entry so the very first back-tap has somewhere to land.
+  (function initTabFromURL(){
+    const initial = VALID_TABS.includes(window.location.hash.replace('#', ''))
+      ? window.location.hash.replace('#', '')
+      : 'home';
+    goTo(initial, { pushHistory: false });
+    history.replaceState({ tab: initial }, '', `#${initial}`);
+  })();
 
   hamburgerBtn.addEventListener('click', () => {
     const open = mobileMenu.classList.toggle('open');
@@ -1474,6 +1580,42 @@ const VIP_HISTORY = [
 
   // Free predictions
   document.getElementById('freeMatches').innerHTML = freeLive.map(m => matchCardHTML(m, false)).join('');
+
+  // Popular leagues — 3 upcoming fixtures per league, schedule only
+  const leaguesEl = document.getElementById('popularLeagues');
+  leaguesEl.innerHTML = POPULAR_LEAGUES.map(lg => `
+    <div class="league-block">
+      <div class="league-block-head">${lg.name}</div>
+      <div class="league-fixture-list" id="league-${lg.leagueId}">
+        <p class="league-fixture-loading">Loading fixtures…</p>
+      </div>
+    </div>
+  `).join('');
+
+  await Promise.all(POPULAR_LEAGUES.map(async lg => {
+    const listEl = document.getElementById(`league-${lg.leagueId}`);
+    const fixtures = await window.SureTipsData.fetchLeagueFixtures(lg.leagueId);
+    if(fixtures === null){
+      listEl.innerHTML = `<p class="league-fixture-empty">Fixtures unavailable right now.</p>`;
+      return;
+    }
+    if(fixtures.length === 0){
+      listEl.innerHTML = `<p class="league-fixture-empty">No upcoming fixtures listed.</p>`;
+      return;
+    }
+    listEl.innerHTML = fixtures.map(f => `
+      <div class="league-fixture-row">
+        <span class="lf-teams">
+          <img class="lf-badge" src="${f.homeLogo}" alt="" loading="lazy">
+          <strong class="lf-club-name">${f.home}</strong>
+          <span>vs</span>
+          <img class="lf-badge" src="${f.awayLogo}" alt="" loading="lazy">
+          <span class="lf-club-name">${f.away}</span>
+        </span>
+        <span class="lf-when"><span class="lf-time">${f.timeLabel}</span>${f.dateLabel}</span>
+      </div>
+    `).join('');
+  }));
 
 })();
 </script>
