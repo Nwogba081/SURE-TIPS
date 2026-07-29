@@ -117,8 +117,22 @@
   @media (max-width:460px){ .stat-popover{ width:200px; } }
   .hamburger{ display:none; width:40px; height:40px; align-items:center; justify-content:center; border-radius:10px; flex-shrink:0; }
   .hamburger:hover{ background: var(--surface); }
-  .mobile-menu{ display:none; flex-direction:column; gap:2px; padding:10px 20px 18px; border-top:1px solid var(--line); background: var(--bg-soft); }
-  .mobile-menu.open{ display:flex; }
+  .mobile-menu{
+    display:grid;
+    grid-template-rows: 0fr;
+    background: var(--bg-soft);
+    border-top: 1px solid transparent;
+    transition: grid-template-rows 0.32s ease, border-color 0.32s ease;
+  }
+  .mobile-menu.open{ grid-template-rows: 1fr; border-top-color: var(--line); }
+  .mobile-menu-inner{
+    overflow:hidden; min-height:0;
+    display:flex; flex-direction:column; gap:2px;
+    padding: 0 20px;
+    opacity:0; transform: translateY(-6px);
+    transition: opacity 0.28s ease, transform 0.28s ease, padding 0.32s ease;
+  }
+  .mobile-menu.open .mobile-menu-inner{ opacity:1; transform:translateY(0); padding: 10px 20px 18px; }
   .mobile-menu .nav-link{ text-align:left; padding:12px 10px; }
   .mobile-menu .mobile-menu-cta{ flex:none; width:100%; margin-top:10px; }
 
@@ -205,6 +219,32 @@
   .hero-spotlight{ position:relative; }
   .spotlight-label{ font-family: var(--font-mono); font-size:0.76rem; text-transform:uppercase; letter-spacing:0.1em; color: var(--gold); margin-bottom:12px; text-align:center; }
 
+  /* ---------- Merged member-avatar social proof strip ----------
+     Sits directly under the "What our members are saying" label,
+     above the testimonial carousel. Overlapping circular avatars
+     (reusing the same testimonial photos) plus a running total —
+     a stat, not a pitch, so there's no CTA copy riding along with it. */
+  .avatar-proof{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    margin-bottom:14px; flex-wrap:wrap;
+  }
+  .avatar-proof-stack{ display:flex; align-items:center; }
+  .avatar-proof-stack img{
+    width:34px; height:34px; border-radius:50%; object-fit:cover;
+    background:#fff; border:2px solid var(--bg);
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.5);
+    margin-left:-10px;
+  }
+  .avatar-proof-stack img:first-child{ margin-left:0; }
+  .avatar-proof-more{
+    width:34px; height:34px; border-radius:50%; margin-left:-10px;
+    background: var(--surface-2); border:2px solid var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-mono); font-weight:700; font-size:0.62rem; color: var(--text-dim);
+  }
+  .avatar-proof-count{ font-family: var(--font-mono); font-size:0.8rem; color: var(--text-dim); white-space:nowrap; }
+  .avatar-proof-count strong{ color: var(--text); font-weight:700; }
+
   /* ---------- Signature element: live-form marquee (full-bleed) ---------- */
   .ticker{
     position:relative; overflow:hidden; width:100%;
@@ -278,17 +318,21 @@
     100%{ background-position: -200% 0; }
   }
 
-  /* ---------- Spotlight carousel (Eagle-Predict style auto-rotating top pick) ---------- */
+  /* ---------- Spotlight carousel (member testimonials, auto-rotating) ----------
+     Height is set dynamically by JS to fit whichever testimonial is longest
+     (see measureAndSetCarouselHeight), so no quote gets clipped. min-height
+     here is just the pre-JS / no-JS fallback. ---------- */
   .spot-carousel{
     position:relative;
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 60px -16px rgba(124,58,237,0.55);
-    height: 300px;
+    min-height: 300px;
     overflow: hidden; /* clip so an off-screen slide can never widen the viewport */
     isolation: isolate;
+    transition: height 0.25s ease;
   }
   @media (max-width:480px){
-    .spot-carousel{ height: 272px; }
+    .spot-carousel{ min-height: 272px; }
   }
   .spot-slide{
     position:absolute; inset:0; /* every slide, active or not, fills the carousel — height never collapses */
@@ -312,54 +356,29 @@
     pointer-events:auto;
     z-index:1;
   }
-  .spot-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; font-size:0.74rem; position:relative; z-index:1; margin-bottom:6px; }
-  .spot-top .league{ font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .spot-top .meta{ text-align:right; flex-shrink:0; }
-  .spot-top .kickoff{ display:inline-block; }
-  .spot-top .spot-date{ display:block; font-family: var(--font-mono); color:rgba(255,255,255,0.75); margin-top:4px; font-size:0.7rem; white-space:nowrap; }
-  @media (max-width:480px){
-    .spot-top{ font-size:0.68rem; }
-    .spot-top .spot-date{ font-size:0.62rem; }
-  }
 
-  .spot-teams{ position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:10px; padding: 14px 0 6px; min-width:0; }
-  .spot-club{ display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; min-width:0; max-width:40%; }
-  .spot-club img{
-    width:56px; height:56px; border-radius:50%; object-fit:cover;
+  /* ---------- Testimonial slide layout ---------- */
+  .spot-quote-mark{ position:relative; z-index:1; font-family: var(--font-display); font-size:2.4rem; line-height:1; color:rgba(255,255,255,0.35); margin-bottom:2px; }
+  .spot-quote-text{
+    position:relative; z-index:1;
+    font-size:1rem; font-weight:500; color:#fff; line-height:1.5;
+    flex:1;
+  }
+  @media (max-width:480px){
+    .spot-quote-text{ font-size:0.92rem; }
+  }
+  .spot-stars{ position:relative; z-index:1; display:flex; gap:3px; margin-bottom:10px; color: var(--gold); }
+  .spot-stars svg{ width:15px; height:15px; }
+  .spot-reviewer{ position:relative; z-index:1; display:flex; align-items:center; gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.18); }
+  .spot-reviewer img{
+    width:46px; height:46px; border-radius:50%; object-fit:cover;
     background:#fff; border:2px solid rgba(255,255,255,0.6);
     box-shadow: 0 6px 16px -6px rgba(0,0,0,0.5);
     flex-shrink:0;
   }
-  .spot-club .name{
-    font-family: var(--font-display); font-weight:700; font-size:0.86rem; color:#fff; text-align:center; line-height:1.2;
-    max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-
-  .spot-vs-block{ display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; padding:0 2px; }
-  .spot-vs-block .vs-label{ font-family: var(--font-display); font-weight:800; font-size:0.82rem; color:rgba(255,255,255,0.7); letter-spacing:0.05em; }
-  .spot-countdown{
-    font-family: var(--font-mono); font-weight:700; font-size:0.78rem; color:#fff;
-    background: rgba(0,0,0,0.28); padding:4px 9px; border-radius:8px; white-space:nowrap;
-  }
-
-  .spot-table{
-    position:relative; z-index:1; margin-top:14px;
-    background: rgba(0,0,0,0.22); border-radius: var(--radius-md);
-    padding: 12px 14px; display:grid; grid-template-columns: 1.3fr 0.8fr 0.9fr; gap:8px; align-items:center;
-  }
-  .spot-table .col-label{ font-size:0.64rem; text-transform:uppercase; letter-spacing:0.06em; color:rgba(255,255,255,0.6); margin-bottom:4px; }
-  .spot-table .pick-tag{ display:inline-block; font-size:0.72rem; }
-  .spot-table .odds-val{ font-family: var(--font-mono); font-weight:700; color: var(--win); font-size:0.92rem; }
-  .spot-table .bet-val{ font-family: var(--font-mono); font-weight:700; color:#fff; font-size:0.92rem; }
-
-  @media (max-width:480px){
-    .spot-club img{ width:48px; height:48px; }
-    .spot-club .name{ font-size:0.78rem; }
-    .spot-countdown{ font-size:0.7rem; padding:3px 7px; }
-    .spot-table{ padding:10px 12px; grid-template-columns: 1.2fr 0.75fr 0.85fr; }
-    .spot-table .pick-tag{ font-size:0.68rem; padding:4px 8px; }
-    .spot-table .odds-val, .spot-table .bet-val{ font-size:0.84rem; }
-  }
+  .spot-reviewer-info{ min-width:0; }
+  .spot-reviewer-name{ font-family: var(--font-display); font-weight:700; font-size:0.92rem; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .spot-reviewer-meta{ font-family: var(--font-mono); font-size:0.72rem; color:rgba(255,255,255,0.75); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   .spot-dots{ display:flex; justify-content:center; gap:6px; margin-top:14px; }
   .spot-dots button{ width:7px; height:7px; border-radius:50%; background: rgba(255,255,255,0.25); transition: background .2s ease, transform .2s ease; }
@@ -637,12 +656,14 @@
       </div>
     </div>
     <div class="mobile-menu" id="mobileMenu">
-      <button class="nav-link" data-goto="home">Home</button>
-      <button class="nav-link" data-goto="free">Free Predictions</button>
-      <button class="nav-link" data-modal="vip-info">VIP Tips</button>
-      <button class="nav-link" data-goto="vip">VIP Results</button>
-      <button class="nav-link" data-goto="support">Support</button>
-      <button class="btn btn-primary mobile-menu-cta" data-story="join-vip">Join VIP</button>
+      <div class="mobile-menu-inner">
+        <button class="nav-link" data-goto="home">Home</button>
+        <button class="nav-link" data-goto="free">Free Predictions</button>
+        <button class="nav-link" data-modal="vip-info">VIP Tips</button>
+        <button class="nav-link" data-goto="vip">VIP Results</button>
+        <button class="nav-link" data-goto="support">Support</button>
+        <button class="btn btn-primary mobile-menu-cta" data-story="join-vip">Join VIP</button>
+      </div>
     </div>
   </header>
 
@@ -670,12 +691,9 @@
             </div>
           </div>
           <div class="hero-spotlight">
-            <div class="spotlight-label">Today's top pick</div>
-            <div class="spot-carousel" id="spotCarousel">
-              <div class="spot-slide is-active" style="align-items:center; justify-content:center; opacity:1;">
-                <span style="color:rgba(255,255,255,0.75); font-family:var(--font-mono); font-size:0.82rem;">Loading today's pick…</span>
-              </div>
-            </div>
+            <div class="spotlight-label">What our members are saying</div>
+            <div class="avatar-proof" id="avatarProof"></div>
+            <div class="spot-carousel" id="spotCarousel"></div>
             <div class="spot-dots" id="spotDots"></div>
           </div>
         </div>
@@ -723,7 +741,7 @@
               </div>
             </div>
           </div>
-          <button class="btn btn-ghost" data-goto="free" style="display:inline-block; width:auto; margin-top:18px; padding:12px 24px;">See more predictions →</button>
+          <button class="btn btn-ghost" data-goto="free" style="display:inline-block; width:auto; margin-top:18px; padding:12px 24px;">See more predictions </button>
         </div>
         <aside class="sidebar">
           <div class="panel">
@@ -1065,11 +1083,43 @@
 
 const SPORTSDB_KEY = "3"; // <-- replace with your own free key from thesportsdb.com/api.php
 
-// Home hero: rotating "today's top pick" carousel (Eagle-Predict style)
-const SPOTLIGHT = [
-  { team: "RB Bragantino", pick: "RB Bragantino Win",   odds: "1.66", bet: "₦100" },
-  { team: "Arsenal",       pick: "GG + Over 2.5",       odds: "2.65", bet: "₦100" },
-  { team: "Real Madrid",   pick: "Home + Over 1.5",     odds: "2.40", bet: "₦100" }
+/* ============================================================
+   EDIT ME — Member testimonials (home page carousel).
+   No photos needed: each reviewer gets an auto-generated colored
+   circle with their initials (generated locally, no external
+   requests, no real photos — good for reviewer privacy). If you
+   ever do want to swap in a real photo for someone, just set
+   their `avatar` field to an image URL and it'll be used instead.
+   `rating` is out of 5 (whole numbers only).
+   ============================================================ */
+const AVATAR_PALETTE = ["#7c3aed", "#f59e0b", "#34d399", "#38a1ff", "#fb7185", "#fbbf24"];
+
+function initialsAvatar(name){
+  const initials = (name || "?")
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join("");
+  // Deterministic color per name, so the same person always gets the same
+  // color (matters when the same reviewer's slide re-renders or repeats).
+  let hash = 0;
+  for(let i = 0; i < name.length; i++){ hash = (hash * 31 + name.charCodeAt(i)) >>> 0; }
+  const color = AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><circle cx='40' cy='40' r='38' fill='${color}'/><text x='40' y='51' font-size='30' font-weight='700' text-anchor='middle' fill='#ffffff' font-family='sans-serif'>${initials}</text></svg>`;
+  return "data:image/svg+xml," + encodeURIComponent(svg);
+}
+
+const TESTIMONIALS = [
+  // avatar left blank -> auto initials avatar is used. A placeholders.io
+  // URL here (https://placeholders.io/{width}/{height}/{description}) is
+  // used instead when present — generated generic people, not real photos
+  // of any actual reviewer, which keeps things privacy-safe.
+  { avatar: "https://placeholders.io/300/300/a%20young%20Rwandan%20man%20smiling%20warmly%20in%20casual%20wear", name: "Daniel V.", meta: "Rwanda", rating: 5, quote: "Clean website, easy navigation, and reliable daily football tips. SureTips has become part of my daily football routine. Keep up the great work!" },
+  { avatar: "https://placeholders.io/300/300/a%20young%20Romanian%20man%20smiling%20in%20a%20casual%20jacket", name: "Peter M.", meta: "Romania", rating: 5, quote: "I appreciate that the predictions are based on analysis rather than exaggerated claims. It's one of the best prediction platforms I have seen." },
+  { avatar: "https://placeholders.io/300/300/a%20young%20Nigerian%20guy%20wearing%20a%20hood%20smiling", name: "Emmanuel Eze", meta: "VIP Member", rating: 5, quote: "The customer support is responsive, and the VIP membership is very affordable with high win rate. I'm happy with the overall experience and will continue using it. Thanks admin for the good work." },
+  { avatar: "https://placeholders.io/300/300/a%20young%20South%20African%20man%20smiling%20casually", name: "John C.", meta: "South Africa", rating: 5, quote: "I've been using SureTips for over a month now. The free tips are good, and the VIP predictions have made me lots of profits. Am your number one user from South Africa." },
+  { avatar: "https://placeholders.io/300/300/a%20young%20Nigerian%20man%20in%20a%20casual%20polo%20shirt%20smiling%20confidently%20outdoors", name: "Michael A.", meta: "Nigeria", rating: 5, quote: "I've tried many prediction websites, but SureTips stands out because the analysis is clear with high win rate. The VIP section has been worth it for me. Kudos 👌" }
 ];
 
 // Free Predictions tab — today's 2 live picks (fixture, kickoff, and both
@@ -1437,9 +1487,19 @@ const VIP_HISTORY = [
     history.replaceState({ tab: initial }, '', `#${initial}`);
   })();
 
-  hamburgerBtn.addEventListener('click', () => {
+  hamburgerBtn.addEventListener('click', e => {
+    e.stopPropagation(); // don't let this same tap immediately trigger the outside-close handler below
     const open = mobileMenu.classList.toggle('open');
     hamburgerBtn.setAttribute('aria-expanded', open);
+  });
+
+  // Tap anywhere outside the open mobile menu (or its toggle button) to close it —
+  // the CSS transition on .mobile-menu handles the collapse animation.
+  document.addEventListener('click', e => {
+    if(!mobileMenu.classList.contains('open')) return;
+    if(mobileMenu.contains(e.target) || hamburgerBtn.contains(e.target)) return;
+    mobileMenu.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
   });
 
   const fab = document.getElementById('fabWrap');
@@ -1620,65 +1680,30 @@ const VIP_HISTORY = [
   document.getElementById('todayDate').textContent = today.toLocaleDateString(undefined, { day:'2-digit', month:'short' });
   document.getElementById('freeDateHeading').textContent = "TODAY · " + today.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
 
-})();
-</script>
-<script>
-/* ============================================================
-   ASYNC RENDER — spotlight carousel + featured/free picks,
-   which depend on the live TheSportsDB fetch for logos/kickoff.
-   ============================================================ */
-(async function(){
-
-  const matchCardHTML = window.SureTipsRender.matchCardHTML;
-
-  /* ---------- Spotlight carousel: auto-rotating "today's top pick" ---------- */
-  function formatCountdown(ms){
-    if(ms === null || isNaN(ms)) return "TBD";
-    if(ms <= 0) return "Kicked off";
-    const totalSec = Math.floor(ms/1000);
-    const h = Math.floor(totalSec/3600);
-    const m = Math.floor((totalSec%3600)/60);
-    const s = totalSec%60;
-    return `${h}h ${m}m ${s}s`;
+  /* ---------- Testimonial spotlight carousel (static, renders immediately — no API needed) ---------- */
+  function starsHTML(rating){
+    const full = Math.max(0, Math.min(5, Math.round(rating || 0)));
+    let out = '';
+    for(let i=0;i<5;i++){
+      out += i < full
+        ? `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.7 6.2.6-4.7 4.2 1.4 6.1L10 15l-5.5 3.1 1.4-6.1L1.2 7.8l6.2-.6z"/></svg>`
+        : `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.4"><path d="M10 1.5l2.6 5.7 6.2.6-4.7 4.2 1.4 6.1L10 15l-5.5 3.1 1.4-6.1L1.2 7.8l6.2-.6z"/></svg>`;
+    }
+    return out;
   }
 
-  function spotSlideHTML(m, idx){
-    const timeLabel = m.kickoff ? m.kickoff.slice(11,16) : "TBD";
+  function testimonialSlideHTML(t, idx){
+    const avatarSrc = t.avatar ? t.avatar : initialsAvatar(t.name);
     return `
       <div class="spot-slide" data-idx="${idx}">
-        <div class="spot-top">
-          <span class="league">${m.league}</span>
-          <span class="meta">
-            <span class="kickoff">${timeLabel}</span>
-            <span class="spot-date">${m.date || ''}</span>
-          </span>
-        </div>
-        <div class="spot-teams">
-          <div class="spot-club">
-            <img src="${m.homeLogo}" alt="${m.home} badge" loading="lazy">
-            <span class="name">${m.home}</span>
-          </div>
-          <div class="spot-vs-block">
-            <span class="vs-label">V.S</span>
-            <span class="spot-countdown" data-countdown="${m.kickoff || ''}">--h --m --s</span>
-          </div>
-          <div class="spot-club">
-            <img src="${m.awayLogo}" alt="${m.away} badge" loading="lazy">
-            <span class="name">${m.away}</span>
-          </div>
-        </div>
-        <div class="spot-table">
-          <div>
-            <div class="col-label">Prediction</div>
-            <span class="pick-tag">${m.pick}</span>
-          </div>
-          <div>
-            <div class="col-label">Odds</div>
-            <span class="odds-val">${m.odds}</span>
-          </div>
-          <div>
-            <div class="col-label">Bet</div>
-            <span class="bet-val">${m.bet}</span>
+        <div class="spot-stars" aria-label="${Math.round(t.rating||0)} out of 5 stars">${starsHTML(t.rating)}</div>
+        <div class="spot-quote-mark">"</div>
+        <p class="spot-quote-text">${t.quote}</p>
+        <div class="spot-reviewer">
+          <img src="${avatarSrc}" alt="${t.name}" loading="lazy">
+          <div class="spot-reviewer-info">
+            <div class="spot-reviewer-name">${t.name}</div>
+            <div class="spot-reviewer-meta">${t.meta || ''}</div>
           </div>
         </div>
       </div>`;
@@ -1687,26 +1712,54 @@ const VIP_HISTORY = [
   const carouselEl = document.getElementById('spotCarousel');
   const dotsEl = document.getElementById('spotDots');
 
-  // Today's free picks (daysAgo: 0) double as "Today's Featured Matches" on
-  // the home page — same 2 entries, resolved live via TheSportsDB +
-  // Wikipedia fallback (no football-data.org / proxy needed for this
-  // section anymore). The last 2 days of settled results render as static
-  // cards, same as VIP Results, since those matches are already over.
-  const todayPicks = FREE_PICKS.filter(p => p.daysAgo === 0);
-  const pastPicks = FREE_PICKS.filter(p => p.daysAgo > 0);
+  carouselEl.innerHTML = TESTIMONIALS.map(testimonialSlideHTML).join('');
+  dotsEl.innerHTML = TESTIMONIALS.map((_, i) => `<button data-slide="${i}" aria-label="Show review ${i+1}"></button>`).join('');
 
-  const [spotlightLive, todayLive] = await Promise.all([
-    window.SureTipsData.enrichAll(SPOTLIGHT),
-    window.SureTipsData.enrichAll(todayPicks)
-  ]);
-
-  carouselEl.innerHTML = spotlightLive.map(spotSlideHTML).join('');
-  dotsEl.innerHTML = spotlightLive.map((_, i) => `<button data-slide="${i}" aria-label="Show pick ${i+1}"></button>`).join('');
+  // Merged avatar-proof strip — reuses the same testimonial photos as
+  // overlapping circles, plus a "+N" chip for whatever's left of the
+  // rounded total. Purely a stat, no join copy attached to it.
+  const avatarProofEl = document.getElementById('avatarProof');
+  if(avatarProofEl){
+    const MEMBER_COUNT = 500; // rounded, matches the "500+" shown alongside the stack
+    const shown = TESTIMONIALS.slice(0, 5);
+    const stackHTML = shown.map(t => {
+      const src = t.avatar ? t.avatar : initialsAvatar(t.name);
+      return `<img src="${src}" alt="" loading="lazy">`;
+    }).join('');
+    avatarProofEl.innerHTML = `
+      <div class="avatar-proof-stack">
+        ${stackHTML}
+        <span class="avatar-proof-more">+${MEMBER_COUNT - shown.length}</span>
+      </div>
+      <span class="avatar-proof-count"><strong>${MEMBER_COUNT}+</strong> members</span>
+    `;
+  }
 
   const slides = carouselEl.querySelectorAll('.spot-slide');
   const dots = dotsEl.querySelectorAll('button');
   let spotIndex = 0;
   let spotTimer = null;
+
+  // Quotes vary in length, so the carousel's height is measured from
+  // whichever slide is tallest at the current width, instead of a fixed
+  // number that would clip longer reviews. Each slide is briefly switched
+  // to static positioning (so it reports its natural, unclipped height)
+  // and then restored — this never touches which slide is visually active.
+  function measureAndSetCarouselHeight(){
+    let maxH = 0;
+    slides.forEach(s => {
+      const prevPosition = s.style.position;
+      const prevOpacity = s.style.opacity;
+      s.style.position = 'static';
+      s.style.opacity = '0';
+      maxH = Math.max(maxH, s.scrollHeight);
+      s.style.position = prevPosition;
+      s.style.opacity = prevOpacity;
+    });
+    if(maxH > 0){
+      carouselEl.style.height = maxH + 'px';
+    }
+  }
 
   function showSlide(i){
     spotIndex = (i + slides.length) % slides.length;
@@ -1719,21 +1772,39 @@ const VIP_HISTORY = [
     spotTimer = setInterval(nextSlide, 6000);
   }
   showSlide(0);
+  measureAndSetCarouselHeight();
   restartAutoRotate();
 
   dots.forEach(d => d.addEventListener('click', () => { showSlide(parseInt(d.dataset.slide, 10)); restartAutoRotate(); }));
 
-  // Live per-slide countdown to kickoff, ticking every second
-  function tickCountdowns(){
-    const now = Date.now();
-    carouselEl.querySelectorAll('[data-countdown]').forEach(el => {
-      if(!el.dataset.countdown){ el.textContent = "TBD"; return; }
-      const kickoff = new Date(el.dataset.countdown).getTime();
-      el.textContent = formatCountdown(kickoff - now);
-    });
-  }
-  tickCountdowns();
-  setInterval(tickCountdowns, 1000);
+  // Re-measure on resize (debounced) — text reflows at different widths,
+  // so the tallest slide's height can change as the viewport does.
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(measureAndSetCarouselHeight, 150);
+  });
+
+})();
+</script>
+<script>
+/* ============================================================
+   ASYNC RENDER — featured/free match picks, which depend on
+   the live TheSportsDB fetch for logos/kickoff.
+   ============================================================ */
+(async function(){
+
+  const matchCardHTML = window.SureTipsRender.matchCardHTML;
+
+  // Today's free picks (daysAgo: 0) double as "Today's Featured Matches" on
+  // the home page — same 2 entries, resolved live via TheSportsDB +
+  // Wikipedia fallback (no football-data.org / proxy needed for this
+  // section anymore). The last 2 days of settled results render as static
+  // cards, same as VIP Results, since those matches are already over.
+  const todayPicks = FREE_PICKS.filter(p => p.daysAgo === 0);
+  const pastPicks = FREE_PICKS.filter(p => p.daysAgo > 0);
+
+  const todayLive = await window.SureTipsData.enrichAll(todayPicks);
 
   // Home — featured matches (today's free picks, live-resolved)
   document.getElementById('featuredMatches').innerHTML = todayLive.map(m => matchCardHTML(m, false)).join('');
