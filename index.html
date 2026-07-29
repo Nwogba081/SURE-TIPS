@@ -1115,12 +1115,13 @@ const TESTIMONIALS = [
   // URL here (https://placeholders.io/{width}/{height}/{description}) is
   // used instead when present — generated generic people, not real photos
   // of any actual reviewer, which keeps things privacy-safe.
-  { avatar: "https://placeholders.io/300/300/a%20young%20Rwandan%20man%20smiling%20warmly%20in%20casual%20wear", name: "Daniel V.", meta: "Rwanda", rating: 5, quote: "Clean website, easy navigation, and reliable daily football tips. SureTips has become part of my daily football routine. Keep up the great work!" },
+  { avatar: "https://placeholders.io/300/300/a%20young%20Rwandan%20man%20notsmiling%20warmly%20in%20casual%20wear", name: "Daniel V.", meta: "Rwanda", rating: 5, quote: "Clean website, easy navigation, and reliable daily football tips. SureTips has become part of my daily football routine. Keep up the great work!" },
   { avatar: "https://placeholders.io/300/300/a%20young%20Romanian%20man%20smiling%20in%20a%20casual%20jacket", name: "Peter M.", meta: "Romania", rating: 5, quote: "I appreciate that the predictions are based on analysis rather than exaggerated claims. It's one of the best prediction platforms I have seen." },
-  { avatar: "https://placeholders.io/300/300/a%20young%20Nigerian%20guy%20wearing%20a%20hood%20smiling", name: "Emmanuel Eze", meta: "VIP Member", rating: 5, quote: "The customer support is responsive, and the VIP membership is very affordable with high win rate. I'm happy with the overall experience and will continue using it. Thanks admin for the good work." },
-  { avatar: "https://placeholders.io/300/300/a%20young%20South%20African%20man%20smiling%20casually", name: "John C.", meta: "South Africa", rating: 5, quote: "I've been using SureTips for over a month now. The free tips are good, and the VIP predictions have made me lots of profits. Am your number one user from South Africa." },
-  { avatar: "https://placeholders.io/300/300/a%20young%20Nigerian%20man%20in%20a%20casual%20polo%20shirt%20smiling%20confidently%20outdoors", name: "Michael A.", meta: "Nigeria", rating: 5, quote: "I've tried many prediction websites, but SureTips stands out because the analysis is clear with high win rate. The VIP section has been worth it for me. Kudos 👌" }
+  { avatar: "https://placeholders.io/300/300/a%20young%20Nigerian%20guy%20wearing%20a%20hood%20notsmiling", name: "Emmanuel Eze", meta: "VIP Member", rating: 5, quote: "The customer support is responsive, and the VIP membership is very affordable with high win rate. I'm happy with the overall experience and will continue using it. Thanks admin for the good work." },
+  { avatar: "https://placeholders.io/300/300/a%20young%20South%20African%20man%20notsmiling%20casually", name: "John C.", meta: "South Africa", rating: 5, quote: "I've been using SureTips for over a month now. The free tips are good, and the VIP predictions have made me lots of profits. Am your number one user from South Africa." },
+  { avatar: "https://placeholders.io/300/300/a%20young%20Nigerian%20man%20in%20a%20casual%20polo%20shirt%20notsmiling%20confidently%20outdoors", name: "Michael A.", meta: "Nigeria", rating: 5, quote: "I've tried many prediction websites, but SureTips stands out because the analysis is clear with high win rate. The VIP section has been worth it for me. Kudos 👌" }
 ];
+
 
 // Free Predictions tab — today's 2 live picks (fixture, kickoff, and both
 // club badges are resolved live via TheSportsDB + Wikipedia fallback, same
@@ -1731,7 +1732,6 @@ const VIP_HISTORY = [
         ${stackHTML}
         <span class="avatar-proof-more">+${MEMBER_COUNT - shown.length}</span>
       </div>
-      <span class="avatar-proof-count"><strong>${MEMBER_COUNT}+</strong> members</span>
     `;
   }
 
