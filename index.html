@@ -1420,8 +1420,8 @@ const VIP_HISTORY = [
     let seed = 0;
     for(let i=0;i<dateKey.length;i++){ seed = (seed * 31 + dateKey.charCodeAt(i)) >>> 0; }
     const pseudo = Math.abs(Math.sin(seed)); // deterministic 0..1 for this date
-    const TOTAL = 48;
-    const MIN_WINS = 43; // floor — keeps the rate from dropping under ~89%
+    const TOTAL = 45;
+    const MIN_WINS = 40; // floor — keeps the rate from dropping under ~89%
     
     const wins = MIN_WINS + Math.floor(pseudo * (TOTAL - MIN_WINS + 1)); // 37..48
     const losses = TOTAL - wins;
