@@ -1950,55 +1950,25 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
    values. Anyone visiting for the first time this week gets it
    immediately.
    ============================================================ */
+
 (function(){
   const BIN_ID = "6a6b254bf5f4af5e29d50aba";
   const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
-  const CACHE_KEY = "suretips_social_links_cache";
-
-  // Same week-number formula the reviews rotation uses — kept identical on
-  // purpose so both caches turn over on exactly the same day.
-  function getWeekNumber(){
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const diff = now - start;
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
-  }
-  function currentWeekKey(){
-    return `${new Date().getFullYear()}-${getWeekNumber()}`;
-  }
 
   function applyLinks(map){
     if(!map) return;
     document.querySelectorAll('[data-link-key]').forEach(el => {
       const key = el.getAttribute('data-link-key');
       const val = map[key];
-      if(!val) return; // unknown/empty key — leave element untouched
+      if(!val) return;
       el.setAttribute('href', key.endsWith('_email') ? `mailto:${val}` : val);
     });
   }
 
-  const weekKey = currentWeekKey();
-
-  // Same week as last visit? Apply the cached links and stop — no request.
-  let cached = null;
-  try{ cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); }catch(e){ /* ignore bad cache */ }
-  if(cached && cached.weekKey === weekKey && cached.data){
-    applyLinks(cached.data);
-    return;
-  }
-
-  // New week (or first-ever visit) — fetch once and cache for the week.
   fetch(BIN_URL, { headers: { "X-Bin-Meta": "false", "X-Access-Key": JSONBIN_ACCESS_KEY } })
     .then(res => { if(!res.ok) throw new Error("bad response"); return res.json(); })
-    .then(data => {
-      applyLinks(data);
-      try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ weekKey, data })); }catch(e){ /* storage unavailable, skip caching */ }
-    })
-    .catch(() => {
-      // JSONBin unreachable — fall back to last cached values if we have
-      // any (even from a previous week), rather than leaving stale HTML.
-      if(cached && cached.data) applyLinks(cached.data);
-    });
+    .then(data => applyLinks(data))
+    .catch(() => {});
 })();
 </script>
 </body>
