@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SureTips — Link Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a; --surface:#141a33; --surface-2:#1a2140; --line:rgba(255,255,255,0.08);
+    --gold:#fbbf24; --win:#34d399; --loss:#fb7185; --text:#f8fafc; --text-dim:#a7b0c8; --text-mute:#6b7591;
+    --grad-b:#7c3aed; --grad-c:#f59e0b; --radius-lg:16px; --radius-md:12px;
+    --font-display:'Sora',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.5; padding:24px 16px 64px; }
+  h1,h2,h3{ font-family:var(--font-display); }
+  .wrap{ max-width:680px; margin:0 auto; }
+  .brand{ font-family:'Sora',sans-serif; font-weight:800; font-size:1.2rem; margin-bottom:6px; }
+  .brand span{ color:var(--gold); }
+  .sub{ color:var(--text-mute); font-size:0.85rem; margin-bottom:28px; }
+
+  /* ---- password gate ---- */
+  #gate{ display:flex; align-items:center; justify-content:center; min-height:70vh; }
+  .gate-box{ width:100%; max-width:340px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:28px 24px; text-align:center; }
+  .gate-box input{ width:100%; margin-top:16px; padding:12px 14px; border-radius:var(--radius-md); border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-family:var(--font-mono); font-size:1rem; text-align:center; letter-spacing:0.1em; }
+  .gate-box input:focus{ outline:2px solid var(--gold); }
+  .gate-err{ color:var(--loss); font-size:0.8rem; margin-top:10px; min-height:1em; }
+
+  /* ---- panels / forms ---- */
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px; margin-bottom:18px; }
+  .panel h3{ font-size:0.95rem; margin-bottom:14px; }
+  .field{ margin-bottom:14px; }
+  .field:last-child{ margin-bottom:0; }
+  .field label{ display:block; font-size:0.78rem; color:var(--text-mute); margin-bottom:5px; }
+  .field input{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-family:var(--font-mono); font-size:0.86rem; }
+  .field input:focus{ outline:2px solid var(--gold); }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 20px; border-radius:999px; font-weight:700; font-size:0.9rem; cursor:pointer; border:none; width:100%; }
+  .btn-primary{ background:linear-gradient(135deg,var(--grad-b),var(--grad-c)); color:#1a1206; }
+  .btn-ghost{ background:var(--surface-2); border:1px solid var(--line); color:var(--text); }
+  .status{ font-size:0.82rem; margin-top:12px; text-align:center; min-height:1.2em; }
+  .status.ok{ color:var(--win); }
+  .status.err{ color:var(--loss); }
+  .note{ font-size:0.78rem; color:var(--text-mute); line-height:1.6; }
+  #app{ display:none; }
+  .sticky-save{ position:sticky; bottom:0; background:var(--bg); padding:14px 0 4px; }
+
+  /* ---- tab bar (segmented control) ---- */
+  .tabbar{ display:flex; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:4px; margin-bottom:22px; position:sticky; top:12px; z-index:10; }
+  .tabbtn{ flex:1; border:none; background:none; color:var(--text-dim); font-family:var(--font-body); font-weight:600; font-size:0.86rem; padding:10px 12px; border-radius:999px; cursor:pointer; }
+  .tabbtn.active{ background:linear-gradient(135deg,var(--grad-b),var(--grad-c)); color:#1a1206; }
+  .tabpanel{ display:none; }
+  .tabpanel.active{ display:block; }
+
+  /* ---- review cards ---- */
+  .review-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:18px; margin-bottom:14px; position:relative; }
+  .review-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .review-card-head span{ font-family:var(--font-mono); font-size:0.72rem; color:var(--text-mute); text-transform:uppercase; letter-spacing:0.06em; }
+  .review-delete{ background:none; border:1px solid var(--line); color:var(--loss); font-size:0.74rem; font-weight:600; padding:5px 10px; border-radius:999px; cursor:pointer; }
+  .review-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  @media (max-width:520px){ .review-row{ grid-template-columns:1fr; } }
+  .review-card .field textarea{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:0.86rem; resize:vertical; min-height:64px; }
+  .review-card .field textarea:focus{ outline:2px solid var(--gold); }
+  .add-review-btn{ margin-bottom:18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">SURE<span>TIPS</span>  Admin Panel</div>
+
+  <!-- ===================== PASSWORD GATE ===================== -->
+  <div id="gate">
+    <div class="gate-box">
+      <h2>Enter password</h2>
+      <p class="sub" style="margin-bottom:0;">Don't share this admin link.</p>
+      <input type="password" id="pwInput" placeholder="Password" autocomplete="off">
+      <button class="btn btn-primary" style="margin-top:14px;" id="pwSubmit">Unlock</button>
+      <div class="gate-err" id="pwErr"></div>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN APP ===================== -->
+  <div id="app">
+    <div class="tabbar" id="tabbar">
+      <button class="tabbtn active" data-tab="links">Change Links</button>
+      <button class="tabbtn" data-tab="reviews">Change Reviews</button>
+    </div>
+
+    <!-- ---------------- TAB: LINKS ---------------- -->
+    <div id="tab-links" class="tabpanel active">
+    <p class="sub">Edit any link below and hit Save. Each field is independent — changing one never touches the others.</p>
+
+    <form id="linksForm">
+      <div class="panel">
+        <h3>Links in the FAB+ <span style="color:var(--text-mute); font-weight:500;">(floating bottom-right button)</span></h3>
+        <div class="field"><label>WhatsApp Group</label><input data-key="fab_wa" type="url"></div>
+        <div class="field"><label>Telegram Channel</label><input data-key="fab_tg" type="url"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the Contacts <span style="color:var(--text-mute); font-weight:500;">(site footer)</span></h3>
+        <div class="field"><label>WhatsApp</label><input data-key="footer_wa" type="url"></div>
+        <div class="field"><label>Telegram</label><input data-key="footer_tg" type="url"></div>
+        <div class="field"><label>Email</label><input data-key="footer_email" type="email"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the Home page <span style="color:var(--text-mute); font-weight:500;">(sidebar, under the Popular Leagues table)</span></h3>
+        <div class="field"><label>WhatsApp Group</label><input data-key="home_sidebar_wa" type="url"></div>
+        <div class="field"><label>Telegram Channel</label><input data-key="home_sidebar_tg" type="url"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the VIP Results page <span style="color:var(--text-mute); font-weight:500;">(sidebar community panel)</span></h3>
+        <div class="field"><label>WhatsApp Group</label><input data-key="vip_sidebar_wa" type="url"></div>
+        <div class="field"><label>Telegram Channel</label><input data-key="vip_sidebar_tg" type="url"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the VIP popup <span style="color:var(--text-mute); font-weight:500;">("VIP Tips" info modal)</span></h3>
+        <div class="field"><label>WhatsApp</label><input data-key="modal_wa" type="url"></div>
+        <div class="field"><label>Telegram</label><input data-key="modal_tg" type="url"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the VIP join status story <span style="color:var(--text-mute); font-weight:500;">(full-screen "Join VIP" slides)</span></h3>
+        <div class="field"><label>WhatsApp</label><input data-key="story_wa" type="url"></div>
+        <div class="field"><label>Telegram</label><input data-key="story_tg" type="url"></div>
+        <div class="field"><label>Email</label><input data-key="story_email" type="email"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the Free Predictions page <span style="color:var(--text-mute); font-weight:500;">(sidebar community panel — not on your list, adding it since it's a separate placement)</span></h3>
+        <div class="field"><label>WhatsApp Group</label><input data-key="free_sidebar_wa" type="url"></div>
+        <div class="field"><label>Telegram Channel</label><input data-key="free_sidebar_tg" type="url"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Links in the Support page <span style="color:var(--text-mute); font-weight:500;">(direct admin contact — not on your list, adding it since it's a separate placement)</span></h3>
+        <div class="field"><label>WhatsApp</label><input data-key="support_wa" type="url"></div>
+        <div class="field"><label>Telegram</label><input data-key="support_tg" type="url"></div>
+        <div class="field"><label>Email</label><input data-key="support_email" type="email"></div>
+      </div>
+
+      <div class="sticky-save">
+        <button type="submit" class="btn btn-primary" id="saveBtn">Save changes</button>
+        <div class="status" id="saveStatus"></div>
+      </div>
+    </form>
+    </div>
+
+    <!-- ---------------- TAB: REVIEWS ---------------- -->
+    <div id="tab-reviews" class="tabpanel">
+      <p class="sub">Each review has its own separate fields — no JSON, no commas to worry about. Edit the text, add or remove reviews, then hit Save at the bottom.</p>
+      <div id="reviewsList"></div>
+      <button type="button" class="btn btn-ghost add-review-btn" id="addReviewBtn">+ Add a review</button>
+      <div class="sticky-save">
+        <button type="button" class="btn btn-primary" id="saveReviewsBtn">Save reviews</button>
+        <div class="status" id="reviewsStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — edit these two lines for this client.
+   ============================================================ */
+  const ADMIN_PASSWORD = "suretips";        // must end in a letter, per client's rule. Change freely.
+  const MASTER_KEY = "$2a$10$Rnlh4ZmdU7SW7w53w6fgaepgcga4cHTPQkHM8Mm3tdrRZglH11xx2";
+  const LINKS_BIN_ID = "6a6b254bf5f4af5e29d50aba";     // same bin index.html reads links from
+  const REVIEWS_BIN_ID = "6a6b2ae2f5f4af5e29d5215a";   // same bin index.html reads reviews from
+
+  const API_BASE = "https://api.jsonbin.io/v3/b";
+
+  // Current live links — used to pre-fill the bin the first time it's created.
+  const DEFAULT_LINKS = {
+    home_sidebar_wa:  "https://chat.whatsapp.com/BQiEFLNQRovGK5SO1cNfVz?s=cl&p=a&ilr=0&amv=2",
+    home_sidebar_tg:  "https://t.me/SureTips80",
+    free_sidebar_wa:  "https://chat.whatsapp.com/BQiEFLNQRovGK5SO1cNfVz?s=cl&p=a&ilr=0&amv=2",
+    free_sidebar_tg:  "https://t.me/SureTips80",
+    vip_sidebar_wa:   "https://chat.whatsapp.com/suretipsgroup",
+    vip_sidebar_tg:   "https://t.me/suretips_channel",
+    fab_wa:           "https://chat.whatsapp.com/BQiEFLNQRovGK5SO1cNfVz?s=cl&p=a&ilr=0&amv=2",
+    fab_tg:           "https://t.me/SureTips80",
+    support_wa:       "https://wa.me/message/PTEJKBHXGHUOG1",
+    support_tg:       "https://t.me/SURETIPS_8",
+    support_email:    "fixedagent09@gmail.com",
+    footer_wa:        "https://wa.me/message/PTEJKBHXGHUOG1",
+    footer_tg:        "https://t.me/SURETIPS_8",
+    footer_email:     "fixedagent09@gmail.com",
+    modal_wa:         "https://wa.me/message/PTEJKBHXGHUOG1",
+    modal_tg:         "https://t.me/SURETIPS_8",
+    story_wa:         "https://wa.me/message/PTEJKBHXGHUOG1",
+    story_tg:         "https://t.me/SURETIPS_8",
+    story_email:      "fixedagent09@gmail.com"
+  };
+
+  // ---- password gate ----
+  const pwInput = document.getElementById('pwInput');
+  const pwSubmit = document.getElementById('pwSubmit');
+  const pwErr = document.getElementById('pwErr');
+  function tryUnlock(){
+    if(pwInput.value === ADMIN_PASSWORD){
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      initApp();
+    }else{
+      pwErr.textContent = "Wrong password.";
+    }
+  }
+  pwSubmit.addEventListener('click', tryUnlock);
+  pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+
+  // ---- tab switching ----
+  document.querySelectorAll('.tabbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b === btn));
+      const tab = btn.dataset.tab;
+      document.getElementById('tab-links').classList.toggle('active', tab === 'links');
+      document.getElementById('tab-reviews').classList.toggle('active', tab === 'reviews');
+    });
+  });
+
+  // ---- app logic ----
+  function initApp(){
+    loadBin();
+    loadReviews();
+  }
+
+  async function loadBin(){
+    try{
+      const res = await fetch(`${API_BASE}/${LINKS_BIN_ID}/latest`, {
+        headers: { "X-Master-Key": MASTER_KEY, "X-Bin-Meta": "false" }
+      });
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      populateForm(Object.assign({}, DEFAULT_LINKS, data));
+    }catch(e){
+      populateForm(DEFAULT_LINKS);
+      const s = document.getElementById('saveStatus');
+      s.textContent = "Couldn't load saved links — showing last-known defaults. Saving will overwrite the bin.";
+      s.className = "status err";
+    }
+  }
+
+  function populateForm(map){
+    document.querySelectorAll('#linksForm input[data-key]').forEach(input => {
+      const key = input.getAttribute('data-key');
+      input.value = map[key] || "";
+    });
+  }
+
+  document.getElementById('linksForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const statusEl = document.getElementById('saveStatus');
+
+    const payload = {};
+    document.querySelectorAll('#linksForm input[data-key]').forEach(input => {
+      payload[input.getAttribute('data-key')] = input.value.trim();
+    });
+
+    statusEl.textContent = "Saving…";
+    statusEl.className = "status";
+    try{
+      const res = await fetch(`${API_BASE}/${LINKS_BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": MASTER_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error("Save failed (" + res.status + ")");
+      statusEl.textContent = "Saved ✓ — live site will pick this up on next load.";
+      statusEl.className = "status ok";
+    }catch(e){
+      statusEl.textContent = "Save failed: " + e.message;
+      statusEl.className = "status err";
+    }
+  });
+
+  // ---- reviews (Change Reviews tab) ----
+  const reviewsListEl = document.getElementById('reviewsList');
+  let reviewSeq = 0; // internal counter for new cards, not the saved "id"
+
+  function reviewCardHTML(r, uid){
+    return `
+      <div class="review-card" data-uid="${uid}">
+        <div class="review-card-head">
+          <span>Review</span>
+          <button type="button" class="review-delete" data-uid="${uid}">Delete</button>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Name</label><input class="rv-name" type="text" value="${escapeAttr(r.name || '')}"></div>
+          <div class="field"><label>Location / meta</label><input class="rv-meta" type="text" value="${escapeAttr(r.meta || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Avatar image URL</label><input class="rv-avatar" type="url" value="${escapeAttr(r.avatar || '')}"></div>
+          <div class="field"><label>Rating (1–5)</label><input class="rv-rating" type="number" min="1" max="5" value="${r.rating || 5}"></div>
+        </div>
+        <div class="field"><label>Review text</label><textarea class="rv-quote">${escapeHTML(r.quote || '')}</textarea></div>
+      </div>`;
+  }
+  function escapeAttr(s){ return String(s).replace(/"/g, "&quot;"); }
+  function escapeHTML(s){ return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  function renderReviews(reviews){
+    reviewsListEl.innerHTML = "";
+    reviews.forEach(r => {
+      reviewSeq++;
+      reviewsListEl.insertAdjacentHTML('beforeend', reviewCardHTML(r, reviewSeq));
+    });
+    bindDeleteButtons();
+  }
+
+  function bindDeleteButtons(){
+    reviewsListEl.querySelectorAll('.review-delete').forEach(btn => {
+      btn.onclick = () => {
+        reviewsListEl.querySelector(`.review-card[data-uid="${btn.dataset.uid}"]`).remove();
+      };
+    });
+  }
+
+  document.getElementById('addReviewBtn').addEventListener('click', () => {
+    reviewSeq++;
+    reviewsListEl.insertAdjacentHTML('beforeend', reviewCardHTML({ rating: 5 }, reviewSeq));
+    bindDeleteButtons();
+  });
+
+  async function loadReviews(){
+    try{
+      const res = await fetch(`${API_BASE}/${REVIEWS_BIN_ID}/latest`, {
+        headers: { "X-Master-Key": MASTER_KEY, "X-Bin-Meta": "false" }
+      });
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      renderReviews(Array.isArray(data) ? data : []);
+    }catch(e){
+      const s = document.getElementById('reviewsStatus');
+      s.textContent = "Couldn't load saved reviews from the bin.";
+      s.className = "status err";
+    }
+  }
+
+  document.getElementById('saveReviewsBtn').addEventListener('click', async () => {
+    const statusEl = document.getElementById('reviewsStatus');
+    const cards = Array.from(reviewsListEl.querySelectorAll('.review-card'));
+    const payload = cards.map((card, i) => ({
+      id: i + 1,
+      name: card.querySelector('.rv-name').value.trim(),
+      meta: card.querySelector('.rv-meta').value.trim(),
+      avatar: card.querySelector('.rv-avatar').value.trim(),
+      rating: Math.max(1, Math.min(5, parseInt(card.querySelector('.rv-rating').value, 10) || 5)),
+      quote: card.querySelector('.rv-quote').value.trim()
+    })).filter(r => r.name || r.quote); // drop fully-empty cards
+
+    statusEl.textContent = "Saving…";
+    statusEl.className = "status";
+    try{
+      const res = await fetch(`${API_BASE}/${REVIEWS_BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": MASTER_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error("Save failed (" + res.status + ")");
+      statusEl.textContent = `Saved ✓ — ${payload.length} reviews live on next load.`;
+      statusEl.className = "status ok";
+    }catch(e){
+      statusEl.textContent = "Save failed: " + e.message;
+      statusEl.className = "status err";
+    }
+  });
+</script>
+</body>
+</html>
