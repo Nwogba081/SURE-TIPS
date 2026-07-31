@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fetch Fixtures</title>
+<style>
+  body { font-family: monospace; background: #111; color: #fff; padding: 20px; max-width: 800px; margin: 0 auto; }
+  h1 { color: #fbbf24; }
+  button { padding: 14px 28px; font-size: 16px; cursor: pointer; background: #7c3aed; color: #fff; border: none; border-radius: 8px; margin: 10px 0; }
+  button:hover { background: #6d28d9; }
+  pre { background: #1a1a1a; padding: 15px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; max-height: 600px; font-size: 12px; }
+  .status { padding: 10px; margin: 10px 0; border-radius: 6px; }
+  .ok { background: #065f46; color: #6ee7b7; }
+  .err { background: #7f1d1d; color: #fca5a5; }
+  .info { color: #94a3b8; font-size: 14px; margin: 5px 0; }
+  textarea { width: 100%; height: 200px; background: #1a1a1a; color: #51cf66; border: 1px solid #333; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 12px; margin-top: 10px; }
+  .copy-btn { background: #f59e0b; color: #000; padding: 10px 20px; }
+</style>
+</head>
+<body>
+<h1>Fetch League Fixtures</h1>
+<p class="info">Click the button to fetch all 6 leagues from RapidAPI. Copy the JSON output into <code>fixtures.json</code> in your GitHub repo.</p>
+<p class="info">Do this once a week (e.g., every Monday).</p>
+
+<button onclick="fetchAll()">Fetch All Leagues</button>
+<div id="status"></div>
+<pre id="output"></pre>
+
+<div id="copySection" style="display:none;">
+  <p class="info">Copy this JSON into <code>fixtures.json</code> on GitHub:</p>
+  <textarea id="jsonOutput" readonly></textarea>
+  <button class="copy-btn" onclick="copyJSON()">Copy to Clipboard</button>
+</div>
+
+<script>
+const KEY = 'cbb6e2b6bamsh041eed1c81e7e0dp1b846ejsn669acdaca5ed';
+const HOST = 'free-api-live-football-data.p.rapidapi.com';
+
+const LEAGUES = [
+  { id: 47, name: "Premier League" },
+  { id: 87, name: "LaLiga" },
+  { id: 42, name: "Champions League" },
+  { id: 54, name: "Bundesliga" },
+  { id: 55, name: "Serie A" },
+  { id: 53, name: "Ligue 1" }
+];
+
+async function fetchLeague(league) {
+  const res = await fetch(`https://free-api-live-football-data.p.rapidapi.com/football-get-all-matches-by-league?leagueid=${league.id}`, {
+    headers: {
+      'X-RapidAPI-Key': KEY,
+      'X-RapidAPI-Host': HOST
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${league.name}`);
+  const data = await res.json();
+  return { id: league.id, name: league.name, data };
+}
+
+async function fetchAll() {
+  const status = document.getElementById('status');
+  const output = document.getElementById('output');
+  const copySection = document.getElementById('copySection');
+  
+  status.innerHTML = '<div class="status">Fetching all 6 leagues...</div>';
+  output.textContent = 'Loading...';
+  
+  try {
+    const results = await Promise.all(LEAGUES.map(fetchLeague));
+    
+    // Build the combined JSON
+    const combined = {
+      updated: new Date().toISOString(),
+      leagues: {}
+    };
+    
+    results.forEach(({ id, name, data }) => {
+      const matches = (data.response && data.response.matches) 
+        ? data.response.matches.slice(0, 6) 
+        : [];
+      
+      combined.leagues[id] = {
+        name: name,
+        fixtures: matches.map(m => {
+          const homeId = m.home?.id?.toString()?.padStart(6, '0') || 'default';
+          const awayId = m.away?.id?.toString()?.padStart(6, '0') || 'default';
+          return {
+            home: m.home?.name || "TBD",
+            away: m.away?.name || "TBD",
+            homeLogo: `https://images.fotmob.com/image_resources/logo/teamlogo/${homeId}.png`,
+            awayLogo: `https://images.fotmob.com/image_resources/logo/teamlogo/${awayId}.png`,
+            kickoff: m.status?.utcTime || null
+          };
+        })
+      };
+    });
+    
+    const jsonStr = JSON.stringify(combined, null, 2);
+    
+    status.innerHTML = '<div class="status ok">Success! All 6 leagues fetched.</div>';
+    output.textContent = jsonStr.substring(0, 1000) + '\n\n... (full JSON in textarea below)';
+    
+    document.getElementById('jsonOutput').value = jsonStr;
+    copySection.style.display = 'block';
+    
+  } catch(e) {
+    status.innerHTML = `<div class="status err">Error: ${e.message}</div>`;
+    output.textContent = 'Fetch failed. Check console for details.';
+    console.error(e);
+  }
+}
+
+function copyJSON() {
+  const textarea = document.getElementById('jsonOutput');
+  textarea.select();
+  document.execCommand('copy');
+  alert('JSON copied to clipboard!');
+}
+</script>
+</body>
+</html>
