@@ -20,14 +20,12 @@
   .brand span{ color:var(--gold); }
   .sub{ color:var(--text-mute); font-size:0.85rem; margin-bottom:28px; }
 
-  /* ---- password gate ---- */
   #gate{ display:flex; align-items:center; justify-content:center; min-height:70vh; }
   .gate-box{ width:100%; max-width:340px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:28px 24px; text-align:center; }
   .gate-box input{ width:100%; margin-top:16px; padding:12px 14px; border-radius:var(--radius-md); border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-family:var(--font-mono); font-size:1rem; text-align:center; letter-spacing:0.1em; }
   .gate-box input:focus{ outline:2px solid var(--gold); }
   .gate-err{ color:var(--loss); font-size:0.8rem; margin-top:10px; min-height:1em; }
 
-  /* ---- panels / forms ---- */
   .panel{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px; margin-bottom:18px; }
   .panel h3{ font-size:0.95rem; margin-bottom:14px; }
   .field{ margin-bottom:14px; }
@@ -45,14 +43,12 @@
   #app{ display:none; }
   .sticky-save{ position:sticky; bottom:0; background:var(--bg); padding:14px 0 4px; }
 
-  /* ---- tab bar (segmented control) ---- */
-  .tabbar{ display:flex; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:4px; margin-bottom:22px; position:sticky; top:12px; z-index:10; }
-  .tabbtn{ flex:1; border:none; background:none; color:var(--text-dim); font-family:var(--font-body); font-weight:600; font-size:0.86rem; padding:10px 12px; border-radius:999px; cursor:pointer; }
+  .tabbar{ display:flex; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:4px; margin-bottom:22px; position:sticky; top:12px; z-index:10; flex-wrap:wrap; }
+  .tabbtn{ flex:1; min-width:120px; border:none; background:none; color:var(--text-dim); font-family:var(--font-body); font-weight:600; font-size:0.86rem; padding:10px 12px; border-radius:999px; cursor:pointer; }
   .tabbtn.active{ background:linear-gradient(135deg,var(--grad-b),var(--grad-c)); color:#1a1206; }
   .tabpanel{ display:none; }
   .tabpanel.active{ display:block; }
 
-  /* ---- review cards ---- */
   .review-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:18px; margin-bottom:14px; position:relative; }
   .review-card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
   .review-card-head span{ font-family:var(--font-mono); font-size:0.72rem; color:var(--text-mute); text-transform:uppercase; letter-spacing:0.06em; }
@@ -61,7 +57,10 @@
   @media (max-width:520px){ .review-row{ grid-template-columns:1fr; } }
   .review-card .field textarea{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:0.86rem; resize:vertical; min-height:64px; }
   .review-card .field textarea:focus{ outline:2px solid var(--gold); }
+  .review-card .field select{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); font-family:var(--font-mono); font-size:0.86rem; }
   .add-review-btn{ margin-bottom:18px; }
+  .subsection-title{ font-size:0.95rem; font-weight:700; margin:0 0 10px; }
+  .subsection-title.spaced{ margin-top:22px; }
 </style>
 </head>
 <body>
@@ -74,6 +73,10 @@
       <h2>Enter password</h2>
       <p class="sub" style="margin-bottom:0;">Don't share this admin link.</p>
       <input type="password" id="pwInput" placeholder="Password" autocomplete="off">
+      <label style="display:flex; align-items:center; gap:8px; justify-content:center; margin-top:14px; font-size:0.82rem; color:var(--text-mute); cursor:pointer;">
+        <input type="checkbox" id="rememberMe" style="width:16px; height:16px; accent-color:var(--gold); cursor:pointer;">
+        Remember me on this device
+      </label>
       <button class="btn btn-primary" style="margin-top:14px;" id="pwSubmit">Unlock</button>
       <div class="gate-err" id="pwErr"></div>
     </div>
@@ -81,10 +84,15 @@
 
   <!-- ===================== MAIN APP ===================== -->
   <div id="app">
+    
     <div class="tabbar" id="tabbar">
       <button class="tabbtn active" data-tab="links">Change Links</button>
       <button class="tabbtn" data-tab="reviews">Change Reviews</button>
+      <button class="tabbtn" data-tab="viphistory">VIP History</button>
+      <button class="tabbtn" data-tab="freepicks">Free Predictions</button>
     </div>
+    <button type="button" id="logoutBtn" style="display:block; margin:0 0 18px auto; background:none; border:1px solid var(--line); color:var(--loss); font-size:0.78rem; font-weight:600; padding:7px 14px; border-radius:999px; cursor:pointer;">Log out</button>
+    
 
     <!-- ---------------- TAB: LINKS ---------------- -->
     <div id="tab-links" class="tabpanel active">
@@ -159,17 +167,54 @@
         <div class="status" id="reviewsStatus"></div>
       </div>
     </div>
+
+    <!-- ---------------- TAB: VIP HISTORY ---------------- -->
+    <div id="tab-viphistory" class="tabpanel">
+      <p class="sub">Most recent first. Each card is one settled VIP result.</p>
+      <div id="vipHistoryList"></div>
+      <button type="button" class="btn btn-ghost add-review-btn" id="addVipBtn">+ Add a result</button>
+      <div class="sticky-save">
+        <button type="button" class="btn btn-primary" id="saveVipBtn">Save VIP history</button>
+        <div class="status" id="vipStatus"></div>
+      </div>
+    </div>
+
+    <!-- ---------------- TAB: FREE PREDICTIONS ---------------- -->
+    <div id="tab-freepicks" class="tabpanel">
+      <p class="sub">Live picks show today with no result yet. Settled results are already-finished matches.</p>
+
+      <h3 class="subsection-title">Live picks (today)</h3>
+      <div id="freeLiveList"></div>
+      <button type="button" class="btn btn-ghost add-review-btn" id="addFreeLiveBtn">+ Add live pick</button>
+
+      <h3 class="subsection-title spaced">Settled results (past)</h3>
+      <div id="freeSettledList"></div>
+      <button type="button" class="btn btn-ghost add-review-btn" id="addFreeSettledBtn">+ Add settled result</button>
+
+      <div class="sticky-save">
+        <button type="button" class="btn btn-primary" id="saveFreeBtn">Save free predictions</button>
+        <div class="status" id="freeStatus"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 /* ============================================================
-   CONFIG — edit these two lines for this client.
+   CONFIG — edit these lines for this client.
    ============================================================ */
   const ADMIN_PASSWORD = "suretips";        // must end in a letter, per client's rule. Change freely.
   const MASTER_KEY = "$2a$10$Rnlh4ZmdU7SW7w53w6fgaepgcga4cHTPQkHM8Mm3tdrRZglH11xx2";
   const LINKS_BIN_ID = "6a6b254bf5f4af5e29d50aba";     // same bin index.html reads links from
   const REVIEWS_BIN_ID = "6a6b2ae2f5f4af5e29d5215a";   // same bin index.html reads reviews from
+
+  // Separate JSONBin account for VIP History + Free Predictions.
+  const VIP_MASTER_KEY = "$2a$10$eHFiJDn.htN/Jng74cd/zuyGBWTZtuT7vWjAx6S2lk9xz8KHmOYti";
+  const VIP_HISTORY_BIN_ID = "6a6ce092f5f4af5e29db0263";
+  const FREE_PICKS_BIN_ID  = "6a6ce073f5f4af5e29db01f3";
+  
+  
+  
 
   const API_BASE = "https://api.jsonbin.io/v3/b";
 
@@ -197,20 +242,52 @@
   };
 
   // ---- password gate ----
+  // ---- password gate ----
+  const REMEMBER_KEY = "suretips_admin_remembered";
   const pwInput = document.getElementById('pwInput');
   const pwSubmit = document.getElementById('pwSubmit');
   const pwErr = document.getElementById('pwErr');
+  const rememberMe = document.getElementById('rememberMe');
+
+  function unlockApp(){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+  }
+
   function tryUnlock(){
     if(pwInput.value === ADMIN_PASSWORD){
-      document.getElementById('gate').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      initApp();
+      if(rememberMe.checked){
+        try{ localStorage.setItem(REMEMBER_KEY, "1"); }catch(e){ /* storage unavailable, skip remembering */ }
+      }
+      unlockApp();
     }else{
       pwErr.textContent = "Wrong password.";
     }
   }
   pwSubmit.addEventListener('click', tryUnlock);
   pwInput.addEventListener('keydown', e => { if(e.key === 'Enter') tryUnlock(); });
+
+  // Skip the gate entirely if this device was remembered
+  
+// Skip the gate entirely if this device was remembered
+  (function checkRemembered(){
+    try{
+      if(localStorage.getItem(REMEMBER_KEY) === "1"){
+        unlockApp();
+      }
+    }catch(e){ /* storage unavailable, show gate as normal */ }
+  })();
+
+  // ---- logout ----
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    try{ localStorage.removeItem(REMEMBER_KEY); }catch(e){ /* storage unavailable, nothing to clear */ }
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+    pwInput.value = '';
+    rememberMe.checked = false;
+    pwErr.textContent = '';
+  });
 
   // ---- tab switching ----
   document.querySelectorAll('.tabbtn').forEach(btn => {
@@ -219,6 +296,8 @@
       const tab = btn.dataset.tab;
       document.getElementById('tab-links').classList.toggle('active', tab === 'links');
       document.getElementById('tab-reviews').classList.toggle('active', tab === 'reviews');
+      document.getElementById('tab-viphistory').classList.toggle('active', tab === 'viphistory');
+      document.getElementById('tab-freepicks').classList.toggle('active', tab === 'freepicks');
     });
   });
 
@@ -226,6 +305,8 @@
   function initApp(){
     loadBin();
     loadReviews();
+    loadVipHistory();
+    loadFreePicks();
   }
 
   async function loadBin(){
@@ -368,6 +449,254 @@
       });
       if(!res.ok) throw new Error("Save failed (" + res.status + ")");
       statusEl.textContent = `Saved ✓ — ${payload.length} reviews live on next load.`;
+      statusEl.className = "status ok";
+    }catch(e){
+      statusEl.textContent = "Save failed: " + e.message;
+      statusEl.className = "status err";
+    }
+  });
+
+  // ==========================================================
+  // ---- VIP HISTORY (Change VIP History tab) ----
+  // ==========================================================
+  const vipListEl = document.getElementById('vipHistoryList');
+  let vipSeq = 0;
+
+  function vipCardHTML(r, uid){
+    return `
+      <div class="review-card" data-uid="${uid}">
+        <div class="review-card-head">
+          <span>Result</span>
+          <button type="button" class="review-delete" data-uid="${uid}">Delete</button>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Days ago</label><input class="vip-daysago" type="number" min="0" value="${r.daysAgo ?? 1}"></div>
+          <div class="field"><label>League</label><input class="vip-league" type="text" value="${escapeAttr(r.league || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Kickoff time</label><input class="vip-time" type="text" placeholder="20:00" value="${escapeAttr(r.time || '')}"></div>
+          <div class="field"><label>Odds</label><input class="vip-odds" type="text" value="${escapeAttr(r.odds || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Home team</label><input class="vip-home" type="text" value="${escapeAttr(r.home || '')}"></div>
+          <div class="field"><label>Away team</label><input class="vip-away" type="text" value="${escapeAttr(r.away || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Pick</label><input class="vip-pick" type="text" value="${escapeAttr(r.pick || '')}"></div>
+          <div class="field"><label>Score</label><input class="vip-score" type="text" placeholder="2:1" value="${escapeAttr(r.score || '')}"></div>
+        </div>
+        <div class="field">
+          <label>Result</label>
+          <select class="vip-result">
+            <option value="win" ${r.result==='win'?'selected':''}>Win</option>
+            <option value="loss" ${r.result==='loss'?'selected':''}>Loss</option>
+            <option value="void" ${r.result==='void'?'selected':''}>Void</option>
+          </select>
+        </div>
+      </div>`;
+  }
+
+  function renderVipHistory(list){
+    vipListEl.innerHTML = "";
+    list.forEach(r => {
+      vipSeq++;
+      vipListEl.insertAdjacentHTML('beforeend', vipCardHTML(r, vipSeq));
+    });
+    bindVipDeleteButtons();
+  }
+  function bindVipDeleteButtons(){
+    vipListEl.querySelectorAll('.review-delete').forEach(btn => {
+      btn.onclick = () => vipListEl.querySelector(`.review-card[data-uid="${btn.dataset.uid}"]`).remove();
+    });
+  }
+  document.getElementById('addVipBtn').addEventListener('click', () => {
+    vipSeq++;
+    vipListEl.insertAdjacentHTML('beforeend', vipCardHTML({ daysAgo: 1, result: 'win' }, vipSeq));
+    bindVipDeleteButtons();
+  });
+
+  async function loadVipHistory(){
+    try{
+      const res = await fetch(`${API_BASE}/${VIP_HISTORY_BIN_ID}/latest`, {
+        headers: { "X-Master-Key": VIP_MASTER_KEY, "X-Bin-Meta": "false" }
+      });
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      renderVipHistory(Array.isArray(data) ? data : []);
+    }catch(e){
+      const s = document.getElementById('vipStatus');
+      s.textContent = "Couldn't load VIP history.";
+      s.className = "status err";
+    }
+  }
+
+  document.getElementById('saveVipBtn').addEventListener('click', async () => {
+    const statusEl = document.getElementById('vipStatus');
+    const cards = Array.from(vipListEl.querySelectorAll('.review-card'));
+    const payload = cards.map(card => ({
+      daysAgo: parseInt(card.querySelector('.vip-daysago').value, 10) || 0,
+      league: card.querySelector('.vip-league').value.trim(),
+      time: card.querySelector('.vip-time').value.trim(),
+      home: card.querySelector('.vip-home').value.trim(),
+      away: card.querySelector('.vip-away').value.trim(),
+      pick: card.querySelector('.vip-pick').value.trim(),
+      odds: card.querySelector('.vip-odds').value.trim(),
+      score: card.querySelector('.vip-score').value.trim(),
+      result: card.querySelector('.vip-result').value
+    }));
+    statusEl.textContent = "Saving…";
+    statusEl.className = "status";
+    try{
+      const res = await fetch(`${API_BASE}/${VIP_HISTORY_BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": VIP_MASTER_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error("Save failed (" + res.status + ")");
+      statusEl.textContent = `Saved ✓ — ${payload.length} results live on next load.`;
+      statusEl.className = "status ok";
+    }catch(e){
+      statusEl.textContent = "Save failed: " + e.message;
+      statusEl.className = "status err";
+    }
+  });
+
+  // ==========================================================
+  // ---- FREE PREDICTIONS (Change Free Predictions tab) ----
+  // ==========================================================
+  const freeLiveEl = document.getElementById('freeLiveList');
+  const freeSettledEl = document.getElementById('freeSettledList');
+  let freeSeq = 0;
+
+  function freeLiveCardHTML(r, uid){
+    return `
+      <div class="review-card" data-uid="${uid}">
+        <div class="review-card-head"><span>Live pick</span><button type="button" class="review-delete" data-uid="${uid}">Delete</button></div>
+        <div class="review-row">
+          <div class="field"><label>Team</label><input class="fl-team" type="text" value="${escapeAttr(r.team || '')}"></div>
+          <div class="field"><label>Odds</label><input class="fl-odds" type="text" value="${escapeAttr(r.odds || '')}"></div>
+        </div>
+        <div class="field"><label>Pick</label><input class="fl-pick" type="text" value="${escapeAttr(r.pick || '')}"></div>
+      </div>`;
+  }
+
+  function freeSettledCardHTML(r, uid){
+    return `
+      <div class="review-card" data-uid="${uid}">
+        <div class="review-card-head"><span>Settled result</span><button type="button" class="review-delete" data-uid="${uid}">Delete</button></div>
+        <div class="review-row">
+          <div class="field"><label>Days ago</label><input class="fs-daysago" type="number" min="1" value="${r.daysAgo ?? 1}"></div>
+          <div class="field"><label>League</label><input class="fs-league" type="text" value="${escapeAttr(r.league || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Kickoff time</label><input class="fs-time" type="text" placeholder="19:45" value="${escapeAttr(r.time || '')}"></div>
+          <div class="field"><label>Odds</label><input class="fs-odds" type="text" value="${escapeAttr(r.odds || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Home team</label><input class="fs-home" type="text" value="${escapeAttr(r.home || '')}"></div>
+          <div class="field"><label>Away team</label><input class="fs-away" type="text" value="${escapeAttr(r.away || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>Pick</label><input class="fs-pick" type="text" value="${escapeAttr(r.pick || '')}"></div>
+          <div class="field"><label>Score</label><input class="fs-score" type="text" placeholder="2:2" value="${escapeAttr(r.score || '')}"></div>
+        </div>
+        <div class="field">
+          <label>Result</label>
+          <select class="fs-result">
+            <option value="win" ${r.result==='win'?'selected':''}>Win</option>
+            <option value="loss" ${r.result==='loss'?'selected':''}>Loss</option>
+          </select>
+        </div>
+      </div>`;
+  }
+
+  function bindFreeDeleteButtons(container){
+    container.querySelectorAll('.review-delete').forEach(btn => {
+      btn.onclick = () => container.querySelector(`.review-card[data-uid="${btn.dataset.uid}"]`).remove();
+    });
+  }
+
+  function renderFreePicks(list){
+    freeLiveEl.innerHTML = "";
+    freeSettledEl.innerHTML = "";
+    list.filter(p => (p.daysAgo || 0) === 0).forEach(r => {
+      freeSeq++;
+      freeLiveEl.insertAdjacentHTML('beforeend', freeLiveCardHTML(r, freeSeq));
+    });
+    list.filter(p => (p.daysAgo || 0) > 0).forEach(r => {
+      freeSeq++;
+      freeSettledEl.insertAdjacentHTML('beforeend', freeSettledCardHTML(r, freeSeq));
+    });
+    bindFreeDeleteButtons(freeLiveEl);
+    bindFreeDeleteButtons(freeSettledEl);
+  }
+
+  document.getElementById('addFreeLiveBtn').addEventListener('click', () => {
+    freeSeq++;
+    freeLiveEl.insertAdjacentHTML('beforeend', freeLiveCardHTML({}, freeSeq));
+    bindFreeDeleteButtons(freeLiveEl);
+  });
+  document.getElementById('addFreeSettledBtn').addEventListener('click', () => {
+    freeSeq++;
+    freeSettledEl.insertAdjacentHTML('beforeend', freeSettledCardHTML({ daysAgo: 1, result: 'win' }, freeSeq));
+    bindFreeDeleteButtons(freeSettledEl);
+  });
+
+  async function loadFreePicks(){
+    try{
+      const res = await fetch(`${API_BASE}/${FREE_PICKS_BIN_ID}/latest`, {
+        headers: { "X-Master-Key": VIP_MASTER_KEY, "X-Bin-Meta": "false" }
+      });
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      renderFreePicks(Array.isArray(data) ? data : []);
+    }catch(e){
+      const s = document.getElementById('freeStatus');
+      s.textContent = "Couldn't load free predictions.";
+      s.className = "status err";
+    }
+  }
+
+  document.getElementById('saveFreeBtn').addEventListener('click', async () => {
+    const statusEl = document.getElementById('freeStatus');
+    const liveCards = Array.from(freeLiveEl.querySelectorAll('.review-card'));
+    const settledCards = Array.from(freeSettledEl.querySelectorAll('.review-card'));
+
+    const livePayload = liveCards.map(card => ({
+      daysAgo: 0,
+      team: card.querySelector('.fl-team').value.trim(),
+      pick: card.querySelector('.fl-pick').value.trim(),
+      odds: card.querySelector('.fl-odds').value.trim()
+    }));
+    const settledPayload = settledCards.map(card => ({
+      daysAgo: parseInt(card.querySelector('.fs-daysago').value, 10) || 1,
+      league: card.querySelector('.fs-league').value.trim(),
+      time: card.querySelector('.fs-time').value.trim(),
+      home: card.querySelector('.fs-home').value.trim(),
+      away: card.querySelector('.fs-away').value.trim(),
+      pick: card.querySelector('.fs-pick').value.trim(),
+      odds: card.querySelector('.fs-odds').value.trim(),
+      score: card.querySelector('.fs-score').value.trim(),
+      result: card.querySelector('.fs-result').value
+    }));
+
+    const payload = [...livePayload, ...settledPayload];
+    statusEl.textContent = "Saving…";
+    statusEl.className = "status";
+    try{
+      const res = await fetch(`${API_BASE}/${FREE_PICKS_BIN_ID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": VIP_MASTER_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error("Save failed (" + res.status + ")");
+      statusEl.textContent = `Saved ✓ — ${payload.length} entries live on next load.`;
       statusEl.className = "status ok";
     }catch(e){
       statusEl.textContent = "Save failed: " + e.message;
