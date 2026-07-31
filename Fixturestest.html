@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>League Fixtures Test</title>
+<style>
+  body { font-family: monospace; background: #111; color: #fff; padding: 20px; }
+  .league { background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+  .league h3 { color: #51cf66; margin: 0 0 10px 0; }
+  .match { padding: 5px 0; border-bottom: 1px solid #333; font-size: 14px; }
+  .err { color: #ff6b6b; }
+  button { padding: 10px 20px; cursor: pointer; margin-bottom: 10px; font-size: 16px; }
+</style>
+</head>
+<body>
+<h1>League Fixtures Test</h1>
+<button onclick="testAll()">Fetch All Leagues</button>
+<div id="output"></div>
+
+<script>
+const KEY = 'cbb6e2b6bamsh041eed1c81e7e0dp1b846ejsn669acdaca5ed';
+const HOST = 'free-api-live-football-data.p.rapidapi.com';
+
+// The 7 leagues to show (matching your current setup)
+const LEAGUES = [
+  { id: 47, name: 'Premier League' },
+  { id: 87, name: 'LaLiga' },
+  { id: 42, name: 'Champions League' },
+  { id: 54, name: 'Bundesliga' },
+  { id: 55, name: 'Serie A' },
+  { id: 53, name: 'Ligue 1' },
+  // No Eredivisie in the popular list — we'll find an alternative
+];
+
+async function fetchLeague(league) {
+  const url = `https://free-api-live-football-data.p.rapidapi.com/football-get-all-matches-by-league?leagueid=${league.id}`;
+  const res = await fetch(url, {
+    headers: { 'X-RapidAPI-Key': KEY, 'X-RapidAPI-Host': HOST }
+  });
+  const data = await res.json();
+  return { league, data };
+}
+
+async function testAll() {
+  const output = document.getElementById('output');
+  output.innerHTML = 'Fetching...';
+  
+  const results = await Promise.all(LEAGUES.map(fetchLeague));
+  
+  output.innerHTML = '';
+  results.forEach(({ league, data }) => {
+    const div = document.createElement('div');
+    div.className = 'league';
+    
+    if (data.status === 'success' && data.response && data.response.matches) {
+      const matches = data.response.matches.slice(0, 5); // first 5 fixtures
+      div.innerHTML = `<h3>${league.name} (ID: ${league.id}) — ${matches.length} matches</h3>` +
+        matches.map(m => `<div class="match">${m.home?.name || '?'} vs ${m.away?.name || '?'} — ${m.status?.utcTime || 'TBD'}</div>`).join('');
+    } else {
+      div.innerHTML = `<h3>${league.name} (ID: ${league.id})</h3><p class="err">No matches or error: ${JSON.stringify(data).substring(0, 200)}</p>`;
+    }
+    output.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
