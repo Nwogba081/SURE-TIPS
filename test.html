@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sportmonks API Test</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 20px; background: #f4f4f9; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+        .error { color: #f48771; font-weight: bold; }
+        .success { color: #89d185; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Sportmonks v3 Football API Test</h2>
+        <pre id="output">Loading data...</pre>
+    </div>
+
+    <script>
+        const API_TOKEN = "c5XDiIO57sPUkv3jzKjzvlxuPOI1gqxg3eNRCjSVx5ICjE26ALScMIGvTxPX"; // ⚠️ Replace with new token
+        const TEAM_ID = "85"; // Example: 85 (PSG). Team 19 may return empty on free plans.
+        const URL = `https://api.sportmonks.com/v3/football/schedules/teams/${TEAM_ID}?api_token=${API_TOKEN}`;
+
+        async function fetchData() {
+            const output = document.getElementById("output");
+            try {
+                const res = await fetch(URL);
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    if (res.status === 401) throw new Error("401 Unauthorized: Invalid API Key");
+                    if (res.status === 429) throw new Error("429 Too Many Requests: Rate limit exceeded");
+                    if (res.status === 404) throw new Error("404 Not Found: Check Team ID or subscription access");
+                    throw new Error(`HTTP ${res.status}: ${errData.message || res.statusText}`);
+                }
+                const data = await res.json();
+                output.innerHTML = `<span class="success">✅ Success!</span>\n\n` + JSON.stringify(data, null, 2);
+            } catch (err) {
+                output.innerHTML = `<span class="error">❌ Error:</span> ${err.message}\n\n💡 Note: If you see a 'CORS' error, browsers block direct local HTML calls. Run this via a local server (e.g., 'python -m http.server') or use the Python script.`;
+            }
+        }
+        fetchData();
+    </script>
+</body>
+</html>
