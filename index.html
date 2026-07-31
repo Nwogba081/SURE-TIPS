@@ -1154,21 +1154,15 @@ const FREE_PICKS = [
 
 // Popular leagues panel (sidebar): several upcoming fixtures per league, Ids are TheSportsDB's stable league ids.
 
-<!-- No calls here for now 
-const RAPID_API_KEY = "cbb6e2b6bamsh041eed1c81e7e0dp1b846ejsn669acdaca5ed";
-const RAPID_API_HOST = "free-api-live-football-data.p.rapidapi.com";
--->
+
 const POPULAR_LEAGUES = [
-  { name: "Premier League",   id: 47 },
-  { name: "LaLiga",           id: 87 },
-  { name: "Champions League", id: 42 },
-  { name: "Bundesliga",       id: 54 },
-  { name: "Serie A",          id: 55 },
-  { name: "Ligue 1",          id: 53 }
+  { name: "Premier League",   id: 4328 },
+  { name: "La Liga",          id: 4335 },
+  { name: "Champions League", id: 4480 },
+  { name: "Bundesliga",       id: 4331 },
+  { name: "Serie A",          id: 4332 },
+  { name: "Ligue 1",          id: 4334 }
 ];
-
-const FIXTURES_URL = "https://raw.githubusercontent.com/Nwogba081/SURE-TIPS/refs/heads/main/templeague.json";
-
 
 
 // VIP Results tab — this is YOUR track record, not fetched from anywhere.
@@ -1384,31 +1378,52 @@ const VIP_HISTORY = [
   
   
   async function fetchLeagueFixtures(leagueId){
-    if(leagueCache[leagueId]) return leagueCache[leagueId];
+    const cacheKey = `sportsdb_league_${leagueId}`;
+    
+    // Device cache (12 hours — fixtures don't change that often)
+    try{
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+      const twelveHours = 12 * 60 * 60 * 1000;
+      if(cached && cached.timestamp && (Date.now() - cached.timestamp) < twelveHours){
+        return cached.data;
+      }
+    }catch(e){}
+    
+    if(leagueCache[cacheKey]) return leagueCache[cacheKey];
     
     try{
-      const res = await fetch(FIXTURES_URL);
-      if(!res.ok) throw new Error("Failed to fetch fixtures");
-      const allData = await res.json();
+      const res = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${leagueId}`);
+      if(!res.ok) throw new Error("SportsDB error " + res.status);
+      const data = await res.json();
       
-      const leagueData = allData.leagues && allData.leagues[String(leagueId)];
-      if(!leagueData || !leagueData.fixtures){
-        throw new Error("No fixtures for league " + leagueId);
-      }
+      const events = (data && data.events) ? data.events.slice(0, 6) : [];
       
-      const fixtures = leagueData.fixtures.map(f => ({
-        home: f.home,
-        away: f.away,
-        homeLogo: f.homeLogo,
-        awayLogo: f.awayLogo,
-        kickoff: f.kickoff,
-        dateLabel: f.kickoff ? new Date(f.kickoff).toLocaleDateString(undefined, { day:'2-digit', month:'short' }) : "TBD",
-        timeLabel: f.kickoff ? new Date(f.kickoff).toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit', hour12:false }) : "TBD"
-      }));
+      const fixtures = events.map(ev => {
+        const kickoff = (ev.dateEvent && ev.strTime) ? `${ev.dateEvent}T${ev.strTime}` : null;
+        return {
+          home: ev.strHomeTeam || "TBD",
+          away: ev.strAwayTeam || "TBD",
+          homeLogo: ev.strHomeTeamBadge || "",
+          awayLogo: ev.strAwayTeamBadge || "",
+          kickoff: kickoff,
+          dateLabel: kickoff ? new Date(kickoff).toLocaleDateString(undefined, { day:'2-digit', month:'short' }) : "TBD",
+          timeLabel: kickoff ? ev.strTime.slice(0,5) : "TBD"
+        };
+      });
       
-      leagueCache[String(leagueId)] = fixtures;
+      leagueCache[cacheKey] = fixtures;
+      saveLeagueCache();
+      try{
+        sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: fixtures }));
+      }catch(e){}
+      
       return fixtures;
     }catch(e){
+      // Fallback to expired cache
+      try{
+        const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+        if(cached && cached.data) return cached.data;
+      }catch(e2){}
       return null;
     }
   }
