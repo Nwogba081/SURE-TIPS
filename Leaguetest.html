@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Popular Leagues Test</title>
+<style>
+  body { font-family: monospace; background: #111; color: #fff; padding: 20px; }
+  pre { background: #1a1a1a; padding: 15px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+  .err { color: #ff6b6b; }
+  .ok { color: #51cf66; }
+  button { padding: 10px 20px; cursor: pointer; margin-bottom: 10px; font-size: 16px; }
+</style>
+</head>
+<body>
+<h1>Popular Leagues Test</h1>
+<button onclick="testAPI()">Fetch Popular Leagues</button>
+<pre id="output">Click the button...</pre>
+
+<script>
+async function testAPI() {
+  const output = document.getElementById('output');
+  output.textContent = 'Fetching...';
+  
+  try {
+    const res = await fetch('https://free-api-live-football-data.p.rapidapi.com/football-popular-leagues', {
+      method: 'GET',
+      headers: {
+        'X-RapidAPI-Key': 'cbb6e2b6bamsh041eed1c81e7e0dp1b846ejsn669acdaca5ed',
+        'X-RapidAPI-Host': 'free-api-live-football-data.p.rapidapi.com'
+      }
+    });
+    
+    output.textContent = 'Status: ' + res.status;
+    const text = await res.text();
+    
+    try {
+      const data = JSON.parse(text);
+      output.textContent += '\n\n' + JSON.stringify(data, null, 2).substring(0, 2000);
+      console.log('Response:', data);
+    } catch(e) {
+      output.textContent += '\n\nRaw response:\n' + text.substring(0, 1000);
+    }
+  } catch(e) {
+    output.textContent = 'Error: ' + e.message + '\n\nFull error: ' + JSON.stringify(e, Object.getOwnPropertyNames(e), 2);
+    console.error(e);
+  }
+}
+</script>
+</body>
+</html>
