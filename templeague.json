@@ -1,0 +1,287 @@
+{
+  "updated": "2026-07-31T14:37:26.405Z",
+  "leagues": {
+    "42": {
+      "name": "Champions League",
+      "fixtures": [
+        {
+          "home": "Athletic Club",
+          "away": "Arsenal",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008315.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009825.png",
+          "kickoff": "2025-09-16T16:45:00Z"
+        },
+        {
+          "home": "PSV Eindhoven",
+          "away": "Union St.Gilloise",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008640.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/007978.png",
+          "kickoff": "2025-09-16T16:45:00Z"
+        },
+        {
+          "home": "Benfica",
+          "away": "Qarabag FK",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009772.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/007981.png",
+          "kickoff": "2025-09-16T19:00:00Z"
+        },
+        {
+          "home": "Juventus",
+          "away": "Dortmund",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009885.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009789.png",
+          "kickoff": "2025-09-16T19:00:00Z"
+        },
+        {
+          "home": "Real Madrid",
+          "away": "Marseille",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008633.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008592.png",
+          "kickoff": "2025-09-16T19:00:00Z"
+        },
+        {
+          "home": "Tottenham",
+          "away": "Villarreal",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008586.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010205.png",
+          "kickoff": "2025-09-16T19:00:00Z"
+        }
+      ]
+    },
+    "47": {
+      "name": "Premier League",
+      "fixtures": [
+        {
+          "home": "Liverpool",
+          "away": "Bournemouth",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008650.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008678.png",
+          "kickoff": "2025-08-15T19:00:00Z"
+        },
+        {
+          "home": "Aston Villa",
+          "away": "Newcastle",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010252.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010261.png",
+          "kickoff": "2025-08-16T11:30:00Z"
+        },
+        {
+          "home": "Brighton",
+          "away": "Fulham",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010204.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009879.png",
+          "kickoff": "2025-08-16T14:00:00Z"
+        },
+        {
+          "home": "Sunderland",
+          "away": "West Ham",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008472.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008654.png",
+          "kickoff": "2025-08-16T14:00:00Z"
+        },
+        {
+          "home": "Tottenham",
+          "away": "Burnley",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008586.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008191.png",
+          "kickoff": "2025-08-16T14:00:00Z"
+        },
+        {
+          "home": "Wolves",
+          "away": "Man City",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008602.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008456.png",
+          "kickoff": "2025-08-16T16:30:00Z"
+        }
+      ]
+    },
+    "53": {
+      "name": "Ligue 1",
+      "fixtures": [
+        {
+          "home": "Rennes",
+          "away": "Marseille",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009851.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008592.png",
+          "kickoff": "2025-08-15T18:45:00Z"
+        },
+        {
+          "home": "Lens",
+          "away": "Lyon",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008588.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009748.png",
+          "kickoff": "2025-08-16T15:00:00Z"
+        },
+        {
+          "home": "Monaco",
+          "away": "Le Havre",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009829.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009746.png",
+          "kickoff": "2025-08-16T17:00:00Z"
+        },
+        {
+          "home": "Nice",
+          "away": "Toulouse",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009831.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009941.png",
+          "kickoff": "2025-08-16T19:05:00Z"
+        },
+        {
+          "home": "Brest",
+          "away": "Lille",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008521.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008639.png",
+          "kickoff": "2025-08-17T13:00:00Z"
+        },
+        {
+          "home": "Angers",
+          "away": "Paris FC",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008121.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/006379.png",
+          "kickoff": "2025-08-17T15:15:00Z"
+        }
+      ]
+    },
+    "54": {
+      "name": "Bundesliga",
+      "fixtures": [
+        {
+          "home": "Bayern München",
+          "away": "RB Leipzig",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009823.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/178475.png",
+          "kickoff": "2025-08-22T18:30:00Z"
+        },
+        {
+          "home": "Leverkusen",
+          "away": "Hoffenheim",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008178.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008226.png",
+          "kickoff": "2025-08-23T13:30:00Z"
+        },
+        {
+          "home": "Frankfurt",
+          "away": "Werder Bremen",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009810.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008697.png",
+          "kickoff": "2025-08-23T13:30:00Z"
+        },
+        {
+          "home": "FC Heidenheim",
+          "away": "Wolfsburg",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/094937.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008721.png",
+          "kickoff": "2025-08-23T13:30:00Z"
+        },
+        {
+          "home": "Freiburg",
+          "away": "Augsburg",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008358.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008406.png",
+          "kickoff": "2025-08-23T13:30:00Z"
+        },
+        {
+          "home": "Union Berlin",
+          "away": "VfB Stuttgart",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008149.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010269.png",
+          "kickoff": "2025-08-23T13:30:00Z"
+        }
+      ]
+    },
+    "55": {
+      "name": "Serie A",
+      "fixtures": [
+        {
+          "home": "Genoa",
+          "away": "Lecce",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010233.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009888.png",
+          "kickoff": "2025-08-23T16:30:00Z"
+        },
+        {
+          "home": "Sassuolo",
+          "away": "Napoli",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/007943.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009875.png",
+          "kickoff": "2025-08-23T16:30:00Z"
+        },
+        {
+          "home": "Milan",
+          "away": "Cremonese",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008564.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/007801.png",
+          "kickoff": "2025-08-23T18:45:00Z"
+        },
+        {
+          "home": "Roma",
+          "away": "Bologna",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008686.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009857.png",
+          "kickoff": "2025-08-23T18:45:00Z"
+        },
+        {
+          "home": "Cagliari",
+          "away": "Fiorentina",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008529.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008535.png",
+          "kickoff": "2025-08-24T16:30:00Z"
+        },
+        {
+          "home": "Como",
+          "away": "Lazio",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010171.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008543.png",
+          "kickoff": "2025-08-24T16:30:00Z"
+        }
+      ]
+    },
+    "87": {
+      "name": "LaLiga",
+      "fixtures": [
+        {
+          "home": "Girona",
+          "away": "Rayo Vallecano",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/007732.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008370.png",
+          "kickoff": "2025-08-15T17:00:00Z"
+        },
+        {
+          "home": "Villarreal",
+          "away": "Real Oviedo",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010205.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008670.png",
+          "kickoff": "2025-08-15T19:30:00Z"
+        },
+        {
+          "home": "Mallorca",
+          "away": "Barcelona",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008661.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008634.png",
+          "kickoff": "2025-08-16T17:30:00Z"
+        },
+        {
+          "home": "Deportivo Alaves",
+          "away": "Levante",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009866.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008581.png",
+          "kickoff": "2025-08-16T19:30:00Z"
+        },
+        {
+          "home": "Valencia",
+          "away": "Real Sociedad",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/010267.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008560.png",
+          "kickoff": "2025-08-16T19:30:00Z"
+        },
+        {
+          "home": "Celta Vigo",
+          "away": "Getafe",
+          "homeLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/009910.png",
+          "awayLogo": "https://images.fotmob.com/image_resources/logo/teamlogo/008305.png",
+          "kickoff": "2025-08-17T15:00:00Z"
+        }
+      ]
+    }
+  }
+}
