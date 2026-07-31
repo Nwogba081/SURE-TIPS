@@ -1098,6 +1098,45 @@ button *,
   // Read-only JSONBin Access Key — used everywhere the site reads links/reviews.
   // Scoped to Find/read only, so it's safe to keep in this public HTML.
   const JSONBIN_ACCESS_KEY = "$2a$10$U6sjac6wDAzNHuec1CW23uD/8.Q381G24Md0vwBZEQqfYAaDakSP.";
+
+// Read-only key for the second JSONBin account (VIP history + free predictions)
+const SURETIPS2_ACCESS_KEY = "$2a$10$KzknwUc5XFadHJPUh7LEZOiUOV8pcVqyDvLAUFM02zuB1BLPVJpsW";
+const VIP_HISTORY_BIN_ID = "6a6ce092f5f4af5e29db0263";
+const FREE_PICKS_BIN_ID  = "6a6ce073f5f4af5e29db01f3";
+
+const REMOTE_CACHE_KEY_VIP = "suretips_vip_history_cache";
+const REMOTE_CACHE_KEY_FREE = "suretips_free_picks_cache";
+
+function currentWeekKeySimple(){
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  const week = Math.floor((now - start) / (1000*60*60*24*7));
+  return `${now.getFullYear()}-${week}`;
+}
+
+async function fetchRemoteBin(binId, cacheKey, fallback){
+  const weekKey = currentWeekKeySimple();
+  try{
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
+    if(cached && cached.weekKey === weekKey && Array.isArray(cached.data) && cached.data.length){
+      return cached.data;
+    }
+  }catch(e){ /* ignore, fall through to fetch */ }
+
+  try{
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: { "X-Bin-Meta": "false", "X-Access-Key": SURETIPS2_ACCESS_KEY }
+    });
+    if(!res.ok) throw new Error("bad response");
+    const data = await res.json();
+    if(!Array.isArray(data) || !data.length) throw new Error("empty bin");
+    try{ localStorage.setItem(cacheKey, JSON.stringify({ weekKey, data })); }catch(e){}
+    return data;
+  }catch(e){
+    console.warn(`Could not load ${cacheKey}, using fallback`, e);
+    return fallback;
+  }
+}
   
   
 /*  ============================================================
@@ -1137,10 +1176,8 @@ function initialsAvatar(name){
 //
 // The daysAgo:0 entries are also what populates "Today's Featured Matches"
 // on the home page — no separate list or API needed for that section.
-// To update today's home page picks, just edit the daysAgo:0 rows below
-// with the team name plus pick/odds; the opponent, league, kickoff time
-// and both badges are looked up automatically from that team name.
-const FREE_PICKS = [
+
+const FREE_PICKS_FALLBACK = [
   // Today — live, no result yet. Also shown in "Today's Featured Matches".
   { daysAgo: 0, team: "Arsenal",     pick: "GG + Over 2.5",   odds: "2.65" },
   { daysAgo: 0, team: "Real Madrid", pick: "Home + Over 1.5", odds: "2.40" },
@@ -1174,7 +1211,9 @@ const POPULAR_LEAGUES = [
 // log looking current automatically — no need to hand-edit dates. The most
 // recent result always shows as yesterday, since today's matches haven't
 // finished yet.
-const VIP_HISTORY = [
+
+
+const VIP_HISTORY_FALLBACK = [
   { daysAgo: 1, league: "International — World Cup", time: "22:00", home: "Norway", away: "England", pick: "Away/Draw + GG", odds: "2.80", score: "1:1", result: "win" },
   { daysAgo: 1, league: "Argentina — Primera Nacional", time: "19:00", home: "Deportivo Moron", away: "Deportivo Madryn", pick: "GG", odds: "2.50", score: "2:2", result: "win" },
   { daysAgo: 2, league: "International — World Cup", time: "20:00", home: "Spain", away: "Belgium", pick: "GG + Over 2.5", odds: "2.70", score: "2:1", result: "win" },
@@ -1672,20 +1711,25 @@ const VIP_HISTORY = [
   window.SureTipsRender.daysAgoToDate = daysAgoToDate;
 
   // VIP results
-  let lastDate = null, vipHTML = '';
-  VIP_HISTORY.forEach(m => {
-    const resolvedDate = daysAgoToDate(m.daysAgo);
-    if(resolvedDate !== lastDate){ vipHTML += `<div class="date-heading">${resolvedDate}</div>`; lastDate = resolvedDate; }
-    vipHTML += matchCardHTML(m, true);
-  });
-  document.getElementById('vipResults').innerHTML = vipHTML;
+  // VIP results (live-fetched, falls back to hardcoded VIP_HISTORY_FALLBACK)
+  (async function renderVipResults(){
+    const VIP_HISTORY = await fetchRemoteBin(VIP_HISTORY_BIN_ID, REMOTE_CACHE_KEY_VIP, VIP_HISTORY_FALLBACK);
 
-  // Ticker
-  const tickerItems = VIP_HISTORY.map(m =>
-    `<span class="chip">${m.home} v ${m.away} <span class="${m.result === 'win' ? 'win' : 'loss'}">${m.result === 'win' ? '&#10003;' : '&#10007;'} ${m.score}</span></span>`
-  ).join('');
-  document.getElementById('tickerTrack').innerHTML = tickerItems + tickerItems;
+    let lastDate = null, vipHTML = '';
+    VIP_HISTORY.forEach(m => {
+      const resolvedDate = daysAgoToDate(m.daysAgo);
+      if(resolvedDate !== lastDate){ vipHTML += `<div class="date-heading">${resolvedDate}</div>`; lastDate = resolvedDate; }
+      vipHTML += matchCardHTML(m, true);
+    });
+    document.getElementById('vipResults').innerHTML = vipHTML;
 
+    // Ticker
+    const tickerItems = VIP_HISTORY.map(m =>
+      `<span class="chip">${m.home} v ${m.away} <span class="${m.result === 'win' ? 'win' : 'loss'}">${m.result === 'win' ? '&#10003;' : '&#10007;'} ${m.score}</span></span>`
+    ).join('');
+    document.getElementById('tickerTrack').innerHTML = tickerItems + tickerItems;
+  })();
+  
   const today = new Date();
   document.getElementById('todayDate').textContent = today.toLocaleDateString(undefined, { day:'2-digit', month:'short' });
   document.getElementById('freeDateHeading').textContent = "TODAY · " + today.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
@@ -1894,9 +1938,14 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
   // Wikipedia fallback (no football-data.org / proxy needed for this
   // section anymore). The last 2 days of settled results render as static
   // cards, same as VIP Results, since those matches are already over.
+  
+  
+  const FREE_PICKS = await fetchRemoteBin(FREE_PICKS_BIN_ID, REMOTE_CACHE_KEY_FREE, FREE_PICKS_FALLBACK);
   const todayPicks = FREE_PICKS.filter(p => p.daysAgo === 0);
   const pastPicks = FREE_PICKS.filter(p => p.daysAgo > 0);
-
+  
+  
+  
   const todayLive = await window.SureTipsData.enrichAll(todayPicks);
 
   // Home — featured matches (today's free picks, live-resolved)
