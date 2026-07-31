@@ -1152,17 +1152,24 @@ const FREE_PICKS = [
   { daysAgo: 2, league: "Italy — Serie A",        time: "17:30", home: "Napoli",  away: "Roma",     pick: "GG",              odds: "1.85", score: "1:0", result: "loss" }
 ];
 
-// Popular leagues panel (sidebar): several upcoming fixtures per league,
-// schedule only, no picks/odds. Ids are TheSportsDB's stable league ids.
+// Popular leagues panel (sidebar): several upcoming fixtures per league, Ids are TheSportsDB's stable league ids.
+
+<!-- No calls here for now 
+const RAPID_API_KEY = "cbb6e2b6bamsh041eed1c81e7e0dp1b846ejsn669acdaca5ed";
+const RAPID_API_HOST = "free-api-live-football-data.p.rapidapi.com";
+-->
 const POPULAR_LEAGUES = [
-  { name: "Premier League",       leagueId: "4328" },
-  { name: "La Liga",              leagueId: "4335" },
-  { name: "Champions League",     leagueId: "4480" },
-  { name: "Bundesliga",           leagueId: "4331" },
-  { name: "Serie A",              leagueId: "4332" },
-  { name: "Ligue 1",              leagueId: "4334" },
-  { name: "Eredivisie",           leagueId: "4337" }
+  { name: "Premier League",   id: 47 },
+  { name: "LaLiga",           id: 87 },
+  { name: "Champions League", id: 42 },
+  { name: "Bundesliga",       id: 54 },
+  { name: "Serie A",          id: 55 },
+  { name: "Ligue 1",          id: 53 }
 ];
+
+const FIXTURES_URL = "https://raw.githubusercontent.com/Nwogba081/SURE-TIPS/refs/heads/main/templeague.json";
+
+
 
 // VIP Results tab — this is YOUR track record, not fetched from anywhere.
 // Keep this manual: it's a log of picks you already made and how they landed.
@@ -1374,34 +1381,35 @@ const VIP_HISTORY = [
   // badgeForTeamId so logos can render next to the team names. Cached per
   // session so switching tabs doesn't re-fetch. Returns null on failure so
   // the caller can show a fallback.
+  
+  
   async function fetchLeagueFixtures(leagueId){
     if(leagueCache[leagueId]) return leagueCache[leagueId];
+    
     try{
-      const res = await fetch(`https://www.thesportsdb.com/api/v1/json/${SPORTSDB_KEY}/eventsnextleague.php?id=${leagueId}`);
-      if(!res.ok) throw new Error("bad response");
-      const data = await res.json();
-      const events = (data && data.events) ? data.events.slice(0, 6) : [];
-      const fixtures = await Promise.all(events.map(async ev => {
-        const kickoff = (ev.dateEvent && ev.strTime) ? `${ev.dateEvent}T${ev.strTime}` : null;
-        const [homeBadge, awayBadge] = await Promise.all([
-          resolveBadge(ev.idHomeTeam, ev.strHomeTeam),
-          resolveBadge(ev.idAwayTeam, ev.strAwayTeam)
-        ]);
-        return {
-          home: ev.strHomeTeam,
-          away: ev.strAwayTeam,
-          homeLogo: homeBadge,
-          awayLogo: awayBadge,
-          kickoff: kickoff,
-          dateLabel: kickoff ? new Date(kickoff).toLocaleDateString(undefined, { day:'2-digit', month:'short' }) : "TBD",
-          timeLabel: kickoff ? kickoff.slice(11,16) : "TBD"
-        };
+      const res = await fetch(FIXTURES_URL);
+      if(!res.ok) throw new Error("Failed to fetch fixtures");
+      const allData = await res.json();
+      
+      const leagueData = allData.leagues && allData.leagues[String(leagueId)];
+      if(!leagueData || !leagueData.fixtures){
+        throw new Error("No fixtures for league " + leagueId);
+      }
+      
+      const fixtures = leagueData.fixtures.map(f => ({
+        home: f.home,
+        away: f.away,
+        homeLogo: f.homeLogo,
+        awayLogo: f.awayLogo,
+        kickoff: f.kickoff,
+        dateLabel: f.kickoff ? new Date(f.kickoff).toLocaleDateString(undefined, { day:'2-digit', month:'short' }) : "TBD",
+        timeLabel: f.kickoff ? new Date(f.kickoff).toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit', hour12:false }) : "TBD"
       }));
-      leagueCache[leagueId] = fixtures;
-      saveLeagueCache();
+      
+      leagueCache[String(leagueId)] = fixtures;
       return fixtures;
     }catch(e){
-      return null; // signals failure, distinct from an empty but successful fetch
+      return null;
     }
   }
 
@@ -1893,40 +1901,43 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
   document.getElementById('freeHistory').innerHTML = freeHistoryHTML;
 
   // Popular leagues — 3 upcoming fixtures per league, schedule only
-  const leaguesEl = document.getElementById('popularLeagues');
-  leaguesEl.innerHTML = POPULAR_LEAGUES.map(lg => `
-    <div class="league-block">
-      <div class="league-block-head">${lg.name}</div>
-      <div class="league-fixture-list" id="league-${lg.leagueId}">
-        <p class="league-fixture-loading">Loading fixtures…</p>
-      </div>
+  // Popular leagues — upcoming fixtures via RapidAPI
+// Popular leagues — from GitHub fixtures JSON
+const leaguesEl = document.getElementById('popularLeagues');
+leaguesEl.innerHTML = POPULAR_LEAGUES.map(lg => `
+  <div class="league-block">
+    <div class="league-block-head">${lg.name}</div>
+    <div class="league-fixture-list" id="league-${lg.id}">
+      <p class="league-fixture-loading">Loading fixtures…</p>
+    </div>
+  </div>
+`).join('');
+
+await Promise.all(POPULAR_LEAGUES.map(async lg => {
+  const listEl = document.getElementById(`league-${lg.id}`);
+  const fixtures = await window.SureTipsData.fetchLeagueFixtures(lg.id);
+  if(fixtures === null){
+    listEl.innerHTML = `<p class="league-fixture-empty">Fixtures unavailable right now.</p>`;
+    return;
+  }
+  if(fixtures.length === 0){
+    listEl.innerHTML = `<p class="league-fixture-empty">No upcoming fixtures listed.</p>`;
+    return;
+  }
+  listEl.innerHTML = fixtures.map(f => `
+    <div class="league-fixture-row">
+      <span class="lf-teams">
+        <img class="lf-badge" src="${f.homeLogo}" alt="" loading="lazy" onerror="this.style.display='none'">
+        <strong class="lf-club-name">${f.home}</strong>
+        <span>vs</span>
+        <img class="lf-badge" src="${f.awayLogo}" alt="" loading="lazy" onerror="this.style.display='none'">
+        <span class="lf-club-name">${f.away}</span>
+      </span>
+      <span class="lf-when"><span class="lf-time">${f.timeLabel}</span>${f.dateLabel}</span>
     </div>
   `).join('');
+}));
 
-  await Promise.all(POPULAR_LEAGUES.map(async lg => {
-    const listEl = document.getElementById(`league-${lg.leagueId}`);
-    const fixtures = await window.SureTipsData.fetchLeagueFixtures(lg.leagueId);
-    if(fixtures === null){
-      listEl.innerHTML = `<p class="league-fixture-empty">Fixtures unavailable right now.</p>`;
-      return;
-    }
-    if(fixtures.length === 0){
-      listEl.innerHTML = `<p class="league-fixture-empty">No upcoming fixtures listed.</p>`;
-      return;
-    }
-    listEl.innerHTML = fixtures.map(f => `
-      <div class="league-fixture-row">
-        <span class="lf-teams">
-          <img class="lf-badge" src="${f.homeLogo}" alt="" loading="lazy">
-          <strong class="lf-club-name">${f.home}</strong>
-          <span>vs</span>
-          <img class="lf-badge" src="${f.awayLogo}" alt="" loading="lazy">
-          <span class="lf-club-name">${f.away}</span>
-        </span>
-        <span class="lf-when"><span class="lf-time">${f.timeLabel}</span>${f.dateLabel}</span>
-      </div>
-    `).join('');
-  }));
 
 })();
 </script>
