@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "xvhjdd7leu");
+</script>
+<!-- end-->
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SureTips — VIP Sports Predictions</title>
@@ -659,6 +669,37 @@ button *,
 .avatar-proof-stack img:nth-child(3) { animation-delay: 0.3s; }
 .avatar-proof-stack img:nth-child(4) { animation-delay: 0.4s; }
 .avatar-proof-stack img:nth-child(5) { animation-delay: 0.5s; }
+
+
+
+/* ---------- Cookie consent (bottom sheet) ---------- */
+  .cookie-overlay{
+    position: fixed; inset:0; z-index:400;
+    display:flex; align-items:flex-end; justify-content:center;
+    background: rgba(5,7,15,0.55);
+    opacity:0; visibility:hidden;
+    transition: opacity 0.25s ease;
+    padding: 0 12px;
+  }
+  .cookie-overlay.open{ opacity:1; visibility:visible; }
+  .cookie-sheet{
+    width:100%; max-width:560px;
+    background: var(--surface); border:1px solid var(--line);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 22px 22px calc(22px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -20px 50px -20px rgba(0,0,0,0.6);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+  .cookie-overlay.open .cookie-sheet{ transform: translateY(0); }
+  .cookie-title{ font-size:1.02rem; font-weight:800; margin-bottom:8px; }
+  .cookie-text{ font-size:0.85rem; color: var(--text-dim); line-height:1.55; margin-bottom:16px; }
+  .cookie-ctas{ display:flex; gap:10px; }
+  .cookie-ctas .btn{ flex:1; padding:11px 16px; font-size:0.86rem; }
+  @media (min-width:560px){
+    .cookie-sheet{ border-radius: var(--radius-lg); margin-bottom:16px; }
+  }
+  
 </style>
 </head>
 <body>
@@ -1104,25 +1145,7 @@ const SURETIPS2_ACCESS_KEY = "$2a$10$KzknwUc5XFadHJPUh7LEZOiUOV8pcVqyDvLAUFM02zu
 const VIP_HISTORY_BIN_ID = "6a6ce092f5f4af5e29db0263";
 const FREE_PICKS_BIN_ID  = "6a6ce073f5f4af5e29db01f3";
 
-const REMOTE_CACHE_KEY_VIP = "suretips_vip_history_cache";
-const REMOTE_CACHE_KEY_FREE = "suretips_free_picks_cache";
-
-function currentWeekKeySimple(){
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const week = Math.floor((now - start) / (1000*60*60*24*7));
-  return `${now.getFullYear()}-${week}`;
-}
-
-async function fetchRemoteBin(binId, cacheKey, fallback){
-  const weekKey = currentWeekKeySimple();
-  try{
-    const cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-    if(cached && cached.weekKey === weekKey && Array.isArray(cached.data) && cached.data.length){
-      return cached.data;
-    }
-  }catch(e){ /* ignore, fall through to fetch */ }
-
+async function fetchRemoteBin(binId, fallback){
   try{
     const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
       headers: { "X-Bin-Meta": "false", "X-Access-Key": SURETIPS2_ACCESS_KEY }
@@ -1130,10 +1153,9 @@ async function fetchRemoteBin(binId, cacheKey, fallback){
     if(!res.ok) throw new Error("bad response");
     const data = await res.json();
     if(!Array.isArray(data) || !data.length) throw new Error("empty bin");
-    try{ localStorage.setItem(cacheKey, JSON.stringify({ weekKey, data })); }catch(e){}
     return data;
   }catch(e){
-    console.warn(`Could not load ${cacheKey}, using fallback`, e);
+    console.warn(`Could not load bin ${binId}, using fallback`, e);
     return fallback;
   }
 }
@@ -1713,7 +1735,7 @@ const VIP_HISTORY_FALLBACK = [
   // VIP results
   // VIP results (live-fetched, falls back to hardcoded VIP_HISTORY_FALLBACK)
   (async function renderVipResults(){
-    const VIP_HISTORY = await fetchRemoteBin(VIP_HISTORY_BIN_ID, REMOTE_CACHE_KEY_VIP, VIP_HISTORY_FALLBACK);
+    const VIP_HISTORY = await fetchRemoteBin(VIP_HISTORY_BIN_ID, VIP_HISTORY_FALLBACK);
 
     let lastDate = null, vipHTML = '';
     VIP_HISTORY.forEach(m => {
@@ -1940,7 +1962,8 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
   // cards, same as VIP Results, since those matches are already over.
   
   
-  const FREE_PICKS = await fetchRemoteBin(FREE_PICKS_BIN_ID, REMOTE_CACHE_KEY_FREE, FREE_PICKS_FALLBACK);
+  const FREE_PICKS = await fetchRemoteBin(FREE_PICKS_BIN_ID, FREE_PICKS_FALLBACK);
+  
   const todayPicks = FREE_PICKS.filter(p => p.daysAgo === 0);
   const pastPicks = FREE_PICKS.filter(p => p.daysAgo > 0);
   
@@ -2044,6 +2067,62 @@ await Promise.all(POPULAR_LEAGUES.map(async lg => {
     .then(res => { if(!res.ok) throw new Error("bad response"); return res.json(); })
     .then(data => applyLinks(data))
     .catch(() => {});
+})();
+</script>
+<!-- ============================= COOKIE CONSENT ============================= -->
+  <div class="cookie-overlay" id="cookieOverlay">
+    <div class="cookie-sheet" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
+      <h3 id="cookieTitle" class="cookie-title">🍪 Cookies & analytics</h3>
+      <p class="cookie-text">We use cookies to improve this site.</p>
+      <div class="cookie-ctas">
+        <button type="button" class="btn btn-ghost" id="cookieDecline">Decline</button>
+        <button type="button" class="btn btn-primary" id="cookieAccept">Accept</button>
+      </div>
+    </div>
+  </div>
+  
+  
+  <script>
+/* ============================================================
+   COOKIE CONSENT — shows once per visitor, remembers the choice
+   in localStorage so it never shows again after a decision is made.
+   ============================================================ */
+(function(){
+  const CONSENT_KEY = "suretips_cookie_consent";
+  const overlay = document.getElementById('cookieOverlay');
+  const acceptBtn = document.getElementById('cookieAccept');
+  const declineBtn = document.getElementById('cookieDecline');
+
+  function hasStoredChoice(){
+    try{
+      return localStorage.getItem(CONSENT_KEY) === "accepted" || localStorage.getItem(CONSENT_KEY) === "declined";
+    }catch(e){
+      return true; // storage unavailable — don't keep prompting
+    }
+  }
+
+  function storeChoice(choice){
+    try{ localStorage.setItem(CONSENT_KEY, choice); }catch(e){ /* storage unavailable, skip persisting */ }
+  }
+
+  function closeCookieModal(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if(!hasStoredChoice()){
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  acceptBtn.addEventListener('click', () => {
+    storeChoice("accepted");
+    closeCookieModal();
+  });
+  declineBtn.addEventListener('click', () => {
+    storeChoice("declined");
+    closeCookieModal();
+  });
 })();
 </script>
 </body>
