@@ -677,11 +677,12 @@ button *,
     position: fixed; inset:0; z-index:400;
     display:flex; align-items:flex-end; justify-content:center;
     background: rgba(5,7,15,0.55);
-    opacity:0; visibility:hidden;
-    transition: opacity 0.25s ease;
+    opacity:0; pointer-events:none;
+    transition: opacity 0.3s ease;
     padding: 0 12px;
   }
-  .cookie-overlay.open{ opacity:1; visibility:visible; }
+  .cookie-overlay.open{ opacity:1; pointer-events:auto; }
+  
   .cookie-sheet{
     width:100%; max-width:560px;
     background: var(--surface); border:1px solid var(--line);
@@ -2107,7 +2108,12 @@ await Promise.all(POPULAR_LEAGUES.map(async lg => {
 
   function closeCookieModal(){
     overlay.classList.remove('open');
-    document.body.style.overflow = '';
+    // Wait for the sheet's slide-down transition to finish before
+    // restoring scroll — removing 'open' immediately still animates
+    // the sheet, but this keeps things tidy if you add cleanup later.
+    setTimeout(() => {
+      document.body.style.overflow = '';
+    }, 300); // matches .cookie-sheet's 0.3s transition
   }
 
   if(!hasStoredChoice()){
