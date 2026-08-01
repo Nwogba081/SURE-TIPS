@@ -1703,8 +1703,10 @@ const VIP_HISTORY_FALLBACK = [
   // Match card HTML
   function matchCardHTML(m, showResult){
     const resultHTML = showResult
-      ? `<span class="result-pill">${m.score} ${m.result === 'win' ? '<span class="icon-win">&#10003;</span>' : '<span class="icon-loss">&#10007;</span>'}</span>`
+      ? `<span class="result-pill">${m.score} ${m.result === 'win' ? '<span class="icon-win">&#10003;</span>' : '<span class="icon-loss">&#10007;</span>'}</span><span class="odds" style="margin-left:8px;"><small>odds </small>${m.odds}</span>`
       : `<span class="odds"><small>odds </small>${m.odds}</span>`;
+      
+      
     const homeBadge = m.homeLogo ? `<img class="team-badge" src="${m.homeLogo}" alt="${m.home} badge" loading="lazy">` : '';
     const awayBadge = m.awayLogo ? `<img class="team-badge" src="${m.awayLogo}" alt="${m.away} badge" loading="lazy">` : '';
     return `
@@ -1970,7 +1972,18 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
   
   
   
-  const todayLive = await window.SureTipsData.enrichAll(todayPicks);
+  const todayLive = todayPicks.map(p => ({
+    league: p.league || "League TBD",
+    home: p.team,
+    away: p.opponent || "TBD",
+    homeLogo: "",
+    awayLogo: "",
+    time: "",
+    pick: p.pick,
+    odds: p.odds
+  }));
+  
+  
 
   // Home — featured matches (today's free picks, live-resolved)
   document.getElementById('featuredMatches').innerHTML = todayLive.map(m => matchCardHTML(m, false)).join('');
