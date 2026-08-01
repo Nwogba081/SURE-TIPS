@@ -581,9 +581,13 @@
         </div>
         <div class="review-row">
           <div class="field"><label>League</label><input class="fl-league" type="text" value="${escapeAttr(r.league || '')}"></div>
-          <div class="field"><label>Odds</label><input class="fl-odds" type="text" value="${escapeAttr(r.odds || '')}"></div>
+          <div class="field"><label>Kickoff time</label><input class="fl-time" type="text" placeholder="20:00" value="${escapeAttr(r.time || '')}"></div>
         </div>
-        <div class="field"><label>Pick</label><input class="fl-pick" type="text" value="${escapeAttr(r.pick || '')}"></div>
+        <div class="review-row">
+          <div class="field"><label>Odds</label><input class="fl-odds" type="text" value="${escapeAttr(r.odds || '')}"></div>
+          <div class="field"><label>Pick</label><input class="fl-pick" type="text" value="${escapeAttr(r.pick || '')}"></div>
+        </div>
+        
       </div>`;
   }
 
@@ -674,6 +678,7 @@
       team: card.querySelector('.fl-team').value.trim(),
       opponent: card.querySelector('.fl-opponent').value.trim(),
       league: card.querySelector('.fl-league').value.trim(),
+      time: card.querySelector('.fl-time').value.trim(),
       pick: card.querySelector('.fl-pick').value.trim(),
       odds: card.querySelector('.fl-odds').value.trim()
     }));
