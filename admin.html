@@ -576,7 +576,11 @@
       <div class="review-card" data-uid="${uid}">
         <div class="review-card-head"><span>Live pick</span><button type="button" class="review-delete" data-uid="${uid}">Delete</button></div>
         <div class="review-row">
-          <div class="field"><label>Team</label><input class="fl-team" type="text" value="${escapeAttr(r.team || '')}"></div>
+          <div class="field"><label>Home team</label><input class="fl-team" type="text" value="${escapeAttr(r.team || '')}"></div>
+          <div class="field"><label>Away team</label><input class="fl-opponent" type="text" value="${escapeAttr(r.opponent || '')}"></div>
+        </div>
+        <div class="review-row">
+          <div class="field"><label>League</label><input class="fl-league" type="text" value="${escapeAttr(r.league || '')}"></div>
           <div class="field"><label>Odds</label><input class="fl-odds" type="text" value="${escapeAttr(r.odds || '')}"></div>
         </div>
         <div class="field"><label>Pick</label><input class="fl-pick" type="text" value="${escapeAttr(r.pick || '')}"></div>
@@ -668,9 +672,13 @@
     const livePayload = liveCards.map(card => ({
       daysAgo: 0,
       team: card.querySelector('.fl-team').value.trim(),
+      opponent: card.querySelector('.fl-opponent').value.trim(),
+      league: card.querySelector('.fl-league').value.trim(),
       pick: card.querySelector('.fl-pick').value.trim(),
       odds: card.querySelector('.fl-odds').value.trim()
     }));
+    
+    
     const settledPayload = settledCards.map(card => ({
       daysAgo: parseInt(card.querySelector('.fs-daysago').value, 10) || 1,
       league: card.querySelector('.fs-league').value.trim(),
