@@ -1137,14 +1137,36 @@ button *,
   </div>
 
 <script>
-  // Read-only JSONBin Access Key — used everywhere the site reads links/reviews.
-  // Scoped to Find/read only, so it's safe to keep in this public HTML.
-  const JSONBIN_ACCESS_KEY = "$2a$10$U6sjac6wDAzNHuec1CW23uD/8.Q381G24Md0vwBZEQqfYAaDakSP.";
+  // ⚠️ UPDATE THIS URL TO MATCH YOUR CLOUDFLARE WORKER
+const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// Read-only key for the second JSONBin account (VIP history + free predictions)
-const SURETIPS2_ACCESS_KEY = "$2a$10$KzknwUc5XFadHJPUh7LEZOiUOV8pcVqyDvLAUFM02zuB1BLPVJpsW";
-const VIP_HISTORY_BIN_ID = "6a6ce092f5f4af5e29db0263";
-const FREE_PICKS_BIN_ID  = "6a6ce073f5f4af5e29db01f3";
+const WORKER_CACHE_MS = 3 * 60 * 1000; // 3 minutes
+
+async function fetchWorkerBucket(bucket, fallback){
+  const cacheKey = `worker_cache_${bucket}`;
+
+  try{
+    const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+    if(cached && (Date.now() - cached.timestamp) < WORKER_CACHE_MS){
+      return cached.data;
+    }
+  }catch(e){ /* ignore unreadable cache, fall through to fetch */ }
+
+  try{
+    const res = await fetch(`${WORKER_URL}?bucket=${bucket}`);
+    if(!res.ok) throw new Error("bad response");
+    const data = await res.json();
+    if (Array.isArray(data) && data.length === 0) return fallback;
+    if (typeof data === 'object' && Object.keys(data).length === 0) return fallback;
+
+    try{ sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data })); }catch(e){ /* storage unavailable, skip caching */ }
+    return data;
+  }catch(e){
+    console.warn(`Could not load bucket ${bucket}, using fallback`, e);
+    return fallback;
+  }
+}
+
 
 async function fetchRemoteBin(binId, fallback){
   try{
@@ -1735,10 +1757,9 @@ const VIP_HISTORY_FALLBACK = [
   }
   window.SureTipsRender.daysAgoToDate = daysAgoToDate;
 
-  // VIP results
-  // VIP results (live-fetched, falls back to hardcoded VIP_HISTORY_FALLBACK)
+ // VIP results (live-fetched, falls back to hardcoded VIP_HISTORY_FALLBACK)
   (async function renderVipResults(){
-    const VIP_HISTORY = await fetchRemoteBin(VIP_HISTORY_BIN_ID, VIP_HISTORY_FALLBACK);
+    const VIP_HISTORY = await fetchWorkerBucket('vip', VIP_HISTORY_FALLBACK);
 
     let lastDate = null, vipHTML = '';
     VIP_HISTORY.forEach(m => {
@@ -1825,28 +1846,27 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
   }
 
   async function loadTestimonials(){
-    const weekKey = currentWeekKey();
-
-    // Same week as last time this browser loaded the site? Reuse the
-    // cached review list, no JSONBin request at all.
-    try{
-      const cached = JSON.parse(localStorage.getItem(REVIEWS_CACHE_KEY) || "null");
-      if(cached && cached.weekKey === weekKey && Array.isArray(cached.data) && cached.data.length){
-        return cached.data;
-      }
-    }catch(e){ /* ignore unreadable cache, fall through to fetch */ }
-
-    try{
-      const res = await fetch(TESTIMONIALS_RAW_URL, { headers: { "X-Bin-Meta": "false", "X-Access-Key": JSONBIN_ACCESS_KEY } });
-      if(!res.ok) throw new Error("Failed to fetch reviews");
-      const data = await res.json();
-      try{ localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify({ weekKey, data })); }catch(e){ /* storage unavailable, skip caching */ }
-      return data;
-    }catch(e){
-      console.warn("Could not load reviews, using fallback", e);
-      return [];
+  const weekKey = currentWeekKey();
+  try{
+    const cached = JSON.parse(localStorage.getItem(REVIEWS_CACHE_KEY) || "null");
+    if(cached && cached.weekKey === weekKey && Array.isArray(cached.data) && cached.data.length){
+      return cached.data;
     }
+  }catch(e){ /* ignore unreadable cache, fall through to fetch */ }
+
+  try{
+    const res = await fetch(`${WORKER_URL}?bucket=reviews`);
+    if(!res.ok) throw new Error("Failed to fetch reviews");
+    const data = await res.json();
+    const reviewsArray = Array.isArray(data) ? data : [];
+    try{ localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify({ weekKey, data: reviewsArray })); }catch(e){ /* storage unavailable, skip caching */ }
+    return reviewsArray;
+  }catch(e){
+    console.warn("Could not load reviews, using fallback", e);
+    return [];
   }
+}
+
 
   function selectWeeklyTestimonials(allReviews){
   const currentWeek = getWeekNumber();
@@ -1958,14 +1978,9 @@ const TESTIMONIALS_RAW_URL = `https://api.jsonbin.io/v3/b/${REVIEWS_BIN_ID}/late
 
   const matchCardHTML = window.SureTipsRender.matchCardHTML;
 
-  // Today's free picks (daysAgo: 0) double as "Today's Featured Matches" on
-  // the home page — same 2 entries, resolved live via TheSportsDB +
-  // Wikipedia fallback (no football-data.org / proxy needed for this
-  // section anymore). The last 2 days of settled results render as static
-  // cards, same as VIP Results, since those matches are already over.
   
   
-  const FREE_PICKS = await fetchRemoteBin(FREE_PICKS_BIN_ID, FREE_PICKS_FALLBACK);
+  const FREE_PICKS = await fetchWorkerBucket('free', FREE_PICKS_FALLBACK);
   
   const todayPicks = FREE_PICKS.filter(p => p.daysAgo === 0);
   const pastPicks = FREE_PICKS.filter(p => p.daysAgo > 0);
@@ -2044,29 +2059,9 @@ await Promise.all(POPULAR_LEAGUES.map(async lg => {
 </script>
 <script>
 /* ============================================================
-   LIVE SOCIAL LINKS — reads the 19 link slots from JSONBin
-   (written by admin.html) and applies them to every element
-   tagged with data-link-key. Cached in localStorage for the
-   same calendar week used by the reviews rotation, so a
-   returning visitor's browser only calls JSONBin once per week,
-   not on every page load — same routine, same boundary, no
-   drift between the two. New visitors (nothing cached yet, or
-   the week just changed) fetch fresh. No fallback to old
-   hardcoded links if the fetch fails — elements simply keep
-   whichever value they already have (cache, or the value baked
-   into this HTML if nothing was cached yet).
-
-   Trade-off worth knowing: because of the week-long cache, a
-   link change saved in admin.html can take up to 7 days to show
-   up for a visitor whose browser already cached this week's
-   values. Anyone visiting for the first time this week gets it
-   immediately.
+   LIVE SOCIAL LINKS — reads from Cloudflare Worker
    ============================================================ */
-
 (function(){
-  const BIN_ID = "6a6b254bf5f4af5e29d50aba";
-  const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
-
   function applyLinks(map){
     if(!map) return;
     document.querySelectorAll('[data-link-key]').forEach(el => {
@@ -2077,10 +2072,24 @@ await Promise.all(POPULAR_LEAGUES.map(async lg => {
     });
   }
 
-  fetch(BIN_URL, { headers: { "X-Bin-Meta": "false", "X-Access-Key": JSONBIN_ACCESS_KEY } })
-    .then(res => { if(!res.ok) throw new Error("bad response"); return res.json(); })
-    .then(data => applyLinks(data))
-    .catch(() => {});
+  (async function(){
+    const cacheKey = "worker_cache_links";
+    try{
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+      if(cached && (Date.now() - cached.timestamp) < (3 * 60 * 1000)){
+        applyLinks(cached.data);
+        return;
+      }
+    }catch(e){}
+
+    try{
+      const res = await fetch(`${WORKER_URL}?bucket=links`);
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      try{ sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data })); }catch(e){}
+      applyLinks(data);
+    }catch(e){ /* silently fail, leave existing hrefs as-is */ }
+  })();
 })();
 </script>
 <!-- ============================= COOKIE CONSENT ============================= -->
