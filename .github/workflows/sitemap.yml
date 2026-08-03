@@ -1,0 +1,33 @@
+name: Daily Sitemap Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  workflow_dispatch:      # Allows manual trigger
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Generate New Sitemap
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" > sitemap.xml
+          echo "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" >> sitemap.xml
+          echo "  <url>" >> sitemap.xml
+          echo "    <loc>https://suretipsplus.com/</loc>" >> sitemap.xml
+          echo "    <lastmod>$TODAY</lastmod>" >> sitemap.xml
+          echo "    <changefreq>daily</changefreq>" >> sitemap.xml
+          echo "    <priority>1.0</priority>" >> sitemap.xml
+          echo "  </url>" >> sitemap.xml
+          echo "</urlset>" >> sitemap.xml
+      
+      - name: Commit and Push to GitHub
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "action@github.com"
+          git add sitemap.xml
+          git commit -m "SEO: Auto-updated sitemap date to $TODAY" || exit 0
+          git push
