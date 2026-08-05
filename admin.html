@@ -138,8 +138,8 @@
     <!-- TAB: VIP HISTORY -->
     <div id="tab-viphistory" class="tabpanel">
       <p class="sub">Most recent first. Each card is one settled VIP result.</p>
-      <div id="vipHistoryList"></div>
       <button type="button" class="btn btn-ghost add-review-btn" id="addVipBtn">+ Add a result</button>
+      <div id="vipHistoryList"></div>
       <div class="sticky-save">
         <button type="button" class="btn btn-primary" id="saveVipBtn">Save VIP history</button>
         <div class="status" id="vipStatus"></div>
@@ -316,7 +316,7 @@ const WORKER_SECRET = "my_super_secret_password_123";
     </div>`;
   }
   function renderVipHistory(list){ vipListEl.innerHTML = ""; list.forEach(r => { vipSeq++; vipListEl.insertAdjacentHTML('beforeend', vipCardHTML(r, vipSeq)); }); bindDeleteButtons(vipListEl); }
-  document.getElementById('addVipBtn').addEventListener('click', () => { vipSeq++; vipListEl.insertAdjacentHTML('beforeend', vipCardHTML({daysAgo:1, result:'win'}, vipSeq)); bindDeleteButtons(vipListEl); });
+  document.getElementById('addVipBtn').addEventListener('click', () => { vipSeq++; vipListEl.insertAdjacentHTML('afterbegin', vipCardHTML({daysAgo:1, result:'win'}, vipSeq)); bindDeleteButtons(vipListEl); });
   
   
   
