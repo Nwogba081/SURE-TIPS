@@ -150,11 +150,11 @@
     <div id="tab-freepicks" class="tabpanel">
       <p class="sub">Live picks show today with no result yet. Settled results are finished matches.</p>
       <h3 class="subsection-title">Live picks (today)</h3>
-      <div id="freeLiveList"></div>
       <button type="button" class="btn btn-ghost add-review-btn" id="addFreeLiveBtn">+ Add live pick</button>
+      <div id="freeLiveList"></div>
       <h3 class="subsection-title spaced">Settled results (past)</h3>
-      <div id="freeSettledList"></div>
       <button type="button" class="btn btn-ghost add-review-btn" id="addFreeSettledBtn">+ Add settled result</button>
+      <div id="freeSettledList"></div>
       <div class="sticky-save">
         <button type="button" class="btn btn-primary" id="saveFreeBtn">Save free predictions</button>
         <div class="status" id="freeStatus"></div>
@@ -341,7 +341,7 @@ const WORKER_SECRET = "my_super_secret_password_123";
       if(!res.ok) throw new Error("Save failed");
       statusEl.textContent = `Saved ✓ (${payload.length} results)`; statusEl.className = "status ok";
     }catch(e){ statusEl.textContent = "Save failed: " + e.message; statusEl.className = "status err"; }
-0});
+  });
 
   // --- FREE PREDICTIONS ---
   const freeLiveEl = document.getElementById('freeLiveList'), freeSettledEl = document.getElementById('freeSettledList'); let freeSeq = 0;
@@ -393,8 +393,8 @@ const WORKER_SECRET = "my_super_secret_password_123";
     list.filter(p => (p.daysAgo || 0) > 0).forEach(r => { freeSeq++; freeSettledEl.insertAdjacentHTML('beforeend', freeSettledCardHTML(r, freeSeq)); });
     bindDeleteButtons(freeLiveEl); bindDeleteButtons(freeSettledEl);
   }
-  document.getElementById('addFreeLiveBtn').addEventListener('click', () => { freeSeq++; freeLiveEl.insertAdjacentHTML('beforeend', freeLiveCardHTML({}, freeSeq)); bindDeleteButtons(freeLiveEl); });
-  document.getElementById('addFreeSettledBtn').addEventListener('click', () => { freeSeq++; freeSettledEl.insertAdjacentHTML('beforeend', freeSettledCardHTML({daysAgo:1, result:'win'}, freeSeq)); bindDeleteButtons(freeSettledEl); });
+  document.getElementById('addFreeLiveBtn').addEventListener('click', () => { freeSeq++; freeLiveEl.insertAdjacentHTML('afterbegin', freeLiveCardHTML({}, freeSeq)); bindDeleteButtons(freeLiveEl); });
+  document.getElementById('addFreeSettledBtn').addEventListener('click', () => { freeSeq++; freeSettledEl.insertAdjacentHTML('afterbegin', freeSettledCardHTML({daysAgo:1, result:'win'}, freeSeq)); bindDeleteButtons(freeSettledEl); });
   
   
   async function loadFreePicks(){
