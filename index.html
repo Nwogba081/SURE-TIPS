@@ -1201,6 +1201,37 @@ async function fetchWorkerBucket(bucket, fallback){
 }
 
 
+
+async function fetchSettings(){
+  const cacheKey = "worker_cache_settings";
+  
+  try{
+    const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+    if(cached && (Date.now() - cached.timestamp) < WORKER_CACHE_MS){
+      return cached.data;
+    }
+  }catch(e){}
+  
+  try{
+    // ✅ FIX 1: Added &_=${Date.now()} to bypass browser and Cloudflare edge caching
+    const res = await fetch(`${WORKER_URL}?bucket=settings&_=${Date.now()}`);
+    if(!res.ok) throw new Error("bad response");
+    const data = await res.json();
+    
+    // ✅ FIX 2: If the worker returns an empty object {}, use fallback defaults
+    if (!data || Object.keys(data).length === 0) {
+      return { winRateTotal: 45, winRateMin: 40 };
+    }
+
+    try{ sessionStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data })); }catch(e){}
+    return data;
+  }catch(e){
+    return { winRateTotal: 45, winRateMin: 40 }; // fallback defaults
+  }
+}
+
+
+
 async function fetchRemoteBin(binId, fallback){
   try{
     const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
@@ -1555,20 +1586,37 @@ const VIP_HISTORY_FALLBACK = [
 (function(){
 
   // Daily record
-  function dailyRecord(){
-    const now = new Date();
-    const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-    let seed = 0;
-    for(let i=0;i<dateKey.length;i++){ seed = (seed * 31 + dateKey.charCodeAt(i)) >>> 0; }
-    const pseudo = Math.abs(Math.sin(seed));
-    const TOTAL = 45;
-    const MIN_WINS = 40;
-    const wins = MIN_WINS + Math.floor(pseudo * (TOTAL - MIN_WINS + 1));
-    const losses = TOTAL - wins;
-    const pct = Math.round((wins / TOTAL) * 100);
+    // Daily record
+    async function dailyRecord(){
+    // Fetch settings from Worker
+    const settings = await fetchSettings();
+    
+    // ✅ FIXED: Directly uses exactly what you typed in the Admin panel
+    const wins = settings.winRateMin !== undefined ? settings.winRateMin : 40;
+    const total = settings.winRateTotal !== undefined ? settings.winRateTotal : 45;
+    
+    // Prevent division by zero if total is somehow 0
+    const safeTotal = total > 0 ? total : 1; 
+    const losses = safeTotal - wins;
+    const pct = Math.round((wins / safeTotal) * 100);
+    
     return { wins, losses, pct };
   }
-  const { wins: dailyWins, losses: dailyLosses, pct: winRate } = dailyRecord();
+  
+  
+
+
+
+  let dailyWins, dailyLosses, winRate;
+(async function initWinRate(){
+  const record = await dailyRecord();
+  dailyWins = record.wins;
+  dailyLosses = record.losses;
+  winRate = record.pct;
+  applyWinRate();
+})();
+
+function applyWinRate(){
   ['winRateHeader', 'winRateHero', 'winRateVip', 'winRateModal', 'winRatePopover'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.textContent = winRate;
@@ -1581,6 +1629,10 @@ const VIP_HISTORY_FALLBACK = [
     if(winEl) winEl.textContent = dailyWins;
     if(lossEl) lossEl.textContent = dailyLosses;
   });
+}
+
+
+  
 
   // Tab navigation
   const tabs = document.querySelectorAll('.tab');
