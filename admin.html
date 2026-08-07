@@ -75,6 +75,9 @@
       <button class="tabbtn" data-tab="reviews">Change Reviews</button>
       <button class="tabbtn" data-tab="viphistory">VIP History</button>
       <button class="tabbtn" data-tab="freepicks">Free Predictions</button>
+<button class="tabbtn" data-tab="settings">Settings</button>
+      
+      
     </div>
     <button type="button" id="logoutBtn" style="display:block; margin:0 0 18px auto; background:none; border:1px solid var(--line); color:var(--loss); font-size:0.78rem; font-weight:600; padding:7px 14px; border-radius:999px; cursor:pointer;">Log out</button>
 
@@ -160,8 +163,34 @@
         <div class="status" id="freeStatus"></div>
       </div>
     </div>
+    <!-- end of freepicks tab -->
+  
+
+  <!-- TAB: SETTINGS -->
+  <div id="tab-settings" class="tabpanel">
+    <p class="sub">Control the win rate display. Changes take effect immediately for all visitors.</p>
+    <div class="panel">
+      <h3>Win Rate Settings</h3>
+      <div class="field">
+        <label>Minimum wins (floor)</label>
+        <input type="number" id="settingsMinWins" min="0" max="100" value="40">
+      </div>
+      <div class="field">
+        <label>Total tips tracked</label>
+        <input type="number" id="settingsTotal" min="1" max="100" value="45">
+      </div>
+      <p style="font-size:0.78rem; color:var(--text-mute); margin-top:8px;">
+        Current win rate floor: <strong style="color:var(--gold);" id="settingsPreview">89%</strong>
+      </p>
+    </div>
+    <div class="sticky-save">
+      <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save settings</button>
+      <div class="status" id="settingsStatus"></div>
+    </div>
   </div>
 </div>
+</div>
+
 
 <script>
   const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
@@ -205,13 +234,13 @@ const WORKER_SECRET = "my_super_secret_password_123";
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b === btn));
       const tab = btn.dataset.tab;
-      ['links', 'reviews', 'viphistory', 'freepicks'].forEach(t => {
+      ['links', 'reviews', 'viphistory', 'freepicks', 'settings'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
       });
     });
   });
 
-  function initApp(){ loadBin(); loadReviews(); loadVipHistory(); loadFreePicks(); }
+  function initApp(){ loadBin(); loadReviews(); loadVipHistory(); loadFreePicks(); loadSettings(); }
 
   async function loadBin(){
     try{
@@ -427,6 +456,50 @@ const WORKER_SECRET = "my_super_secret_password_123";
       statusEl.textContent = `Saved ✓ (${payload.length} entries)`; statusEl.className = "status ok";
     }catch(e){ statusEl.textContent = "Save failed: " + e.message; statusEl.className = "status err"; }
   });
+  
+  
+    // --- SETTINGS ---
+  async function loadSettings(){
+    try{
+      const res = await fetch(`${WORKER_URL}?bucket=settings`);
+      if(!res.ok) throw new Error("bad response");
+      const data = await res.json();
+      document.getElementById('settingsMinWins').value = data.winRateMin || 40;
+      document.getElementById('settingsTotal').value = data.winRateTotal || 45;
+      updateSettingsPreview();
+    }catch(e){
+      document.getElementById('settingsStatus').textContent = "Using defaults."; 
+      document.getElementById('settingsStatus').className = "status";
+    }
+  }
+
+  function updateSettingsPreview(){
+    const min = parseInt(document.getElementById('settingsMinWins').value, 10) || 40;
+    const total = parseInt(document.getElementById('settingsTotal').value, 10) || 45;
+    const pct = Math.round((min / total) * 100);
+    document.getElementById('settingsPreview').textContent = pct + '%';
+  }
+
+  document.getElementById('settingsMinWins').addEventListener('input', updateSettingsPreview);
+  document.getElementById('settingsTotal').addEventListener('input', updateSettingsPreview);
+
+  document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+    const statusEl = document.getElementById('settingsStatus');
+    const payload = {
+      winRateMin: parseInt(document.getElementById('settingsMinWins').value, 10) || 40,
+      winRateTotal: parseInt(document.getElementById('settingsTotal').value, 10) || 45
+    };
+    statusEl.textContent = "Saving…"; statusEl.className = "status";
+    try{
+      const res = await fetch(WORKER_URL, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bucket: "settings", password: WORKER_SECRET, data: payload })
+      });
+      if(!res.ok) throw new Error("Save failed");
+      statusEl.textContent = "Saved ✓"; statusEl.className = "status ok";
+    }catch(e){ statusEl.textContent = "Save failed: " + e.message; statusEl.className = "status err"; }
+  });
+
 </script>
 </body>
 </html>
