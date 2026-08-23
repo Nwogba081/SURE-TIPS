@@ -163,6 +163,13 @@
   .mobile-menu.open .mobile-menu-inner{ opacity:1; transform:translateY(0); padding: 10px 20px 18px; }
   .mobile-menu .nav-link{ text-align:left; padding:12px 10px; }
   .mobile-menu .mobile-menu-cta{ flex:none; width:100%; margin-top:10px; }
+  
+  
+  .mobile-app-link{
+  display:flex; align-items:center; gap:8px;
+  color: var(--gold) !important;
+  font-weight:700;
+}
 
   @media (max-width:880px){
     .nav-links{ display:none; }
@@ -749,16 +756,17 @@ button *,
         </button>
       </div>
     </div>
-    <div class="mobile-menu" id="mobileMenu">
-      <div class="mobile-menu-inner">
-        <button class="nav-link" data-goto="home">Home</button>
-        <button class="nav-link" data-goto="free">Free Predictions</button>
-        <button class="nav-link" data-modal="vip-info">VIP Tips</button>
-        <button class="nav-link" data-goto="vip">VIP Results</button>
-        <button class="nav-link" data-goto="support">Support</button>
-        <button class="btn btn-primary mobile-menu-cta" data-story="join-vip">Join VIP</button>
-      </div>
-    </div>
+   <div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-inner">
+    <button class="nav-link" data-goto="home">Home</button>
+    <button class="nav-link" data-goto="free">Free Predictions</button>
+    <button class="nav-link" data-modal="vip-info">VIP Tips</button>
+    <button class="nav-link" data-goto="vip">VIP Results</button>
+    <a class="nav-link mobile-app-link" href="app.html">📲 Get the App</a>
+    <button class="nav-link" data-goto="support">Support</button>
+    <button class="btn btn-primary mobile-menu-cta" data-story="join-vip">Join VIP</button>
+  </div>
+</div>
   </header>
 
   <main>
