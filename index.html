@@ -726,6 +726,24 @@ button *,
     .cookie-sheet{ border-radius: var(--radius-lg); margin-bottom:16px; }
   }
   
+  
+ .hero-app-btn{
+  display:none;
+  margin-top:12px;
+  margin-left:auto;
+  margin-right:auto;
+  width:100%;
+  max-width:420px;
+}
+@media (max-width:900px){
+  .hero-app-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+}
+  
 </style>
 </head>
 <body>
@@ -787,10 +805,12 @@ button *,
               <div class="stat-block"><div class="num"><span id="recordHero">37–11</span></div><div class="label">Record (W–L)</div></div>
               <div class="stat-block"><div class="num">Daily</div><div class="label">New free tips</div></div>
             </div>
-            <div class="hero-ctas">
-              <button class="btn btn-primary" data-goto="vip">See VIP results</button>
-              <button class="btn btn-ghost" data-goto="free">Free tips</button>
-            </div>
+			
+          <div class="hero-ctas">
+  <button class="btn btn-primary" data-goto="vip">See VIP results</button>
+  <button class="btn btn-ghost" data-goto="free">Free tips</button>
+</div>
+<a href="download.html" class="btn btn-primary hero-app-btn">📲 Get the App</a>
           </div>
           <div class="hero-spotlight">
             <div class="spotlight-label">What our members are saying</div>
