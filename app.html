@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SureTips App - Download</title>
+<meta name="description" content="Download the SureTips app for daily football predictions, VIP tips, and verified results.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a; --bg-soft:#0d1226; --surface:#141a33; --surface-2:#1a2140;
+    --line:rgba(255,255,255,0.08);
+    --grad-a:#2a0e61; --grad-b:#7c3aed; --grad-c:#f59e0b;
+    --gold:#fbbf24; --win:#34d399; --loss:#fb7185;
+    --text:#f8fafc; --text-dim:#a7b0c8; --text-mute:#6b7591;
+    --radius-lg:20px; --radius-md:14px; --radius-sm:10px;
+    --font-display:'Sora',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+    --shadow:0 10px 30px -12px rgba(0,0,0,0.55);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.5; display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; border:none; background:none; color:inherit; cursor:pointer; }
+  ul{ list-style:none; }
+  h1,h2,h3{ font-family:var(--font-display); }
+  img,svg{ display:block; max-width:100%; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+  .container{ max-width:1160px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .container{ padding:0 22px; } }
+
+  /* ---------- Entrance animations ---------- */
+  @keyframes dropIn{
+    from{ opacity:0; transform:translateY(-18px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeIn{
+    from{ opacity:0; }
+    to{ opacity:1; }
+  }
+  @keyframes slideInRight{
+    from{ opacity:0; transform:translateX(36px); }
+    to{ opacity:1; transform:translateX(0); }
+  }
+  @keyframes riseIn{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .anim-nav{ animation:dropIn 0.6s cubic-bezier(.22,.9,.32,1) both; }
+  .anim-h1{ animation:fadeIn 0.8s ease both; }
+  .anim-subtext{ animation:slideInRight 0.65s cubic-bezier(.22,.9,.32,1) 0.15s both; }
+  .anim-trust{ animation:riseIn 0.5s cubic-bezier(.22,.9,.32,1) both; animation-delay:0.35s; }
+
+  /* ---------- Header ---------- */
+  .site-header{ position:sticky; top:0; z-index:100; background:rgba(10,14,26,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; height:72px; gap:24px; }
+  .brand{ font-family:var(--font-display); font-weight:800; font-size:1.25rem; letter-spacing:0.02em; }
+  .brand .accent{ color:var(--gold); }
+  .back-link{ display:flex; align-items:center; gap:6px; font-weight:600; font-size:0.88rem; color:var(--text-dim); padding:9px 16px; border-radius:999px; transition:background .15s ease, color .15s ease; }
+  .back-link:hover{ background:var(--surface); color:var(--text); }
+  .back-link svg{ width:16px; height:16px; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; padding:56px 0 40px; overflow:hidden;
+    background:
+      radial-gradient(120% 70% at 8% 0%, rgba(124,58,237,0.28), transparent 60%),
+      radial-gradient(90% 60% at 95% 10%, rgba(245,158,11,0.16), transparent 60%),
+      var(--bg);
+  }
+  .hero-grid{ position:relative; z-index:1; display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center; }
+  @media (max-width:860px){ .hero-grid{ grid-template-columns:1fr; text-align:center; gap:44px; } }
+
+  .eyebrow{ font-family:var(--font-mono); font-weight:700; font-size:0.78rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+  .hero-copy h1{ font-size:2.6rem; font-weight:800; line-height:1.14; margin-bottom:16px; }
+  @media (max-width:640px){ .hero-copy h1{ font-size:2rem; } }
+  .hero-copy p{ color:var(--text-dim); font-size:1.02rem; max-width:480px; margin-bottom:24px; }
+  @media (max-width:860px){ .hero-copy p{ margin-left:auto; margin-right:auto; } }
+
+  .trust-row{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px; }
+  @media (max-width:860px){ .trust-row{ justify-content:center; } }
+  .trust-pill{
+    display:flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:0.78rem; font-weight:600; color:var(--text-dim);
+    background:var(--surface); border:1px solid var(--line); padding:7px 13px; border-radius:999px;
+  }
+  .trust-pill .stars{ color:var(--gold); }
+  .trust-pill strong{ color:var(--text); font-weight:700; }
+
+  .download-btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:16px 30px; border-radius:999px; font-weight:700; font-size:1rem;
+    background:linear-gradient(135deg,var(--grad-b),var(--grad-c));
+    color:#1a1206; box-shadow:0 12px 28px -10px rgba(245,158,11,0.55);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .download-btn:active{ transform:scale(0.97); }
+  .download-meta{ margin-top:12px; font-family:var(--font-mono); font-size:0.76rem; color:var(--text-mute); }
+  @media (max-width:860px){ .download-wrap{ display:flex; flex-direction:column; align-items:center; } }
+
+  /* ---------- Phone mockup: locked screen with stacked notifications ---------- */
+  .phone-stage{ position:relative; display:flex; justify-content:center; padding:20px 0; }
+  .phone-glow{
+    position:absolute; width:min(80%, 340px); height:340px; border-radius:50%;
+    background:linear-gradient(120deg, var(--grad-a), var(--grad-b), var(--grad-c), var(--grad-b), var(--grad-a));
+    background-size:300% 300%; filter:blur(60px); opacity:0.55;
+    animation:glowMove 9s ease-in-out infinite;
+  }
+  @keyframes glowMove{ 0%,100%{ background-position:0% 50%; } 50%{ background-position:100% 50%; } }
+  .phone-frame{
+    position:relative; z-index:1;
+    width:250px; padding:10px; border-radius:38px;
+    background:#04060c;
+    box-shadow: 0 30px 70px -18px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,255,255,0.06) inset;
+  }
+  .phone-frame::before{
+    content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:76px; height:16px; background:#04060c; border-radius:0 0 12px 12px; z-index:5;
+  }
+  .phone-screen{
+    position:relative; border-radius:28px; overflow:hidden;
+    aspect-ratio:9/19; background:linear-gradient(165deg, #1c1440 0%, #0a0e1a 55%, #05060d 100%);
+    display:flex; flex-direction:column;
+  }
+  /* subtle lockscreen wallpaper glow */
+  .ls-wallpaper-glow{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(60% 40% at 50% 8%, rgba(124,58,237,0.35), transparent 60%),
+                radial-gradient(50% 30% at 85% 0%, rgba(245,158,11,0.18), transparent 60%);
+  }
+  .ls-time-widget{ position:relative; z-index:1; text-align:center; padding:26px 0 10px; }
+  .ls-clock{ font-family:var(--font-display); font-weight:700; font-size:2.6rem; line-height:1; letter-spacing:-0.01em; }
+  .ls-date{ font-family:var(--font-body); font-size:0.68rem; color:var(--text-dim); margin-top:6px; }
+
+  .ls-notifs{ position:relative; z-index:1; display:flex; flex-direction:column; gap:6px; padding:12px 10px 0; flex:1; }
+  .ls-notif{
+    display:flex; gap:8px; align-items:flex-start;
+    background:rgba(255,255,255,0.08); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px; padding:9px 10px;
+  }
+  .ls-notif-ic{
+    width:22px; height:22px; border-radius:6px; flex-shrink:0; margin-top:1px;
+    display:flex; align-items:center; justify-content:center; font-size:0.68rem;
+    background:linear-gradient(135deg, var(--grad-b), var(--grad-c));
+  }
+  .ls-notif-body{ min-width:0; flex:1; }
+  .ls-notif-meta{ display:flex; justify-content:space-between; gap:8px; font-size:0.56rem; color:var(--text-mute); margin-bottom:1px; }
+  .ls-notif-meta .app-name{ font-weight:700; color:var(--text-dim); letter-spacing:0.02em; }
+  .ls-notif-title{ font-weight:700; font-size:0.68rem; margin-bottom:1px; color:var(--text); }
+  .ls-notif-text{ font-size:0.62rem; color:var(--text-dim); line-height:1.35; }
+
+  .ls-bottom{ position:relative; z-index:1; display:flex; justify-content:center; padding:12px 0 16px; margin-top:auto; }
+  .ls-lock-pill{
+    width:34px; height:34px; border-radius:50%;
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.12);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ls-lock-pill svg{ width:14px; height:14px; color:var(--text-dim); }
+
+  /* ---------- Trust strip ---------- */
+  .trust-strip{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--bg-soft); padding:16px 0; }
+  .trust-strip-inner{ display:flex; flex-wrap:wrap; justify-content:center; gap:28px; font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim); }
+  .trust-strip-inner span{ display:flex; align-items:center; gap:7px; }
+  .trust-strip-inner svg{ width:15px; height:15px; color:var(--win); flex-shrink:0; }
+
+  /* ---------- Features ---------- */
+  .features{ padding:56px 0 8px; }
+  .section-head{ text-align:center; margin-bottom:32px; }
+  .section-eyebrow{ font-family:var(--font-mono); font-size:0.74rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+  .section-title{ font-size:1.6rem; font-weight:800; }
+  .features-grid{ display:grid; grid-template-columns:1fr 1.1fr; gap:52px; align-items:center; }
+  @media (max-width:800px){ .features-grid{ grid-template-columns:1fr; gap:36px; } }
+
+  /* Notification stack, the actual differentiator of an app over a
+     website is that it can push to you, so show that directly rather
+     than describing it in an icon-card. */
+  .notif-stack{ display:flex; flex-direction:column; gap:14px; max-width:360px; margin:0 auto; }
+  .notif-card{
+    display:flex; gap:12px; align-items:flex-start;
+    background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    padding:14px 16px; box-shadow:var(--shadow);
+    transition:transform .2s ease;
+  }
+  .notif-card:hover{ transform:translateY(-2px) rotate(0deg) !important; }
+  .notif-stack .notif-card:nth-child(1){ transform:rotate(-1.2deg); }
+  .notif-stack .notif-card:nth-child(2){ transform:rotate(0.8deg); margin-left:18px; }
+  .notif-stack .notif-card:nth-child(3){ transform:rotate(-0.6deg); margin-left:8px; opacity:0.82; }
+  .notif-ic{
+    width:36px; height:36px; border-radius:10px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:1.05rem;
+    background:linear-gradient(135deg, var(--grad-b), var(--grad-c));
+  }
+  .notif-body{ min-width:0; }
+  .notif-meta{ display:flex; justify-content:space-between; gap:10px; font-family:var(--font-mono); font-size:0.66rem; color:var(--text-mute); margin-bottom:3px; }
+  .notif-title{ font-weight:700; font-size:0.86rem; margin-bottom:2px; }
+  .notif-text{ font-size:0.78rem; color:var(--text-dim); line-height:1.4; }
+
+  .why-list-title{ font-size:1.3rem; font-weight:800; margin-bottom:18px; }
+  .why-list{ display:flex; flex-direction:column; gap:16px; }
+  .why-list li{ display:flex; gap:12px; align-items:flex-start; font-size:0.92rem; color:var(--text-dim); line-height:1.55; }
+  .why-list li strong{ color:var(--text); }
+  .why-list li::before{
+    content:"✓"; flex-shrink:0; width:22px; height:22px; border-radius:50%;
+    background:rgba(52,211,153,0.14); color:var(--win); font-weight:800; font-size:0.72rem;
+    display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+
+  /* ---------- Install steps ---------- */
+  .install{ padding:56px 0; }
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; max-width:900px; margin:0 auto; }
+  @media (max-width:760px){ .steps{ grid-template-columns:1fr; } }
+  .step-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:24px; position:relative; }
+  .step-num{
+    font-family:var(--font-mono); font-weight:800; font-size:0.82rem; color:#1a1206;
+    background:var(--gold); width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin-bottom:14px;
+  }
+  .step-card h3{ font-size:0.94rem; margin-bottom:6px; }
+  .step-card p{ font-size:0.82rem; color:var(--text-dim); line-height:1.55; }
+
+  /* ---------- Community strip ---------- */
+  .community-strip{ padding:8px 0 56px; }
+  .community-box{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px;
+    background:linear-gradient(135deg, var(--grad-a), var(--grad-b) 60%, var(--grad-c));
+    border-radius:var(--radius-lg); padding:26px 28px; box-shadow:var(--shadow);
+  }
+  .community-box h3{ font-size:1.1rem; color:#fff; margin-bottom:4px; }
+  .community-box p{ font-size:0.86rem; color:rgba(255,255,255,0.85); }
+  .community-links{ display:flex; gap:10px; flex-wrap:wrap; }
+  .community-links a{
+    display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.86rem;
+    background:rgba(0,0,0,0.28); color:#fff; padding:11px 18px; border-radius:999px;
+    transition:background .15s ease;
+  }
+  .community-links a:hover{ background:rgba(0,0,0,0.42); }
+
+  /* ---------- Footer ---------- */
+  .site-footer{ margin-top:auto; border-top:1px solid var(--line); background:var(--bg-soft); padding:22px 0; text-align:center; }
+  .site-footer p{ font-size:0.78rem; color:var(--text-mute); }
+</style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav-inner anim-nav">
+      <div class="brand">SURE<span class="accent">TIPS</span></div>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to website
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow anim-h1">SureTips · Android App</div>
+          <h1 class="anim-h1">Predictions in your pocket.</h1>
+          <p class="anim-subtext">Get daily picks, VIP alerts, and verified results pushed straight to your phone the moment they're posted, before they hit the free page.</p>
+
+          <div class="trust-row">
+            <span class="trust-pill anim-trust" style="animation-delay:0.35s"><span class="stars">★★★★★</span> <strong>4.8</strong></span>
+            <span class="trust-pill anim-trust" style="animation-delay:0.42s">📥 <strong>7000+</strong> downloads</span>
+            <span class="trust-pill anim-trust" style="animation-delay:0.49s">🤖 Android 7.0+</span>
+          </div>
+
+          <div class="download-wrap">
+            <a href="https://apk.appmarket24.com/apk/app2941533-i2nlkj.apk?v=22" class="download-btn" download>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Download APK
+            </a>
+            <div class="download-meta">v9.2 · 30 MB · Direct Install</div>
+          </div>
+        </div>
+
+        <div class="phone-stage">
+          <div class="phone-glow" aria-hidden="true"></div>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="ls-wallpaper-glow" aria-hidden="true"></div>
+
+              <div class="ls-time-widget">
+                <div class="ls-clock">9:41</div>
+                <div class="ls-date">Sunday, August 23</div>
+              </div>
+
+              <div class="ls-notifs">
+                <div class="ls-notif">
+                  <div class="ls-notif-ic">🔥</div>
+                  <div class="ls-notif-body">
+                    <div class="ls-notif-meta"><span class="app-name">SureTips</span><span>now</span></div>
+                    <div class="ls-notif-title">New VIP pick just dropped</div>
+                    <div class="ls-notif-text">Arsenal vs Man City, GG + Over 2.5 @ 2.65</div>
+                  </div>
+                </div>
+                <div class="ls-notif">
+                  <div class="ls-notif-ic">✅</div>
+                  <div class="ls-notif-body">
+                    <div class="ls-notif-meta"><span class="app-name">SureTips</span><span>2h</span></div>
+                    <div class="ls-notif-title">Yesterday's pick landed</div>
+                    <div class="ls-notif-text">Real Madrid won 3-1, logged and scored</div>
+                  </div>
+                </div>
+                <div class="ls-notif">
+                  <div class="ls-notif-ic">🎯</div>
+                  <div class="ls-notif-body">
+                    <div class="ls-notif-meta"><span class="app-name">SureTips</span><span>5h</span></div>
+                    <div class="ls-notif-title">Free tip posted</div>
+                    <div class="ls-notif-text">Today's match analysis is live now</div>
+                  </div>
+                </div>
+                <div class="ls-notif">
+                  <div class="ls-notif-ic">⚽</div>
+                  <div class="ls-notif-body">
+                    <div class="ls-notif-meta"><span class="app-name">SureTips</span><span>8h</span></div>
+                    <div class="ls-notif-title">Kickoff in 30 minutes</div>
+                    <div class="ls-notif-text">Napoli vs Roma, your pick is locked in</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ls-bottom">
+                <div class="ls-lock-pill">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust-strip">
+      <div class="container trust-strip-inner">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Scanned APK, no hidden permissions</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Same predictions, same track record</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Free to install, no account needed</span>
+      </div>
+    </div>
+
+    <section class="features">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-eyebrow">Why the app</div>
+          <h2 class="section-title">The difference is what it doesn't wait for</h2>
+        </div>
+        <div class="features-grid">
+          <div class="notif-stack">
+            <div class="notif-card">
+              <div class="notif-ic">🔥</div>
+              <div class="notif-body">
+                <div class="notif-meta"><span>SureTips VIP</span><span>now</span></div>
+                <div class="notif-title">New VIP pick just dropped</div>
+                <div class="notif-text">Arsenal vs Man City, GG + Over 2.5 @ 2.65</div>
+              </div>
+            </div>
+            <div class="notif-card">
+              <div class="notif-ic">✅</div>
+              <div class="notif-body">
+                <div class="notif-meta"><span>SureTips</span><span>2h ago</span></div>
+                <div class="notif-title">Yesterday's pick landed</div>
+                <div class="notif-text">Real Madrid won 3-1, logged and scored</div>
+              </div>
+            </div>
+            <div class="notif-card">
+              <div class="notif-ic">🎯</div>
+              <div class="notif-body">
+                <div class="notif-meta"><span>SureTips</span><span>5h ago</span></div>
+                <div class="notif-title">Free tip posted</div>
+                <div class="notif-text">Today's match analysis is live now</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="why-list-title">Worth installing for</h3>
+            <ul class="why-list">
+              <li><span><strong>Notifications land the second a pick posts,</strong> no refreshing the site to check.</span></li>
+              <li><span><strong>Every result logs itself</strong> automatically, win or lose, straight into your feed.</span></li>
+              <li><span><strong>VIP picks reach the app first,</strong> before they ever touch the free page.</span></li>
+              <li><span><strong>30 MB, no account, no clutter,</strong> just the picks.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="install">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-eyebrow">3 steps</div>
+          <h2 class="section-title">Installing takes under a minute</h2>
+        </div>
+        <div class="steps">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <h3>Download the APK</h3>
+            <p>Tap the download button above. Your browser will save the file automatically.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <h3>Allow the install</h3>
+            <p>If prompted, allow installs from this browser under "Install unknown apps," a normal step for apps outside the Play Store.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <h3>Open and go</h3>
+            <p>Open the downloaded file, tap Install, then launch SureTips straight from your home screen.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="community-strip">
+      <div class="container">
+        <div class="community-box">
+          <div>
+            <h3>Prefer WhatsApp or Telegram?</h3>
+            <p>Join the community for tips without installing anything.</p>
+          </div>
+          <div class="community-links">
+            <a href="https://chat.whatsapp.com/BQiEFLNQRovGK5SO1cNfVz?s=cl&p=a&ilr=0&amv=2" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 20l1-5.5A8.5 8.5 0 1 1 21 11.5Z"/></svg>
+              WhatsApp Group
+            </a>
+            <a href="https://t.me/SureTips80" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              Telegram Channel
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2026 SureTips · 18+ · Please gamble responsibly</p>
+    </div>
+  </footer>
+
+</body>
+</html>
