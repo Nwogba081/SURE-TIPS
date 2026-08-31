@@ -744,6 +744,86 @@ button *,
   }
 }
   
+  
+  
+ /* ---------- VIP Offer Modal (SureTips Native) ---------- */
+.vip-offer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: rgba(5, 7, 15, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  padding: 20px;
+}
+.vip-offer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.vip-offer-box {
+  background: linear-gradient(135deg, #2a0e61, #7c3aed 55%, #f59e0b);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transform: translateX(-120%);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.vip-offer-overlay.open .vip-offer-box {
+  transform: translateX(0);
+}
+.vip-offer-box h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+.vip-offer-box p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+.vip-offer-highlight {
+  color: var(--gold);
+  font-weight: 700;
+}
+.vip-offer-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+.vip-offer-btn {
+  flex: 1;
+  padding: 13px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  text-decoration: none;
+  display: block;
+  transition: transform 0.15s ease;
+}
+.vip-offer-btn:active {
+  transform: scale(0.97);
+}
+.vip-offer-btn.subscribe {
+  background: linear-gradient(135deg, var(--grad-b), var(--grad-c));
+  color: #1a1206;
+}
+.vip-offer-btn.skip {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
 </style>
 </head>
 <body>
@@ -2219,6 +2299,24 @@ await Promise.all(POPULAR_LEAGUES.map(async lg => {
   </div>
   
   
+  
+  <!-- ============================= VIP OFFER MODAL ============================= -->
+<div class="vip-offer-overlay" id="vipOfferOverlay">
+  <div class="vip-offer-box">
+    <h2 id="vipOfferHeadline">Special VIP Offer</h2>
+    <p id="vipOfferBodyText">
+      Enjoy a <span class="vip-offer-highlight">50% discount</span> on our VIP subscription. 
+      Join our winning community today and gain access to premium insights and exclusive tips.
+    </p>
+    <div class="vip-offer-btns">
+      <a href="#" id="vipOfferSubscribeBtn" class="vip-offer-btn subscribe" target="_blank" rel="noopener">Subscribe</a>
+      <button type="button" id="vipOfferSkipBtn" class="vip-offer-btn skip">Skip</button>
+    </div>
+  </div>
+</div>
+
+
+
   <script>
 /* ============================================================
    COOKIE CONSENT — shows once per visitor, remembers the choice
@@ -2266,6 +2364,46 @@ await Promise.all(POPULAR_LEAGUES.map(async lg => {
     closeCookieModal();
   });
 })();
+
+
+
+// ============================= VIP OFFER MODAL =============================
+(function(){
+  async function initVipOffer(){
+    let settings = null;
+    try{
+      const res = await fetch(`${WORKER_URL}?bucket=settings`);
+      if(!res.ok) return;
+      settings = await res.json();
+    }catch(e){ return; }
+
+    const offer = settings && settings.vipOffer;
+    if(!offer || offer.enabled !== true) return;
+
+    // Populate modal
+    document.getElementById('vipOfferHeadline').textContent = offer.headline || "Special VIP Offer";
+    document.getElementById('vipOfferBodyText').innerHTML = (offer.bodyText || "").replace(/\*\*(.*?)\*\*/g, '<span class="vip-offer-highlight">$1</span>');
+    document.getElementById('vipOfferSubscribeBtn').textContent = offer.subscribeLabel || "Subscribe";
+    document.getElementById('vipOfferSubscribeBtn').href = offer.subscribeLink || "#";
+    document.getElementById('vipOfferSkipBtn').textContent = offer.skipLabel || "Skip";
+
+    // Show modal
+    document.getElementById('vipOfferOverlay').classList.add('open');
+
+    // Close handlers
+    function closeModal(){ document.getElementById('vipOfferOverlay').classList.remove('open'); }
+    document.getElementById('vipOfferSkipBtn').addEventListener('click', closeModal);
+    document.getElementById('vipOfferSubscribeBtn').addEventListener('click', closeModal);
+    document.getElementById('vipOfferOverlay').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initVipOffer);
+  }else{
+    initVipOffer();
+  }
+})();
+
 </script>
 </body>
 <script type="application/ld+json">
