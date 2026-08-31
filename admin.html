@@ -183,10 +183,33 @@
         Current win rate floor: <strong style="color:var(--gold);" id="settingsPreview">89%</strong>
       </p>
     </div>
-    <div class="sticky-save">
-      <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save settings</button>
-      <div class="status" id="settingsStatus"></div>
-    </div>
+   <div class="panel" style="margin-top:18px;">
+  <h3>VIP Offer Popup</h3>
+  <div class="field">
+    <label>Enable popup</label>
+    <input type="checkbox" id="vipOfferEnabled" style="width:20px;height:20px;accent-color:var(--gold);">
+  </div>
+  <div class="field">
+    <label>Headline</label>
+    <input type="text" id="vipOfferHeadline" value="Special VIP Offer">
+  </div>
+  <div class="field">
+    <label>Body text (use **text** for red highlight)</label>
+    <textarea id="vipOfferBody" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-family:var(--font-body);font-size:0.86rem;min-height:80px;resize:vertical;">Enjoy a **50% discount** on our VIP subscription. Join our winning community today and gain access to premium insights and exclusive tips.</textarea>
+  </div>
+  <div class="review-row">
+    <div class="field"><label>Subscribe button label</label><input type="text" id="vipOfferSubLabel" value="Subscribe"></div>
+    <div class="field"><label>Skip button label</label><input type="text" id="vipOfferSkipLabel" value="Skip"></div>
+  </div>
+  <div class="field">
+    <label>Subscribe link</label>
+    <input type="url" id="vipOfferLink" value="https://wa.me/message/PTEJKBHXGHUOG1">
+  </div>
+</div>
+<div class="sticky-save">
+  <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save settings</button>
+  <div class="status" id="settingsStatus"></div>
+</div>
   </div>
 </div>
 </div>
@@ -467,6 +490,15 @@ const WORKER_SECRET = "my_super_secret_password_123";
       document.getElementById('settingsMinWins').value = data.winRateMin || 40;
       document.getElementById('settingsTotal').value = data.winRateTotal || 45;
       updateSettingsPreview();
+      
+      // VIP Offer data
+      const offer = data.vipOffer || {};
+      document.getElementById('vipOfferEnabled').checked = offer.enabled === true;
+      document.getElementById('vipOfferHeadline').value = offer.headline || "Special VIP Offer";
+      document.getElementById('vipOfferBody').value = offer.bodyText || "";
+      document.getElementById('vipOfferSubLabel').value = offer.subscribeLabel || "Subscribe";
+      document.getElementById('vipOfferSkipLabel').value = offer.skipLabel || "Skip";
+      document.getElementById('vipOfferLink').value = offer.subscribeLink || "";
     }catch(e){
       document.getElementById('settingsStatus').textContent = "Using defaults."; 
       document.getElementById('settingsStatus').className = "status";
@@ -487,8 +519,19 @@ const WORKER_SECRET = "my_super_secret_password_123";
     const statusEl = document.getElementById('settingsStatus');
     const payload = {
       winRateMin: parseInt(document.getElementById('settingsMinWins').value, 10) || 40,
-      winRateTotal: parseInt(document.getElementById('settingsTotal').value, 10) || 45
+      winRateTotal: parseInt(document.getElementById('settingsTotal').value, 10) || 45,
+      vipOffer: {
+        enabled: document.getElementById('vipOfferEnabled').checked,
+        headline: document.getElementById('vipOfferHeadline').value.trim(),
+        bodyText: document.getElementById('vipOfferBody').value.trim(),
+        subscribeLabel: document.getElementById('vipOfferSubLabel').value.trim(),
+        skipLabel: document.getElementById('vipOfferSkipLabel').value.trim(),
+        subscribeLink: document.getElementById('vipOfferLink').value.trim()
+      }
     };
+    
+    
+    
     statusEl.textContent = "Saving…"; statusEl.className = "status";
     try{
       const res = await fetch(WORKER_URL, {
