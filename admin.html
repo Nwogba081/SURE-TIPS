@@ -182,6 +182,20 @@
       <p style="font-size:0.78rem; color:var(--text-mute); margin-top:8px;">
         Current win rate floor: <strong style="color:var(--gold);" id="settingsPreview">89%</strong>
       </p>
+	  
+	      </div>
+
+    <div class="panel" style="margin-top:18px;">
+      <h3>VIP Subscription Price</h3>
+      <div class="field">
+        <label>Price in Naira (₦)</label>
+        <input type="number" id="settingsVipPrice" min="100" step="100" value="5000">
+      </div>
+      <p style="font-size:0.78rem; color:var(--text-mute); margin-top:8px;">
+        Current price: <strong style="color:var(--gold);" id="pricePreview">₦5,000</strong>
+      </p>
+    </div>
+	
     </div>
    <div class="panel" style="margin-top:18px;">
   <h3>VIP Offer Popup</h3>
@@ -490,6 +504,9 @@ const WORKER_SECRET = "my_super_secret_password_123";
       document.getElementById('settingsMinWins').value = data.winRateMin || 40;
       document.getElementById('settingsTotal').value = data.winRateTotal || 45;
       updateSettingsPreview();
+	  
+	        document.getElementById('settingsVipPrice').value = data.vipPrice || 5000;
+      updatePricePreview();
       
       // VIP Offer data
       const offer = data.vipOffer || {};
@@ -511,6 +528,17 @@ const WORKER_SECRET = "my_super_secret_password_123";
     const pct = Math.round((min / total) * 100);
     document.getElementById('settingsPreview').textContent = pct + '%';
   }
+  
+  
+    function updatePricePreview(){
+    const price = parseInt(document.getElementById('settingsVipPrice').value, 10) || 5000;
+    document.getElementById('pricePreview').textContent = "₦" + price.toLocaleString();
+  }
+
+  document.getElementById('settingsVipPrice').addEventListener('input', updatePricePreview);
+  
+  
+  
 
   document.getElementById('settingsMinWins').addEventListener('input', updateSettingsPreview);
   document.getElementById('settingsTotal').addEventListener('input', updateSettingsPreview);
@@ -520,6 +548,7 @@ const WORKER_SECRET = "my_super_secret_password_123";
     const payload = {
       winRateMin: parseInt(document.getElementById('settingsMinWins').value, 10) || 40,
       winRateTotal: parseInt(document.getElementById('settingsTotal').value, 10) || 45,
+	   vipPrice: parseInt(document.getElementById('settingsVipPrice').value, 10) || 5000,
       vipOffer: {
         enabled: document.getElementById('vipOfferEnabled').checked,
         headline: document.getElementById('vipOfferHeadline').value.trim(),
