@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Welcome to SureTips VIP</title>
+    <meta name="description" content="Welcome to SureTips VIP. Join our Telegram group for daily premium football predictions.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#0a0e1a;
+            --surface:#141a33;
+            --surface-2:#1a2140;
+            --line:rgba(255,255,255,0.08);
+            --grad-a:#2a0e61;
+            --grad-b:#7c3aed;
+            --grad-c:#f59e0b;
+            --gold:#fbbf24;
+            --win:#34d399;
+            --text:#f8fafc;
+            --text-dim:#a7b0c8;
+            --text-mute:#6b7591;
+            --font-display:'Sora',sans-serif;
+            --font-body:'Inter',sans-serif;
+            --shadow:0 10px 30px -12px rgba(0,0,0,0.55);
+        }
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{
+            background:var(--bg);
+            color:var(--text);
+            font-family:var(--font-body);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            background:
+                radial-gradient(120% 70% at 12% 0%, rgba(124,58,237,0.28), transparent 60%),
+                radial-gradient(90% 60% at 92% 15%, rgba(245,158,11,0.14), transparent 60%),
+                var(--bg);
+        }
+        .welcome-box{
+            background:var(--surface);
+            border:1px solid var(--line);
+            border-radius:20px;
+            padding:40px 32px;
+            max-width:480px;
+            width:100%;
+            text-align:center;
+            box-shadow:var(--shadow);
+        }
+        .icon{
+            width:80px;
+            height:80px;
+            border-radius:50%;
+            background:linear-gradient(135deg,var(--grad-b),var(--grad-c));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:0 auto 20px;
+        }
+        .icon svg{
+            width:40px;
+            height:40px;
+            stroke:#1a1206;
+            stroke-width:2.5;
+        }
+        .brand{
+            font-family:'Permanent Marker',cursive;
+            font-size:1.8rem;
+            color:#fff;
+            margin-bottom:4px;
+            transform:rotate(-2deg);
+        }
+        .brand span{color:var(--gold);}
+        .title{
+            font-size:1.6rem;
+            font-weight:800;
+            font-family:var(--font-display);
+            margin-bottom:12px;
+        }
+        .sub{
+            color:var(--text-dim);
+            font-size:0.95rem;
+            line-height:1.6;
+            margin-bottom:20px;
+        }
+        .steps{
+            text-align:left;
+            list-style:none;
+            margin-bottom:24px;
+        }
+        .steps li{
+            padding:12px 0;
+            font-size:0.9rem;
+            color:var(--text-dim);
+            border-bottom:1px solid var(--line);
+            padding-left:36px;
+            position:relative;
+        }
+        .steps li::before{
+            content:"";
+            position:absolute;
+            left:0;
+            top:50%;
+            transform:translateY(-50%);
+            width:24px;
+            height:24px;
+            border-radius:50%;
+            background:rgba(52,211,153,0.15);
+            border:1px solid var(--win);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:var(--win);
+            font-weight:700;
+            font-size:0.75rem;
+        }
+        .steps li:nth-child(1)::before{content:"1";}
+        .steps li:nth-child(2)::before{content:"2";}
+        .steps li:nth-child(3)::before{content:"3";}
+        .telegram-btn{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:999px;
+            background:#38a1ff;
+            color:#fff;
+            font-weight:700;
+            font-size:1rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            text-decoration:none;
+            transition:transform 0.15s ease;
+        }
+        .telegram-btn:active{
+            transform:scale(0.97);
+        }
+        .note{
+            font-size:0.75rem;
+            color:var(--text-mute);
+            margin-top:14px;
+            line-height:1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="welcome-box">
+    <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M20 6 9 17l-5-5"/>
+        </svg>
+    </div>
+    
+    <div class="brand">Sure<span>Tips</span></div>
+    <h1 class="title">Welcome to VIP!</h1>
+    <p class="sub">Your payment was successful. Follow these steps to join the Telegram group and start receiving premium predictions.</p>
+    
+    <ol class="steps">
+        <li>Tap the Telegram button below to join the group</li>
+        <li>Send a message saying "I just paid for VIP" with your payment email
+        <li>An admin will verify your payment and give you full access</li>
+    </ol>
+    
+    <a href="https://t.me/SURETIPS_8" class="telegram-btn" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+        </svg>
+        Join Telegram Group
+    </a>
+    
+    <p class="note">If you have any issues, contact admin support via WhatsApp or email.</p>
+</div>
+
+</body>
+</html>
