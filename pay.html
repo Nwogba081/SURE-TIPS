@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SureTips VIP — Subscribe</title>
+    <meta name="description" content="Subscribe to SureTips VIP for daily premium football predictions.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#0a0e1a;
+            --surface:#141a33;
+            --surface-2:#1a2140;
+            --line:rgba(255,255,255,0.08);
+            --grad-a:#2a0e61;
+            --grad-b:#7c3aed;
+            --grad-c:#f59e0b;
+            --gold:#fbbf24;
+            --win:#34d399;
+            --text:#f8fafc;
+            --text-dim:#a7b0c8;
+            --text-mute:#6b7591;
+            --font-display:'Sora',sans-serif;
+            --font-body:'Inter',sans-serif;
+            --shadow:0 10px 30px -12px rgba(0,0,0,0.55);
+        }
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{
+            background:var(--bg);
+            color:var(--text);
+            font-family:var(--font-body);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            background:
+                radial-gradient(120% 70% at 12% 0%, rgba(124,58,237,0.28), transparent 60%),
+                radial-gradient(90% 60% at 92% 15%, rgba(245,158,11,0.14), transparent 60%),
+                var(--bg);
+        }
+        .subscribe-box{
+            background:var(--surface);
+            border:1px solid var(--line);
+            border-radius:20px;
+            padding:40px 32px;
+            max-width:440px;
+            width:100%;
+            text-align:center;
+            box-shadow:var(--shadow);
+        }
+        .brand{
+            font-family:'Permanent Marker',cursive;
+            font-size:2.2rem;
+            color:#fff;
+            margin-bottom:4px;
+            transform:rotate(-2deg);
+        }
+        .brand span{color:var(--gold);}
+        .sub{
+            color:var(--text-mute);
+            font-size:0.9rem;
+            margin-bottom:28px;
+        }
+        .price-label{
+            font-size:0.8rem;
+            color:var(--text-mute);
+            text-transform:uppercase;
+            letter-spacing:0.1em;
+            margin-bottom:4px;
+        }
+        .price{
+            font-size:3rem;
+            font-weight:800;
+            font-family:var(--font-display);
+            color:var(--gold);
+            margin-bottom:4px;
+        }
+        .price small{
+            font-size:1rem;
+            color:var(--text-mute);
+            font-weight:400;
+        }
+        .features{
+            list-style:none;
+            margin:20px 0;
+            text-align:left;
+        }
+        .features li{
+            padding:10px 0;
+            font-size:0.9rem;
+            color:var(--text-dim);
+            border-bottom:1px solid var(--line);
+            padding-left:24px;
+            position:relative;
+        }
+        .features li::before{
+            content:"✓";
+            position:absolute;
+            left:0;
+            color:var(--win);
+            font-weight:700;
+        }
+        .email-input{
+            width:100%;
+            padding:14px 16px;
+            border-radius:12px;
+            border:1px solid var(--line);
+            background:var(--surface-2);
+            color:var(--text);
+            margin-bottom:16px;
+            font-size:0.95rem;
+            font-family:var(--font-body);
+        }
+        .email-input:focus{
+            outline:2px solid var(--gold);
+        }
+        .pay-btn{
+            display:block;
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:999px;
+            background:linear-gradient(135deg,var(--grad-b),var(--grad-c));
+            color:#1a1206;
+            font-weight:700;
+            font-size:1rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            transition:transform 0.15s ease;
+        }
+        .pay-btn:active{
+            transform:scale(0.97);
+        }
+        .note{
+            font-size:0.75rem;
+            color:var(--text-mute);
+            margin-top:14px;
+            line-height:1.5;
+        }
+        .status-msg{
+            margin-top:12px;
+            font-size:0.85rem;
+            min-height:1.2em;
+        }
+        .status-msg.ok{color:var(--win);}
+        .status-msg.err{color:#fb7185;}
+    </style>
+</head>
+<body>
+
+<div class="subscribe-box">
+    <div class="brand">Sure<span>Tips</span></div>
+    <p class="sub">VIP Membership</p>
+    
+    <div class="price-label">Subscription Price</div>
+    <div class="price" id="priceDisplay">Loading…</div>
+    
+    <ul class="features">
+        <li>Daily premium football predictions</li>
+        <li>High-confidence match analysis</li>
+        <li>BTTS, Over/Under, 1X2 & more</li>
+        <li>Early access before kickoff</li>
+        <li>WhatsApp & Telegram support</li>
+    </ul>
+    
+    <input type="email" id="customerEmail" class="email-input" placeholder="Enter your email address" autocomplete="email">
+    <button id="payBtn" class="pay-btn">Pay with Paystack</button>
+    <div class="status-msg" id="statusMsg"></div>
+    <p class="note">Secure payment via Paystack · 18+ only · Please gamble responsibly</p>
+</div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+// ============ CONFIGURATION ============
+const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
+
+// ============ FETCH PRICE FROM WORKER ============
+let currentPrice = 5000; // fallback default
+
+async function getVipPrice(){
+    try{
+        const res = await fetch(`${WORKER_URL}?bucket=settings&_=${Date.now()}`);
+        if(!res.ok) return 5000;
+        const data = await res.json();
+        return data.vipPrice || 5000;
+    }catch(e){
+        return 5000;
+    }
+}
+
+// ============ UPDATE PRICE DISPLAY ============
+(async function initPrice(){
+    currentPrice = await getVipPrice();
+    document.getElementById('priceDisplay').innerHTML = `₦${currentPrice.toLocaleString()} <small>/ month</small>`;
+})();
+
+// ============ PAYMENT HANDLER ============
+document.getElementById('payBtn').addEventListener('click', async () => {
+    const email = document.getElementById('customerEmail').value.trim();
+    const statusEl = document.getElementById('statusMsg');
+    
+    // Validate email
+    if(!email || !email.includes('@')){
+        statusEl.textContent = "Please enter a valid email address.";
+        statusEl.className = "status-msg err";
+        return;
+    }
+    statusEl.textContent = "";
+    statusEl.className = "status-msg";
+
+    // Get payment config from Worker (keys never in frontend)
+    try{
+        const res = await fetch(`${WORKER_URL}/initiate-payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email })
+        });
+        const config = await res.json();
+        
+        if(!config.success){
+            statusEl.textContent = "Payment init failed. Try again.";
+            statusEl.className = "status-msg err";
+            return;
+        }
+        
+        const handler = PaystackPop.setup({
+            key: config.publicKey,
+            email: config.email,
+            amount: config.amount,
+            currency: config.currency,
+            ref: config.reference,
+            metadata: {
+                custom_fields: [
+                    { display_name: "Product", variable_name: "product", value: "VIP Subscription" },
+                    { display_name: "Amount", variable_name: "amount", value: "₦" + currentPrice }
+                ]
+            },
+            callback: function(response){
+                console.log("Payment response:", response);
+                statusEl.textContent = "Payment successful! Redirecting...";
+                statusEl.className = "status-msg ok";
+                
+                // Redirect to welcome page
+                setTimeout(() => {
+                    window.location.href = "welcome-vip.html";
+                }, 2000);
+            },
+            onClose: function(){
+                statusEl.textContent = "Payment window closed. You can try again.";
+                statusEl.className = "status-msg err";
+            }
+        });
+        
+        handler.openIframe();
+        
+    }catch(e){
+        statusEl.textContent = "Could not connect to payment server. Try again.";
+        statusEl.className = "status-msg err";
+    }
+});
+</script>
+
+</body>
+</html>
