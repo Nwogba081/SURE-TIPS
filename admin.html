@@ -166,7 +166,7 @@
     <!-- end of freepicks tab -->
   
 
-  <!-- TAB: SETTINGS -->
+ <!-- TAB: SETTINGS -->
   <div id="tab-settings" class="tabpanel">
     <p class="sub">Control the win rate display. Changes take effect immediately for all visitors.</p>
     <div class="panel">
@@ -182,8 +182,7 @@
       <p style="font-size:0.78rem; color:var(--text-mute); margin-top:8px;">
         Current win rate floor: <strong style="color:var(--gold);" id="settingsPreview">89%</strong>
       </p>
-	  
-	      </div>
+    </div>
 
     <div class="panel" style="margin-top:18px;">
       <h3>VIP Subscription Price</h3>
@@ -195,37 +194,36 @@
         Current price: <strong style="color:var(--gold);" id="pricePreview">₦5,000</strong>
       </p>
     </div>
-	
+
+    <div class="panel" style="margin-top:18px;">
+      <h3>VIP Offer Popup</h3>
+      <div class="field">
+        <label>Enable popup</label>
+        <input type="checkbox" id="vipOfferEnabled" style="width:20px;height:20px;accent-color:var(--gold);">
+      </div>
+      <div class="field">
+        <label>Headline</label>
+        <input type="text" id="vipOfferHeadline" value="Special VIP Offer">
+      </div>
+      <div class="field">
+        <label>Body text (use **text** for red highlight)</label>
+        <textarea id="vipOfferBody" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-family:var(--font-body);font-size:0.86rem;min-height:80px;resize:vertical;">Enjoy a **50% discount** on our VIP subscription. Join our winning community today and gain access to premium insights and exclusive tips.</textarea>
+      </div>
+      <div class="review-row">
+        <div class="field"><label>Subscribe button label</label><input type="text" id="vipOfferSubLabel" value="Subscribe"></div>
+        <div class="field"><label>Skip button label</label><input type="text" id="vipOfferSkipLabel" value="Skip"></div>
+      </div>
+      <div class="field">
+        <label>Subscribe link</label>
+        <input type="url" id="vipOfferLink" value="https://wa.me/message/PTEJKBHXGHUOG1">
+      </div>
     </div>
-   <div class="panel" style="margin-top:18px;">
-  <h3>VIP Offer Popup</h3>
-  <div class="field">
-    <label>Enable popup</label>
-    <input type="checkbox" id="vipOfferEnabled" style="width:20px;height:20px;accent-color:var(--gold);">
+
+    <div class="sticky-save">
+      <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save settings</button>
+      <div class="status" id="settingsStatus"></div>
+    </div>
   </div>
-  <div class="field">
-    <label>Headline</label>
-    <input type="text" id="vipOfferHeadline" value="Special VIP Offer">
-  </div>
-  <div class="field">
-    <label>Body text (use **text** for red highlight)</label>
-    <textarea id="vipOfferBody" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-family:var(--font-body);font-size:0.86rem;min-height:80px;resize:vertical;">Enjoy a **50% discount** on our VIP subscription. Join our winning community today and gain access to premium insights and exclusive tips.</textarea>
-  </div>
-  <div class="review-row">
-    <div class="field"><label>Subscribe button label</label><input type="text" id="vipOfferSubLabel" value="Subscribe"></div>
-    <div class="field"><label>Skip button label</label><input type="text" id="vipOfferSkipLabel" value="Skip"></div>
-  </div>
-  <div class="field">
-    <label>Subscribe link</label>
-    <input type="url" id="vipOfferLink" value="https://wa.me/message/PTEJKBHXGHUOG1">
-  </div>
-</div>
-<div class="sticky-save">
-  <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save settings</button>
-  <div class="status" id="settingsStatus"></div>
-</div>
-  </div>
-</div>
 </div>
 
 
