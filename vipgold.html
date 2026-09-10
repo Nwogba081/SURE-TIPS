@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SureTips VIP Gold — Subscribe</title>
+    <meta name="description" content="Upgrade to SureTips VIP Gold for premium football predictions and exclusive insights.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#0a0e1a;
+            --surface:#141a33;
+            --surface-2:#1a2140;
+            --line:rgba(255,255,255,0.08);
+            --grad-a:#2a0e61;
+            --grad-b:#7c3aed;
+            --grad-c:#f59e0b;
+            --gold:#fbbf24;
+            --gold-deep:#d97706;
+            --win:#34d399;
+            --text:#f8fafc;
+            --text-dim:#a7b0c8;
+            --text-mute:#6b7591;
+            --font-display:'Sora',sans-serif;
+            --font-body:'Inter',sans-serif;
+            --shadow:0 10px 30px -12px rgba(0,0,0,0.55);
+        }
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{
+            background:var(--bg);
+            color:var(--text);
+            font-family:var(--font-body);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            background:
+                radial-gradient(120% 70% at 12% 0%, rgba(251,191,36,0.18), transparent 60%),
+                radial-gradient(90% 60% at 92% 15%, rgba(124,58,237,0.22), transparent 60%),
+                var(--bg);
+        }
+        .subscribe-box{
+            background:var(--surface);
+            border:1px solid rgba(251,191,36,0.35);
+            border-radius:20px;
+            padding:40px 32px;
+            max-width:440px;
+            width:100%;
+            text-align:center;
+            box-shadow: 0 20px 60px -20px rgba(251,191,36,0.35), var(--shadow);
+            position:relative;
+            overflow:hidden;
+        }
+        .subscribe-box::before{
+            content:"";
+            position:absolute;
+            top:0;
+            left:0;
+            right:0;
+            height:4px;
+            background:linear-gradient(90deg, var(--grad-a), var(--grad-b), var(--gold), var(--gold-deep));
+        }
+        .tier-badge{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-family:var(--font-mono);
+            font-weight:700;
+            font-size:0.72rem;
+            color:var(--gold);
+            background:rgba(251,191,36,0.12);
+            border:1px solid rgba(251,191,36,0.35);
+            padding:5px 12px;
+            border-radius:999px;
+            margin-bottom:16px;
+            text-transform:uppercase;
+            letter-spacing:0.08em;
+        }
+        .tier-badge svg{width:12px;height:12px;}
+        .brand{
+            font-family:'Permanent Marker',cursive;
+            font-size:2.2rem;
+            color:#fff;
+            margin-bottom:4px;
+            transform:rotate(-2deg);
+        }
+        .brand span{color:var(--gold);}
+        .sub{
+            color:var(--text-mute);
+            font-size:0.9rem;
+            margin-bottom:24px;
+        }
+        .price-label{
+            font-size:0.8rem;
+            color:var(--text-mute);
+            text-transform:uppercase;
+            letter-spacing:0.1em;
+            margin-bottom:4px;
+        }
+        .price{
+            font-size:3rem;
+            font-weight:800;
+            font-family:var(--font-display);
+            color:var(--gold);
+            margin-bottom:4px;
+            text-shadow: 0 0 30px rgba(251,191,36,0.35);
+        }
+        .price small{
+            font-size:1rem;
+            color:var(--text-mute);
+            font-weight:400;
+            text-shadow:none;
+        }
+        .features{
+            list-style:none;
+            margin:20px 0;
+            text-align:left;
+        }
+        .features li{
+            padding:10px 0;
+            font-size:0.9rem;
+            color:var(--text-dim);
+            border-bottom:1px solid var(--line);
+            padding-left:24px;
+            position:relative;
+        }
+        .features li::before{
+            content:"✓";
+            position:absolute;
+            left:0;
+            color:var(--gold);
+            font-weight:700;
+        }
+        .email-input{
+            width:100%;
+            padding:14px 16px;
+            border-radius:12px;
+            border:1px solid var(--line);
+            background:var(--surface-2);
+            color:var(--text);
+            margin-bottom:16px;
+            font-size:0.95rem;
+            font-family:var(--font-body);
+        }
+        .email-input:focus{
+            outline:2px solid var(--gold);
+        }
+        .pay-btn{
+            display:block;
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:999px;
+            background:linear-gradient(135deg, var(--gold-deep), var(--gold));
+            color:#1a1206;
+            font-weight:700;
+            font-size:1rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            transition:transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 8px 24px -8px rgba(251,191,36,0.6);
+        }
+        .pay-btn:active{
+            transform:scale(0.97);
+        }
+        .note{
+            font-size:0.75rem;
+            color:var(--text-mute);
+            margin-top:14px;
+            line-height:1.5;
+        }
+        .status-msg{
+            margin-top:12px;
+            font-size:0.85rem;
+            min-height:1.2em;
+        }
+        .status-msg.ok{color:var(--win);}
+        .status-msg.err{color:#fb7185;}
+
+        /* Support fallback */
+        .support-text{
+            font-size:0.78rem;
+            color:var(--text-mute);
+            margin-top:18px;
+            margin-bottom:10px;
+            line-height:1.5;
+        }
+        .telegram-btn{
+            display:inline-block;
+            padding:8px 18px;
+            border-radius:999px;
+            background:transparent;
+            border:1px solid var(--line);
+            color:var(--text-mute);
+            font-weight:500;
+            font-size:0.8rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            text-decoration:none;
+            transition:border-color 0.15s ease, color 0.15s ease;
+        }
+        .telegram-btn:hover{
+            border-color:var(--text-dim);
+            color:var(--text-dim);
+        }
+        .telegram-btn:active{
+            transform:scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+<div class="subscribe-box">
+    <div class="tier-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.6 5.7 6.2.6-4.7 4.2 1.4 6.1L12 15.5l-5.5 3.1 1.4-6.1L3.2 8.3l6.2-.6z"/></svg>
+        VIP Gold
+    </div>
+    <div class="brand">Sure<span>Tips</span></div>
+    <p class="sub">Premium Tier</p>
+
+    <div class="price-label">Subscription Price</div>
+    <div class="price" id="priceDisplay">Loading…</div>
+
+    <ul class="features">
+        <li>Everything in standard VIP</li>
+        <li>Priority match analysis</li>
+        <li>Higher-odds exclusive picks</li>
+        <li>Early access — 2h before VIP</li>
+        <li>Direct analyst support</li>
+    </ul>
+
+    <input type="email" id="customerEmail" class="email-input" placeholder="Enter your email address" autocomplete="email">
+    <button id="payBtn" class="pay-btn">Pay with Paystack</button>
+    <div class="status-msg" id="statusMsg"></div>
+
+    <p class="support-text">Message support for alternative payment methods</p>
+    <a href="https://t.me/SURETIPS_8" target="_blank" rel="noopener" class="telegram-btn">
+        Message Support
+    </a>
+
+    <p class="note">Secure payment via Paystack · 18+ only · Please gamble responsibly</p>
+</div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+// ============ CONFIGURATION ============
+const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
+
+// ============ FETCH PRICE FROM WORKER (vipPrice2) ============
+let currentPrice = 10000; // fallback default for VIP Gold
+
+async function getVipPrice(){
+    try{
+        const res = await fetch(`${WORKER_URL}?bucket=settings&_=${Date.now()}`);
+        if(!res.ok) return 10000;
+        const data = await res.json();
+        return data.vipPrice2 || 10000;
+    }catch(e){
+        return 10000;
+    }
+}
+
+// ============ UPDATE PRICE DISPLAY ============
+(async function initPrice(){
+    currentPrice = await getVipPrice();
+    document.getElementById('priceDisplay').innerHTML = `₦${currentPrice.toLocaleString()} <small>/ month</small>`;
+})();
+
+// ============ PAYMENT HANDLER ============
+document.getElementById('payBtn').addEventListener('click', async () => {
+    const email = document.getElementById('customerEmail').value.trim();
+    const statusEl = document.getElementById('statusMsg');
+
+    if(!email || !email.includes('@')){
+        statusEl.textContent = "Please enter a valid email address.";
+        statusEl.className = "status-msg err";
+        return;
+    }
+    statusEl.textContent = "";
+    statusEl.className = "status-msg";
+
+    try{
+        const res = await fetch(`${WORKER_URL}/initiate-payment-vip2`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email })
+        });
+        const config = await res.json();
+
+        if(!config.success){
+            statusEl.textContent = "Payment init failed. Try again.";
+            statusEl.className = "status-msg err";
+            return;
+        }
+
+        const handler = PaystackPop.setup({
+            key: config.publicKey,
+            email: config.email,
+            amount: config.amount,
+            currency: config.currency,
+            ref: config.reference,
+            metadata: {
+                custom_fields: [
+                    { display_name: "Product", variable_name: "product", value: "VIP Gold Subscription" },
+                    { display_name: "Amount", variable_name: "amount", value: "₦" + currentPrice }
+                ]
+            },
+            callback: function(response){
+                console.log("Payment response:", response);
+                statusEl.textContent = "Payment successful! Redirecting...";
+                statusEl.className = "status-msg ok";
+
+                setTimeout(() => {
+                    window.location.href = "welcomevip.html";
+                }, 2000);
+            },
+            onClose: function(){
+                statusEl.textContent = "Payment window closed. You can try again.";
+                statusEl.className = "status-msg err";
+            }
+        });
+
+        handler.openIframe();
+
+    }catch(e){
+        statusEl.textContent = "Could not connect to payment server. Try again.";
+        statusEl.className = "status-msg err";
+    }
+});
+</script>
+
+</body>
+</html>
