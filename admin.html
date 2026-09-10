@@ -184,14 +184,25 @@
       </p>
     </div>
 
-    <div class="panel" style="margin-top:18px;">
-      <h3>VIP Subscription Price</h3>
+      <div class="panel" style="margin-top:18px;">
+      <h3>VIP Subscription Price (website)</h3>
       <div class="field">
         <label>Price in Naira (₦)</label>
         <input type="number" id="settingsVipPrice" min="100" step="100" value="5000">
       </div>
       <p style="font-size:0.78rem; color:var(--text-mute); margin-top:8px;">
         Current price: <strong style="color:var(--gold);" id="pricePreview">₦5,000</strong>
+      </p>
+    </div>
+
+    <div class="panel" style="margin-top:18px;">
+      <h3>VIP Subscription Price (Personal)</h3>
+      <div class="field">
+        <label>Price in Naira (₦)</label>
+        <input type="number" id="settingsVipPrice2" min="100" step="100" value="10000">
+      </div>
+      <p style="font-size:0.78rem; color:var(--text-mute); margin-top:8px;">
+        Current price: <strong style="color:var(--gold);" id="pricePreview2">₦10,000</strong>
       </p>
     </div>
 
@@ -505,6 +516,12 @@ const WORKER_SECRET = "my_super_secret_password_123";
 	  
 	        document.getElementById('settingsVipPrice').value = data.vipPrice || 5000;
       updatePricePreview();
+	  
+	  
+	  document.getElementById('settingsVipPrice2').value = data.vipPrice2 || 10000;
+updatePricePreview2();
+
+
       
       // VIP Offer data
       const offer = data.vipOffer || {};
@@ -527,13 +544,18 @@ const WORKER_SECRET = "my_super_secret_password_123";
     document.getElementById('settingsPreview').textContent = pct + '%';
   }
   
-  
-    function updatePricePreview(){
+   function updatePricePreview(){
     const price = parseInt(document.getElementById('settingsVipPrice').value, 10) || 5000;
     document.getElementById('pricePreview').textContent = "₦" + price.toLocaleString();
   }
 
+  function updatePricePreview2(){
+    const price = parseInt(document.getElementById('settingsVipPrice2').value, 10) || 10000;
+    document.getElementById('pricePreview2').textContent = "₦" + price.toLocaleString();
+  }
+
   document.getElementById('settingsVipPrice').addEventListener('input', updatePricePreview);
+  document.getElementById('settingsVipPrice2').addEventListener('input', updatePricePreview2);
   
   
   
@@ -547,6 +569,7 @@ const WORKER_SECRET = "my_super_secret_password_123";
       winRateMin: parseInt(document.getElementById('settingsMinWins').value, 10) || 40,
       winRateTotal: parseInt(document.getElementById('settingsTotal').value, 10) || 45,
 	   vipPrice: parseInt(document.getElementById('settingsVipPrice').value, 10) || 5000,
+	   vipPrice2: parseInt(document.getElementById('settingsVipPrice2').value, 10) || 10000,
       vipOffer: {
         enabled: document.getElementById('vipOfferEnabled').checked,
         headline: document.getElementById('vipOfferHeadline').value.trim(),
