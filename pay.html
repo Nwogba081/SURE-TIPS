@@ -148,6 +148,53 @@
         }
         .status-msg.ok{color:var(--win);}
         .status-msg.err{color:#fb7185;}
+
+        /* Fallback Telegram button */
+        .divider{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin:22px 0 16px;
+            color:var(--text-mute);
+            font-size:0.75rem;
+            text-transform:uppercase;
+            letter-spacing:0.1em;
+        }
+        .divider::before,
+        .divider::after{
+            content:"";
+            flex:1;
+            height:1px;
+            background:var(--line);
+        }
+        .support-text{
+            font-size:0.82rem;
+            color:var(--text-dim);
+            margin-bottom:12px;
+            line-height:1.5;
+        }
+               .telegram-btn{
+            display:inline-block;
+            padding:8px 18px;
+            border-radius:999px;
+            background:transparent;
+            border:1px solid var(--line);
+            color:var(--text-mute);
+            font-weight:500;
+            font-size:0.8rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            text-decoration:none;
+            transition:border-color 0.15s ease, color 0.15s ease;
+        }
+        .telegram-btn:hover{
+            border-color:var(--text-dim);
+            color:var(--text-dim);
+        }
+        .telegram-btn:active{
+            transform:scale(0.97);
+        }
+		
     </style>
 </head>
 <body>
@@ -170,7 +217,18 @@
     <input type="email" id="customerEmail" class="email-input" placeholder="Enter your email address" autocomplete="email">
     <button id="payBtn" class="pay-btn">Pay with Paystack</button>
     <div class="status-msg" id="statusMsg"></div>
-    <p class="note">Secure payment via Paystack · 18+ only · Please gamble responsibly</p>
+
+ <p class="note">Secure payment via Paystack · 18+ only · Please gamble responsibly</p>
+ 
+    
+     
+    <!-- Fallback for users who can't pay -->
+      <p class="support-text">Cant use paystack? Message support for more alternative payment methods</p>
+    <a href="https://t.me/SURETIPS_8" target="_blank" rel="noopener" class="telegram-btn">
+        Message Support
+    </a>
+	
+   
 </div>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
