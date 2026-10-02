@@ -244,10 +244,10 @@
     <p class="sub">Premium Tier</p>
 
     <div class="plan-label">Selected Plan</div>
-    <div class="plan-name" id="planName">Loading</div>
+    <div class="plan-name" id="planName">Loading...</div>
 
     <div class="price-label">Subscription Price</div>
-    <div class="price" id="priceDisplay">Loading</div>
+    <div class="price" id="priceDisplay">Loading...</div>
 
     <ul class="features">
         <li>Everything in standard VIP</li>
@@ -273,32 +273,51 @@
 <script>
 const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// Parse URL params
+// Only the plan code comes from the URL now. No amount.
 const params = new URLSearchParams(window.location.search);
-const urlAmount = parseInt(params.get('amount'), 10);
 const urlPlan = params.get('plan') || 'gold1month';
 
-// Plan name mapping
 const PLAN_NAMES = {
     'gold1month': '1 Month',
     'gold3months': '3 Months',
     'gold1year': '1 Year'
 };
 
-// Default amounts for VIP Gold (fallback if URL is missing)
-const PLAN_DEFAULTS = {
-    'gold1month': 20000,
-    'gold3months': 50000,
-    'gold1year': 180000
-};
-
-let currentAmount = (urlAmount && urlAmount > 0) ? urlAmount : (PLAN_DEFAULTS[urlPlan] || 20000);
 let currentPlanName = PLAN_NAMES[urlPlan] || '1 Month';
+let currentAmount = 0;
+let currentCurrency = 'NGN';
 
-// Display the amount and plan from URL
 document.getElementById('planName').textContent = currentPlanName;
-document.getElementById('priceDisplay').innerHTML = `N${currentAmount.toLocaleString()}`;
 
+// Fetch config from Worker (Worker is the source of truth for price)
+async function fetchConfigFromWorker(email) {
+    try {
+        const res = await fetch(`${WORKER_URL}/initiate-flutterwave`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email || "", plan: urlPlan })
+        });
+        const data = await res.json();
+        if (data && data.success) return data;
+    } catch (e) {
+        console.error(e);
+    }
+    return null;
+}
+
+// Initial load - fetch price just to display it
+(async function initPrice() {
+    const config = await fetchConfigFromWorker();
+    if (config) {
+        currentAmount = config.amount;
+        currentCurrency = config.currency;
+        document.getElementById('priceDisplay').innerHTML = `${currentCurrency} ${currentAmount.toLocaleString()}`;
+    } else {
+        document.getElementById('priceDisplay').innerHTML = "Price unavailable";
+    }
+})();
+
+// Payment handler
 document.getElementById('payBtn').addEventListener('click', async () => {
     const email = document.getElementById('customerEmail').value.trim();
     const statusEl = document.getElementById('statusMsg');
@@ -308,60 +327,52 @@ document.getElementById('payBtn').addEventListener('click', async () => {
         statusEl.className = "status-msg err";
         return;
     }
+
     statusEl.textContent = "";
     statusEl.className = "status-msg";
 
-    try{
-        const res = await fetch(`${WORKER_URL}/initiate-flutterwave`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email })
-        });
-        const config = await res.json();
+    // Fetch fresh config with the real email
+    const config = await fetchConfigFromWorker(email);
 
-        if(!config.success){
-            statusEl.textContent = "Payment init failed. Please try again.";
-            statusEl.className = "status-msg err";
-            return;
-        }
-
-        console.log("VIP Gold plan:", currentPlanName, "Amount:", currentAmount);
-
-        FlutterwaveCheckout({
-            public_key: config.publicKey,
-            tx_ref: config.tx_ref.replace("SURETIPS-FLW-", "SURETIPS-GOLD-"),
-            amount: currentAmount,
-            currency: config.currency,
-            payment_options: "card,mobilemoney,ussd,banktransfer",
-            customer: { email: config.email },
-            customizations: {
-                title: "SureTips VIP Gold - " + currentPlanName,
-                description: currentPlanName + " VIP Gold subscription"
-            },
-            meta: {
-                plan: urlPlan,
-                plan_name: currentPlanName,
-                amount_naira: currentAmount,
-                tier: "vip_gold"
-            },
-            callback: function(response){
-                console.log("Flutterwave response:", response);
-                statusEl.textContent = "Payment successful! Redirecting...";
-                statusEl.className = "status-msg ok";
-                setTimeout(() => {
-                    window.location.href = "welcomevip.html";
-                }, 2000);
-            },
-            onclose: function(){
-                statusEl.textContent = "Payment window closed. You can try again.";
-                statusEl.className = "status-msg err";
-            }
-        });
-    }catch(e){
-        console.error(e);
-        statusEl.textContent = "Could not connect to payment server. Please try again.";
+    if(!config){
+        statusEl.textContent = "Payment init failed. Please try again.";
         statusEl.className = "status-msg err";
+        return;
     }
+
+    console.log("Worker config:", config);
+
+    FlutterwaveCheckout({
+        public_key: config.publicKey,
+        tx_ref: config.tx_ref,
+        amount: config.amount,
+        currency: config.currency,
+        country: config.country,
+        payment_options: "card,mobilemoney,mobilemoneyfranco,banktransfer,ussd",
+        customer: { email: config.email },
+        customizations: {
+            title: "SureTips VIP Gold - " + currentPlanName,
+            description: currentPlanName + " VIP Gold subscription"
+        },
+        meta: {
+            plan: urlPlan,
+            plan_name: currentPlanName,
+            amount: config.amount,
+            tier: "vip_gold"
+        },
+        callback: function(response){
+            console.log("Flutterwave response:", response);
+            statusEl.textContent = "Payment successful! Redirecting...";
+            statusEl.className = "status-msg ok";
+            setTimeout(() => {
+                window.location.href = "welcomevip.html";
+            }, 2000);
+        },
+        onclose: function(){
+            statusEl.textContent = "Payment window closed. You can try again.";
+            statusEl.className = "status-msg err";
+        }
+    });
 });
 </script>
 
