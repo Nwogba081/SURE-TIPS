@@ -15,8 +15,6 @@
             --surface:#141a33;
             --surface-2:#1a2140;
             --line:rgba(255,255,255,0.08);
-            --grad-b:#7c3aed;
-            --grad-c:#f59e0b;
             --gold:#fbbf24;
             --win:#34d399;
             --text:#f8fafc;
@@ -37,8 +35,8 @@
             justify-content:center;
             padding:20px;
             background:
-                radial-gradient(120% 70% at 12% 0%, rgba(243,110,33,0.18), transparent 60%),
-                radial-gradient(90% 60% at 92% 15%, rgba(124,58,237,0.22), transparent 60%),
+                radial-gradient(120% 70% at 12% 0%, rgba(6,182,212,0.18), transparent 60%),
+                radial-gradient(90% 60% at 92% 15%, rgba(59,130,246,0.15), transparent 60%),
                 var(--bg);
         }
         .subscribe-box{
@@ -59,11 +57,7 @@
             transform:rotate(-2deg);
         }
         .brand span{color:var(--gold);}
-        .sub{
-            color:var(--text-mute);
-            font-size:0.9rem;
-            margin-bottom:28px;
-        }
+        .sub{color:var(--text-mute);font-size:0.9rem;margin-bottom:28px;}
         .plan-badge{
             display:inline-block;
             font-family:'JetBrains Mono', monospace;
@@ -78,30 +72,18 @@
             text-transform:uppercase;
             margin-bottom:18px;
         }
-        .price-label{
-            font-size:0.8rem;
-            color:var(--text-mute);
-            text-transform:uppercase;
-            letter-spacing:0.1em;
-            margin-bottom:4px;
-        }
+        .price-label{font-size:0.8rem;color:var(--text-mute);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
         .price{
-            font-size:3rem;
+            font-size:clamp(2rem, 8vw, 3rem);
             font-weight:800;
             font-family:var(--font-display);
             color:var(--gold);
             margin-bottom:4px;
+            word-break:break-word;
+            overflow-wrap:anywhere;
         }
-        .price small{
-            font-size:1rem;
-            color:var(--text-mute);
-            font-weight:400;
-        }
-        .features{
-            list-style:none;
-            margin:20px 0;
-            text-align:left;
-        }
+        .price small{font-size:1rem;color:var(--text-mute);font-weight:400;}
+        .features{list-style:none;margin:20px 0;text-align:left;}
         .features li{
             padding:10px 0;
             font-size:0.9rem;
@@ -110,13 +92,7 @@
             padding-left:24px;
             position:relative;
         }
-        .features li::before{
-            content:"+";
-            position:absolute;
-            left:0;
-            color:var(--win);
-            font-weight:700;
-        }
+        .features li::before{content:"+";position:absolute;left:0;color:var(--win);font-weight:700;}
         .email-input{
             width:100%;
             padding:14px 16px;
@@ -128,46 +104,28 @@
             font-size:0.95rem;
             font-family:var(--font-body);
         }
-        .email-input:focus{
-            outline:2px solid var(--gold);
-        }
+        .email-input:focus{outline:2px solid var(--gold);}
         .pay-btn{
             display:block;
             width:100%;
             padding:16px;
             border:none;
             border-radius:999px;
-            background:linear-gradient(135deg, #f36e21, #f59e0b);
+            background:linear-gradient(135deg, #06B6D4, #3B82F6);
             color:#fff;
             font-weight:700;
             font-size:1rem;
             cursor:pointer;
             font-family:var(--font-body);
-            transition:transform 0.15s ease;
+            transition:transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow:0 8px 24px -10px rgba(59,130,246,0.6);
         }
-        .pay-btn:active{
-            transform:scale(0.97);
-        }
-        .note{
-            font-size:0.75rem;
-            color:var(--text-mute);
-            margin-top:14px;
-            line-height:1.5;
-        }
-        .status-msg{
-            margin-top:12px;
-            font-size:0.85rem;
-            min-height:1.2em;
-        }
+        .pay-btn:active{transform:scale(0.97);}
+        .note{font-size:0.75rem;color:var(--text-mute);margin-top:14px;line-height:1.5;}
+        .status-msg{margin-top:12px;font-size:0.85rem;min-height:1.2em;}
         .status-msg.ok{color:var(--win);}
         .status-msg.err{color:#fb7185;}
-        .support-text{
-            font-size:0.78rem;
-            color:var(--text-mute);
-            margin-top:18px;
-            margin-bottom:10px;
-            line-height:1.5;
-        }
+        .support-text{font-size:0.78rem;color:var(--text-mute);margin-top:18px;margin-bottom:10px;line-height:1.5;}
         .telegram-btn{
             display:inline-block;
             padding:8px 18px;
@@ -182,10 +140,7 @@
             text-decoration:none;
             transition:border-color 0.15s ease, color 0.15s ease;
         }
-        .telegram-btn:hover{
-            border-color:var(--text-dim);
-            color:var(--text-dim);
-        }
+        .telegram-btn:hover{border-color:var(--text-dim);color:var(--text-dim);}
         .back-link{
             display:inline-block;
             margin-top:16px;
@@ -193,9 +148,7 @@
             color:var(--text-mute);
             text-decoration:none;
         }
-        .back-link:hover{
-            color:var(--gold);
-        }
+        .back-link:hover{color:var(--gold);}
     </style>
 </head>
 <body>
@@ -204,10 +157,10 @@
     <div class="brand">Sure<span>Tips</span></div>
     <p class="sub">VIP Membership</p>
 
-    <div class="plan-badge" id="planBadge">Loading</div>
+    <div class="plan-badge" id="planBadge">Loading...</div>
 
     <div class="price-label">Subscription Price</div>
-    <div class="price" id="priceDisplay">Loading</div>
+    <div class="price" id="priceDisplay">Loading...</div>
 
     <ul class="features">
         <li>Daily premium football predictions</li>
@@ -233,93 +186,105 @@
 <script>
 const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// Parse amount and plan from URL
+// Only the plan code comes from the URL now. No amount.
 const params = new URLSearchParams(window.location.search);
-const urlAmount = parseInt(params.get('amount'), 10);
 const urlPlan = params.get('plan') || '1month';
 
-// Plan name mapping for display
 const PLAN_NAMES = {
     '1month': '1 Month Plan',
     '3months': '3 Months Plan',
     '1year': '1 Year Plan'
 };
 
-// Default amounts if URL is missing or invalid
-const PLAN_DEFAULTS = {
-    '1month': 5000,
-    '3months': 12000,
-    '1year': 40000
-};
+let currentPlanName = PLAN_NAMES[urlPlan] || '1 Month Plan';
+let currentAmount = 0;
+let currentCurrency = 'NGN';
 
-// Resolve amount: URL first, then default for plan
-let currentAmount = (urlAmount && urlAmount > 0) ? urlAmount : (PLAN_DEFAULTS[urlPlan] || 5000);
-let currentPlan = PLAN_NAMES[urlPlan] || '1 Month Plan';
+document.getElementById('planBadge').textContent = currentPlanName;
 
-// Display on page
-document.getElementById('planBadge').textContent = currentPlan;
-document.getElementById('priceDisplay').innerHTML = `&#8358;${currentAmount.toLocaleString()}`;
+// Fetch price from Worker (Worker is the only source of truth)
+async function fetchConfigFromWorker(email) {
+    try {
+        const res = await fetch(`${WORKER_URL}/initiate-flutterwave`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email || "", plan: urlPlan })
+        });
+        const data = await res.json();
+        if (data && data.success) return data;
+    } catch (e) {
+        console.error(e);
+    }
+    return null;
+}
+
+// Initial load - fetch price just to display it
+(async function initPrice() {
+    const config = await fetchConfigFromWorker();
+    if (config) {
+        currentAmount = config.amount;
+        currentCurrency = config.currency;
+        document.getElementById('priceDisplay').innerHTML = `${currentCurrency} ${currentAmount.toLocaleString()}`;
+    } else {
+        document.getElementById('priceDisplay').innerHTML = "Price unavailable";
+    }
+})();
 
 // Payment handler
 document.getElementById('payBtn').addEventListener('click', async () => {
     const email = document.getElementById('customerEmail').value.trim();
     const statusEl = document.getElementById('statusMsg');
 
-    if(!email || !email.includes('@')){
+    if (!email || !email.includes('@')) {
         statusEl.textContent = "Please enter a valid email address.";
         statusEl.className = "status-msg err";
         return;
     }
+
     statusEl.textContent = "";
     statusEl.className = "status-msg";
 
-    try{
-        const res = await fetch(`${WORKER_URL}/initiate-flutterwave`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email })
-        });
-        const config = await res.json();
+    // Fetch fresh config with the real email
+    const config = await fetchConfigFromWorker(email);
 
-        if(!config.success){
-            statusEl.textContent = "Payment init failed. Please try again.";
-            statusEl.className = "status-msg err";
-            return;
-        }
-
-        console.log("Worker config:", config);
-        console.log("Plan:", currentPlan, "Amount:", currentAmount);
-
-        FlutterwaveCheckout({
-            public_key: config.publicKey,
-            tx_ref: config.tx_ref,
-            amount: config.amount,          // Use the amount from Worker
-            currency: config.currency,      // Use the currency from Worker
-            country: config.country,        // Add country code
-            payment_options: "card,mobilemoney,mobilemoneyfranco,banktransfer,ussd",
-            customer: { email: config.email },
-            customizations: {
-                title: "SureTips VIP - " + currentPlanName,
-                description: currentPlanName + " subscription payment"
-            },
-            callback: function(response){
-                console.log("Flutterwave response:", response);
-                statusEl.textContent = "Payment successful! Redirecting...";
-                statusEl.className = "status-msg ok";
-                setTimeout(() => {
-                    window.location.href = "welcomevip.html";
-                }, 2000);
-            },
-            onclose: function(){
-                statusEl.textContent = "Payment window closed. You can try again.";
-                statusEl.className = "status-msg err";
-            }
-        });
-    }catch(e){
-        console.error(e);
-        statusEl.textContent = "Could not connect to payment server. Please try again.";
+    if (!config) {
+        statusEl.textContent = "Payment init failed. Please try again.";
         statusEl.className = "status-msg err";
+        return;
     }
+
+    console.log("Worker config:", config);
+
+    FlutterwaveCheckout({
+        public_key: config.publicKey,
+        tx_ref: config.tx_ref,
+        amount: config.amount,
+        currency: config.currency,
+        country: config.country,
+        payment_options: "card,mobilemoney,mobilemoneyfranco,banktransfer,ussd",
+        customer: { email: config.email },
+        customizations: {
+            title: "SureTips VIP - " + currentPlanName,
+            description: currentPlanName + " subscription payment"
+        },
+        meta: {
+            plan: urlPlan,
+            plan_name: currentPlanName,
+            amount: config.amount
+        },
+        callback: function(response) {
+            console.log("Flutterwave response:", response);
+            statusEl.textContent = "Payment successful! Redirecting...";
+            statusEl.className = "status-msg ok";
+            setTimeout(() => {
+                window.location.href = "welcomevip.html";
+            }, 2000);
+        },
+        onclose: function() {
+            statusEl.textContent = "Payment window closed. You can try again.";
+            statusEl.className = "status-msg err";
+        }
+    });
 });
 </script>
 
