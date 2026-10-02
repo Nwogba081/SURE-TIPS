@@ -451,7 +451,7 @@ document.querySelectorAll('.pay-option').forEach(btn => {
         const card = btn.closest('.tier-card');
         const tier = card.dataset.tier;
        
-        const url = `flutterwave.html?amount=${amount}&plan=${tier}`;
+        const url = `flutterwave.html?plan=${tier}`;
         window.location.href = url;
     });
 });
