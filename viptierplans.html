@@ -107,9 +107,7 @@
         @media (max-width:520px){
             .tier-card{padding:24px 18px;}
         }
-        .tier-card:hover{
-            border-color:var(--gold);
-        }
+        .tier-card:hover{border-color:var(--gold);}
         .tier-card.popular{
             border-color:rgba(251,191,36,0.7);
             box-shadow:0 0 40px -10px rgba(251,191,36,0.45);
@@ -229,28 +227,26 @@
             margin-top:14px;
         }
 
-       .pay-option{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    width:100%;
-    padding:14px;
-    border-radius:999px;
-    font-weight:700;
-    font-size:clamp(0.82rem, 3vw, 0.9rem);
-    cursor:pointer;
-    font-family:var(--font-body);
-    text-decoration:none;
-    transition:transform 0.15s ease, box-shadow 0.15s ease;
-    border:none;
-    background:linear-gradient(135deg, #06B6D4, #3B82F6);
-    color:#fff;
-    white-space:nowrap;
-    box-shadow:0 8px 20px -10px rgba(59,130,246,0.55);
-}
-
-
+        .pay-option{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            width:100%;
+            padding:14px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:clamp(0.82rem, 3vw, 0.9rem);
+            cursor:pointer;
+            font-family:var(--font-body);
+            text-decoration:none;
+            transition:transform 0.15s ease, box-shadow 0.15s ease;
+            border:none;
+            background:linear-gradient(135deg, #06B6D4, #3B82F6);
+            color:#fff;
+            white-space:nowrap;
+            box-shadow:0 8px 20px -10px rgba(59,130,246,0.55);
+        }
         @media (max-width:360px){
             .pay-option{font-size:0.78rem; padding:12px;}
         }
@@ -278,9 +274,7 @@
             color:var(--text-mute);
             text-decoration:none;
         }
-        .back-link:hover{
-            color:var(--gold);
-        }
+        .back-link:hover{color:var(--gold);}
 
     </style>
 </head>
@@ -303,7 +297,7 @@
         <!-- 1 MONTH -->
         <div class="tier-card" data-tier="gold1month">
             <div class="tier-name">1 Month</div>
-            <div class="tier-price" id="priceGold1Month">Loading</div>
+            <div class="tier-price" id="priceGold1Month">Loading...</div>
             <div class="tier-save hidden">Standard</div>
 
             <ul class="tier-features">
@@ -317,9 +311,9 @@
 
             <div class="payment-options">
                 <a class="pay-option" href="#" data-gateway="flutterwave">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M3 12h18"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                        <path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+                        <path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
                     </svg>
                     Pay with Flutterwave
                 </a>
@@ -330,7 +324,7 @@
         <div class="tier-card popular" data-tier="gold3months">
             <div class="popular-badge">Most Popular</div>
             <div class="tier-name">3 Months</div>
-            <div class="tier-price" id="priceGold3Months">Loading</div>
+            <div class="tier-price" id="priceGold3Months">Loading...</div>
             <div class="tier-save" id="saveGold3Months">Save 20%</div>
 
             <ul class="tier-features">
@@ -344,9 +338,9 @@
 
             <div class="payment-options">
                 <a class="pay-option" href="#" data-gateway="flutterwave">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M3 12h18"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                        <path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+                        <path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
                     </svg>
                     Pay with Flutterwave
                 </a>
@@ -356,7 +350,7 @@
         <!-- 1 YEAR -->
         <div class="tier-card" data-tier="gold1year">
             <div class="tier-name">1 Year</div>
-            <div class="tier-price" id="priceGold1Year">Loading</div>
+            <div class="tier-price" id="priceGold1Year">Loading...</div>
             <div class="tier-save" id="saveGold1Year">Save 33%</div>
 
             <ul class="tier-features">
@@ -370,9 +364,9 @@
 
             <div class="payment-options">
                 <a class="pay-option" href="#" data-gateway="flutterwave">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M3 12h18"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                        <path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
+                        <path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/>
                     </svg>
                     Pay with Flutterwave
                 </a>
@@ -393,40 +387,99 @@
 <script>
 const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// Default VIP Gold prices (fallback)
-let goldPrices = {
-    "gold1month": 20000,
-    "gold3months": 50000,
-    "gold1year": 180000
-};
+// Currency formatting helper (matches flutterwave.html)
+function formatPrice(amount, currencyCode){
+    const num = Number(amount).toLocaleString();
 
-async function loadGoldPrices(){
-    try{
-        const res = await fetch(`${WORKER_URL}?bucket=settings&_=${Date.now()}`);
-        if(!res.ok) return;
-        const data = await res.json();
-        if(data.goldTier1Month) goldPrices["gold1month"] = data.goldTier1Month;
-        if(data.goldTier3Month) goldPrices["gold3months"] = data.goldTier3Month;
-        if(data.goldTier1Year) goldPrices["gold1year"] = data.goldTier1Year;
-    }catch(e){ /* use defaults */ }
-    renderGoldPrices();
+    const symbols = {
+        'NGN': '\u20A6',
+        'GHS': 'GH\u20B5',
+        'KES': 'KSh ',
+        'ZAR': 'R ',
+        'USD': '$',
+        'EGP': 'E\u00A3',
+        'MAD': 'MAD ',
+        'TND': 'TND ',
+        'DZD': 'DZD ',
+        'AOA': 'Kz ',
+        'MZN': 'MT ',
+        'BWP': 'P ',
+        'NAD': 'N$ ',
+        'ZMW': 'ZK ',
+        'MWK': 'MK ',
+        'UGX': 'USh ',
+        'TZS': 'TSh ',
+        'RWF': 'FRw '
+    };
+
+    if(currencyCode === 'XOF' || currencyCode === 'XAF'){
+        return `${num} F CFA`;
+    }
+    if(symbols[currencyCode]){
+        return `${symbols[currencyCode]}${num}`;
+    }
+    return `${currencyCode} ${num}`;
 }
 
-function renderGoldPrices(){
-    document.getElementById('priceGold1Month').innerHTML = `N${goldPrices["gold1month"].toLocaleString()} <small>/ month</small>`;
-    document.getElementById('priceGold3Months').innerHTML = `N${goldPrices["gold3months"].toLocaleString()} <small>/ 3 mo</small>`;
-    document.getElementById('priceGold1Year').innerHTML = `N${goldPrices["gold1year"].toLocaleString()} <small>/ year</small>`;
+// Fetch a single plan config from Worker
+async function fetchPlanConfig(plan){
+    try{
+        const res = await fetch(`${WORKER_URL}/initiate-flutterwave`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: "", plan: plan })
+        });
+        const data = await res.json();
+        if(data && data.success) return data;
+    }catch(e){ /* ignore */ }
+    return null;
+}
 
-    const monthlyBase = goldPrices["gold1month"];
-    const save3 = Math.round((1 - (goldPrices["gold3months"] / (monthlyBase * 3))) * 100);
-    const save12 = Math.round((1 - (goldPrices["gold1year"] / (monthlyBase * 12))) * 100);
+async function loadGoldPrices(){
+    // Fetch all 3 plans in parallel
+    const [m1, m3, y1] = await Promise.all([
+        fetchPlanConfig('gold1month'),
+        fetchPlanConfig('gold3months'),
+        fetchPlanConfig('gold1year')
+    ]);
 
-    const save3El = document.getElementById('saveGold3Months');
-    const save12El = document.getElementById('saveGold1Year');
-    if(save3 > 0) save3El.textContent = `Save ${save3}%`;
-    else save3El.style.display = 'none';
-    if(save12 > 0) save12El.textContent = `Save ${save12}%`;
-    else save12El.style.display = 'none';
+    // If all failed, show unavailable
+    if(!m1 && !m3 && !y1){
+        document.getElementById('priceGold1Month').textContent = 'Unavailable';
+        document.getElementById('priceGold3Months').textContent = 'Unavailable';
+        document.getElementById('priceGold1Year').textContent = 'Unavailable';
+        return;
+    }
+
+    // Use the currency from whichever call succeeded
+    const currency = (m1 && m1.currency) || (m3 && m3.currency) || (y1 && y1.currency) || 'NGN';
+
+    const price1 = m1 ? m1.amount : 0;
+    const price3 = m3 ? m3.amount : 0;
+    const price12 = y1 ? y1.amount : 0;
+
+    document.getElementById('priceGold1Month').innerHTML =
+        `${formatPrice(price1, currency)} <small>/ month</small>`;
+    document.getElementById('priceGold3Months').innerHTML =
+        `${formatPrice(price3, currency)} <small>/ 3 mo</small>`;
+    document.getElementById('priceGold1Year').innerHTML =
+        `${formatPrice(price12, currency)} <small>/ year</small>`;
+
+    // Save % based on the same currency amounts
+    if(price1 > 0){
+        if(price3 > 0){
+            const save3 = Math.round((1 - (price3 / (price1 * 3))) * 100);
+            const save3El = document.getElementById('saveGold3Months');
+            if(save3 > 0) save3El.textContent = `Save ${save3}%`;
+            else save3El.style.display = 'none';
+        }
+        if(price12 > 0){
+            const save12 = Math.round((1 - (price12 / (price1 * 12))) * 100);
+            const save12El = document.getElementById('saveGold1Year');
+            if(save12 > 0) save12El.textContent = `Save ${save12}%`;
+            else save12El.style.display = 'none';
+        }
+    }
 }
 
 // Toggle expand on card click
@@ -445,7 +498,7 @@ document.querySelectorAll('.tier-card').forEach(card => {
 document.querySelectorAll('.pay-option').forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.preventDefault();
-              const card = btn.closest('.tier-card');
+        const card = btn.closest('.tier-card');
         const tier = card.dataset.tier;
 
         const url = `tiergoldpayment.html?plan=${tier}`;
