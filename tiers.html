@@ -298,7 +298,7 @@
         <!-- 1 MONTH -->
         <div class="tier-card" data-tier="1month">
             <div class="tier-name">1 Month</div>
-            <div class="tier-price" id="price1Month">loading...<small>/ month</small></div>
+            <div class="tier-price" id="price1Month">Loading...</div>
             <div class="tier-save hidden">Standard</div>
 
             <ul class="tier-features">
@@ -325,7 +325,7 @@
         <div class="tier-card popular" data-tier="3months">
             <div class="popular-badge">Most Popular</div>
             <div class="tier-name">3 Months</div>
-            <div class="tier-price" id="price3Months">Loading...<small>/ 3 mo</small></div>
+            <div class="tier-price" id="price3Months">Loading...</div>
             <div class="tier-save" id="save3Months">Save 20%</div>
 
             <ul class="tier-features">
@@ -351,7 +351,7 @@
         <!-- 1 YEAR -->
         <div class="tier-card" data-tier="1year">
             <div class="tier-name">1 Year</div>
-            <div class="tier-price" id="price1Year">Loading...<small>/ year</small></div>
+            <div class="tier-price" id="price1Year">Loading...</div>
             <div class="tier-save" id="save1Year">Save 33%</div>
 
             <ul class="tier-features">
@@ -396,40 +396,99 @@
 <script>
 const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// Default prices (fallback)
-let prices = {
-    "1month": 000,
-    "3months": 0000,
-    "1year": 0000
-};
+// Friendly currency formatting (matches flutterwave.html and tiergoldpayment.html)
+function formatPrice(amount, currencyCode){
+    const num = Number(amount).toLocaleString();
 
-async function loadPrices(){
-    try{
-        const res = await fetch(`${WORKER_URL}?bucket=settings&_=${Date.now()}`);
-        if(!res.ok) return;
-        const data = await res.json();
-        if(data.tier1Month) prices["1month"] = data.tier1Month;
-        if(data.tier3Month) prices["3months"] = data.tier3Month;
-        if(data.tier1Year) prices["1year"] = data.tier1Year;
-    }catch(e){ /* use defaults */ }
-    renderPrices();
+    const symbols = {
+        'NGN': '\u20A6',
+        'GHS': 'GH\u20B5',
+        'KES': 'KSh ',
+        'ZAR': 'R ',
+        'USD': '$',
+        'EGP': 'E\u00A3',
+        'MAD': 'MAD ',
+        'TND': 'TND ',
+        'DZD': 'DZD ',
+        'AOA': 'Kz ',
+        'MZN': 'MT ',
+        'BWP': 'P ',
+        'NAD': 'N$ ',
+        'ZMW': 'ZK ',
+        'MWK': 'MK ',
+        'UGX': 'USh ',
+        'TZS': 'TSh ',
+        'RWF': 'FRw '
+    };
+
+    if(currencyCode === 'XOF' || currencyCode === 'XAF'){
+        return `${num} F CFA`;
+    }
+    if(symbols[currencyCode]){
+        return `${symbols[currencyCode]}${num}`;
+    }
+    return `${currencyCode} ${num}`;
 }
 
-function renderPrices(){
-    document.getElementById('price1Month').innerHTML = `N${prices["1month"].toLocaleString()} <small>/ month</small>`;
-    document.getElementById('price3Months').innerHTML = `N${prices["3months"].toLocaleString()} <small>/ 3 mo</small>`;
-    document.getElementById('price1Year').innerHTML = `N${prices["1year"].toLocaleString()} <small>/ year</small>`;
+// Fetch a single plan config from Worker
+async function fetchPlanConfig(plan){
+    try{
+        const res = await fetch(`${WORKER_URL}/initiate-flutterwave`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: "", plan: plan })
+        });
+        const data = await res.json();
+        if(data && data.success) return data;
+    }catch(e){ /* ignore */ }
+    return null;
+}
 
-    const monthlyBase = prices["1month"];
-    const save3 = Math.round((1 - (prices["3months"] / (monthlyBase * 3))) * 100);
-    const save12 = Math.round((1 - (prices["1year"] / (monthlyBase * 12))) * 100);
+async function loadPrices(){
+    // Fetch all 3 plans in parallel
+    const [m1, m3, y1] = await Promise.all([
+        fetchPlanConfig('1month'),
+        fetchPlanConfig('3months'),
+        fetchPlanConfig('1year')
+    ]);
 
-    const save3El = document.getElementById('save3Months');
-    const save12El = document.getElementById('save1Year');
-    if(save3 > 0) save3El.textContent = `Save ${save3}%`;
-    else save3El.style.display = 'none';
-    if(save12 > 0) save12El.textContent = `Save ${save12}%`;
-    else save12El.style.display = 'none';
+    // If all failed, show unavailable
+    if(!m1 && !m3 && !y1){
+        document.getElementById('price1Month').textContent = 'Unavailable';
+        document.getElementById('price3Months').textContent = 'Unavailable';
+        document.getElementById('price1Year').textContent = 'Unavailable';
+        return;
+    }
+
+    // Use the currency from whichever call succeeded
+    const currency = (m1 && m1.currency) || (m3 && m3.currency) || (y1 && y1.currency) || 'NGN';
+
+    const price1 = m1 ? m1.amount : 0;
+    const price3 = m3 ? m3.amount : 0;
+    const price12 = y1 ? y1.amount : 0;
+
+    document.getElementById('price1Month').innerHTML =
+        `${formatPrice(price1, currency)} <small>/ month</small>`;
+    document.getElementById('price3Months').innerHTML =
+        `${formatPrice(price3, currency)} <small>/ 3 mo</small>`;
+    document.getElementById('price1Year').innerHTML =
+        `${formatPrice(price12, currency)} <small>/ year</small>`;
+
+    // Save % based on the same currency amounts
+    if(price1 > 0){
+        if(price3 > 0){
+            const save3 = Math.round((1 - (price3 / (price1 * 3))) * 100);
+            const save3El = document.getElementById('save3Months');
+            if(save3 > 0) save3El.textContent = `Save ${save3}%`;
+            else save3El.style.display = 'none';
+        }
+        if(price12 > 0){
+            const save12 = Math.round((1 - (price12 / (price1 * 12))) * 100);
+            const save12El = document.getElementById('save1Year');
+            if(save12 > 0) save12El.textContent = `Save ${save12}%`;
+            else save12El.style.display = 'none';
+        }
+    }
 }
 
 // Toggle expand on card click
@@ -450,7 +509,7 @@ document.querySelectorAll('.pay-option').forEach(btn => {
         e.preventDefault();
         const card = btn.closest('.tier-card');
         const tier = card.dataset.tier;
-       
+
         const url = `flutterwave.html?plan=${tier}`;
         window.location.href = url;
     });
