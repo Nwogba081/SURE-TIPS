@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>SureTips VIP — Pay with Flutterwave</title>
-    <meta name="description" content="Subscribe to SureTips VIP using Flutterwave — cards and mobile money.">
+    <title>SureTips VIP - Pay with Flutterwave</title>
+    <meta name="description" content="Subscribe to SureTips VIP using Flutterwave. Cards and mobile money accepted.">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,6 +64,20 @@
             font-size:0.9rem;
             margin-bottom:28px;
         }
+        .plan-badge{
+            display:inline-block;
+            font-family:'JetBrains Mono', monospace;
+            font-size:0.72rem;
+            font-weight:700;
+            color:var(--gold);
+            background:rgba(251,191,36,0.12);
+            border:1px solid rgba(251,191,36,0.35);
+            padding:5px 14px;
+            border-radius:999px;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            margin-bottom:18px;
+        }
         .price-label{
             font-size:0.8rem;
             color:var(--text-mute);
@@ -97,7 +111,7 @@
             position:relative;
         }
         .features li::before{
-            content:"✓";
+            content:"+";
             position:absolute;
             left:0;
             color:var(--win);
@@ -172,6 +186,16 @@
             border-color:var(--text-dim);
             color:var(--text-dim);
         }
+        .back-link{
+            display:inline-block;
+            margin-top:16px;
+            font-size:0.78rem;
+            color:var(--text-mute);
+            text-decoration:none;
+        }
+        .back-link:hover{
+            color:var(--gold);
+        }
     </style>
 </head>
 <body>
@@ -180,13 +204,15 @@
     <div class="brand">Sure<span>Tips</span></div>
     <p class="sub">VIP Membership</p>
 
+    <div class="plan-badge" id="planBadge">Loading</div>
+
     <div class="price-label">Subscription Price</div>
-    <div class="price" id="priceDisplay">₦1,000 <small>/ test</small></div>
+    <div class="price" id="priceDisplay">Loading</div>
 
     <ul class="features">
         <li>Daily premium football predictions</li>
         <li>High-confidence match analysis</li>
-        <li>BTTS, Over/Under, 1X2 & more</li>
+        <li>BTTS, Over/Under, 1X2 and more</li>
         <li>Pay with Card or Mobile Money</li>
         <li>Available across Africa</li>
     </ul>
@@ -198,16 +224,43 @@
     <p class="support-text">Message support for alternative payment methods</p>
     <a href="https://t.me/SURETIPS_8" target="_blank" rel="noopener" class="telegram-btn">Message Support</a>
 
-    <p class="note">Secure payment via Flutterwave · 18+ only · Please gamble responsibly</p>
+    <a href="tiers.html" class="back-link">Back to plans</a>
+
+    <p class="note">Secure payment via Flutterwave, 18+ only, please gamble responsibly</p>
 </div>
 
 <script src="https://checkout.flutterwave.com/v3.js"></script>
 <script>
 const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// ⚠️ TEST OVERRIDE — using ₦1,000 for live test
-const TEST_AMOUNT = 1000;
+// Parse amount and plan from URL
+const params = new URLSearchParams(window.location.search);
+const urlAmount = parseInt(params.get('amount'), 10);
+const urlPlan = params.get('plan') || '1month';
 
+// Plan name mapping for display
+const PLAN_NAMES = {
+    '1month': '1 Month Plan',
+    '3months': '3 Months Plan',
+    '1year': '1 Year Plan'
+};
+
+// Default amounts if URL is missing or invalid
+const PLAN_DEFAULTS = {
+    '1month': 5000,
+    '3months': 12000,
+    '1year': 40000
+};
+
+// Resolve amount: URL first, then default for plan
+let currentAmount = (urlAmount && urlAmount > 0) ? urlAmount : (PLAN_DEFAULTS[urlPlan] || 5000);
+let currentPlan = PLAN_NAMES[urlPlan] || '1 Month Plan';
+
+// Display on page
+document.getElementById('planBadge').textContent = currentPlan;
+document.getElementById('priceDisplay').innerHTML = `&#8358;${currentAmount.toLocaleString()}`;
+
+// Payment handler
 document.getElementById('payBtn').addEventListener('click', async () => {
     const email = document.getElementById('customerEmail').value.trim();
     const statusEl = document.getElementById('statusMsg');
@@ -229,23 +282,29 @@ document.getElementById('payBtn').addEventListener('click', async () => {
         const config = await res.json();
 
         if(!config.success){
-            statusEl.textContent = "Payment init failed. Try again.";
+            statusEl.textContent = "Payment init failed. Please try again.";
             statusEl.className = "status-msg err";
             return;
         }
 
         console.log("Worker config:", config);
+        console.log("Plan:", currentPlan, "Amount:", currentAmount);
 
         FlutterwaveCheckout({
             public_key: config.publicKey,
             tx_ref: config.tx_ref,
-            amount: TEST_AMOUNT,   // ← using ₦1,000 test amount
+            amount: currentAmount,
             currency: config.currency,
             payment_options: "card,mobilemoney,ussd,banktransfer",
             customer: { email: config.email },
             customizations: {
-                title: "SureTips VIP",
-                description: "VIP Subscription Payment"
+                title: "SureTips VIP - " + currentPlan,
+                description: currentPlan + " subscription payment"
+            },
+            meta: {
+                plan: urlPlan,
+                plan_name: currentPlan,
+                amount_naira: currentAmount
             },
             callback: function(response){
                 console.log("Flutterwave response:", response);
@@ -262,7 +321,7 @@ document.getElementById('payBtn').addEventListener('click', async () => {
         });
     }catch(e){
         console.error(e);
-        statusEl.textContent = "Could not connect to payment server. Try again.";
+        statusEl.textContent = "Could not connect to payment server. Please try again.";
         statusEl.className = "status-msg err";
     }
 });
