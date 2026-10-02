@@ -273,7 +273,6 @@
 <script>
 const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
 
-// Only the plan code comes from the URL now. No amount.
 const params = new URLSearchParams(window.location.search);
 const urlPlan = params.get('plan') || 'gold1month';
 
@@ -282,6 +281,40 @@ const PLAN_NAMES = {
     'gold3months': '3 Months',
     'gold1year': '1 Year'
 };
+
+// Friendly currency formatting
+function formatPrice(amount, currencyCode){
+    const num = Number(amount).toLocaleString();
+
+    const symbols = {
+        'NGN': '\u20A6',
+        'GHS': 'GH\u20B5',
+        'KES': 'KSh ',
+        'ZAR': 'R ',
+        'USD': '$',
+        'EGP': 'E\u00A3',
+        'MAD': 'MAD ',
+        'TND': 'TND ',
+        'DZD': 'DZD ',
+        'AOA': 'Kz ',
+        'MZN': 'MT ',
+        'BWP': 'P ',
+        'NAD': 'N$ ',
+        'ZMW': 'ZK ',
+        'MWK': 'MK ',
+        'UGX': 'USh ',
+        'TZS': 'TSh ',
+        'RWF': 'FRw '
+    };
+
+    if(currencyCode === 'XOF' || currencyCode === 'XAF'){
+        return `${num} F CFA`;
+    }
+    if(symbols[currencyCode]){
+        return `${symbols[currencyCode]}${num}`;
+    }
+    return `${currencyCode} ${num}`;
+}
 
 let currentPlanName = PLAN_NAMES[urlPlan] || '1 Month';
 let currentAmount = 0;
@@ -311,9 +344,9 @@ async function fetchConfigFromWorker(email) {
     if (config) {
         currentAmount = config.amount;
         currentCurrency = config.currency;
-        document.getElementById('priceDisplay').innerHTML = `${currentCurrency} ${currentAmount.toLocaleString()}`;
+        document.getElementById('priceDisplay').textContent = formatPrice(currentAmount, currentCurrency);
     } else {
-        document.getElementById('priceDisplay').innerHTML = "Price unavailable";
+        document.getElementById('priceDisplay').textContent = "Price unavailable";
     }
 })();
 
@@ -331,7 +364,6 @@ document.getElementById('payBtn').addEventListener('click', async () => {
     statusEl.textContent = "";
     statusEl.className = "status-msg";
 
-    // Fetch fresh config with the real email
     const config = await fetchConfigFromWorker(email);
 
     if(!config){
@@ -358,6 +390,7 @@ document.getElementById('payBtn').addEventListener('click', async () => {
             plan: urlPlan,
             plan_name: currentPlanName,
             amount: config.amount,
+            currency: config.currency,
             tier: "vip_gold"
         },
         callback: function(response){
