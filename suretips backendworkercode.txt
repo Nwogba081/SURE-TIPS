@@ -1,0 +1,221 @@
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // 1. Handle CORS preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, verif-hash",
+        },
+      });
+    }
+
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": "application/json",
+    };
+
+    // ============ CURRENCY MAPPER ============
+    function getCurrencyForCountry(countryCode){
+      const map = {
+        'NG': 'NGN',
+        'BF': 'XOF', 'CI': 'XOF', 'SN': 'XOF', 'ML': 'XOF', 'NE': 'XOF',
+        'TG': 'XOF', 'BJ': 'XOF', 'GW': 'XOF',
+        'CM': 'XAF', 'CF': 'XAF', 'CG': 'XAF', 'GA': 'XAF', 'TD': 'XAF', 'GQ': 'XAF',
+        'GH': 'GHS',
+        'KE': 'KES', 'UG': 'UGX', 'TZ': 'TZS', 'RW': 'RWF',
+        'ZA': 'ZAR', 'ZM': 'ZMW', 'MW': 'MWK', 'MZ': 'MZN', 'BW': 'BWP', 'NA': 'NAD',
+        'ZW': 'USD', 'AO': 'AOA',
+        'EG': 'EGP', 'MA': 'MAD', 'TN': 'TND', 'DZ': 'DZD'
+      };
+      return map[countryCode] || 'NGN';
+    }
+
+    // ============ PAYSTACK WEBHOOK ============
+    if (request.method === "POST" && url.pathname === "/webhook") {
+      try {
+        const payload = await request.json();
+        const paymentRef = payload?.data?.reference || "unknown";
+        await env.SURETIPS_KV.put(`payment:${paymentRef}`, JSON.stringify(payload.data));
+        console.log("Paystack payment received:", paymentRef);
+        return new Response(JSON.stringify({ received: true }), { status: 200, headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid webhook payload" }), { status: 400, headers: corsHeaders });
+      }
+    }
+
+    // ============ FLUTTERWAVE WEBHOOK ============
+    if (request.method === "POST" && url.pathname === "/flutterwave-webhook") {
+      try {
+        const signature = request.headers.get("verif-hash");
+        if (signature !== env.FLUTTERWAVE_WEBHOOK_HASH) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+        }
+        const payload = await request.json();
+        const txRef = payload?.data?.tx_ref || "unknown";
+        await env.SURETIPS_KV.put(`payment:${txRef}`, JSON.stringify(payload.data));
+        console.log("Flutterwave payment received:", txRef);
+        return new Response(JSON.stringify({ received: true }), { status: 200, headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid webhook" }), { status: 400, headers: corsHeaders });
+      }
+    }
+
+    // ============ INITIATE PAYSTACK PAYMENT (Page 1 - standard VIP) ============
+    if (request.method === "POST" && url.pathname === "/initiate-payment") {
+      try {
+        const { email } = await request.json();
+        if (!email || !email.includes('@')) {
+          return new Response(JSON.stringify({ error: "Valid email required" }), { status: 400, headers: corsHeaders });
+        }
+        const settings = await env.SURETIPS_KV.get("settings", "json") || {};
+        const amountNaira = settings.vipPrice || 5000;
+        const amountKobo = amountNaira * 100;
+        return new Response(JSON.stringify({
+          success: true,
+          publicKey: env.PAYSTACK_PUBLIC_KEY,
+          email: email,
+          amount: amountKobo,
+          currency: "NGN",
+          reference: "SURETIPS-" + Date.now()
+        }), { headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers: corsHeaders });
+      }
+    }
+
+    // ============ INITIATE PAYSTACK PAYMENT (Page 2 - VIP Gold) ============
+    if (request.method === "POST" && url.pathname === "/initiate-payment-vip2") {
+      try {
+        const { email } = await request.json();
+        if (!email || !email.includes('@')) {
+          return new Response(JSON.stringify({ error: "Valid email required" }), { status: 400, headers: corsHeaders });
+        }
+        const settings = await env.SURETIPS_KV.get("settings", "json") || {};
+        const amountNaira = settings.vipPrice2 || 10000;
+        const amountKobo = amountNaira * 100;
+        return new Response(JSON.stringify({
+          success: true,
+          publicKey: env.PAYSTACK_PUBLIC_KEY,
+          email: email,
+          amount: amountKobo,
+          currency: "NGN",
+          reference: "SURETIPS2-" + Date.now()
+        }), { headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers: corsHeaders });
+      }
+    }
+
+    // ============ INITIATE FLUTTERWAVE PAYMENT (multi-currency, plan-based) ============
+    if (request.method === "POST" && url.pathname === "/initiate-flutterwave") {
+      try {
+        const { email, plan } = await request.json();
+
+        // Detect visitor country from Cloudflare's header
+        const visitorCountry = (request.cf && request.cf.country) || "NG";
+        const currency = getCurrencyForCountry(visitorCountry);
+
+        // Get settings from KV
+        const settings = await env.SURETIPS_KV.get("settings", "json") || {};
+
+        // Pick the correct price based on the plan code (Worker is source of truth)
+        let amountNaira;
+        let isGold = false;
+        switch(plan) {
+          case '3months':
+            amountNaira = settings.tier3Month || 12000;
+            break;
+          case '1year':
+            amountNaira = settings.tier1Year || 40000;
+            break;
+          case '1month':
+            amountNaira = settings.tier1Month || 5000;
+            break;
+          case 'gold3months':
+            amountNaira = settings.goldTier3Month || 50000;
+            isGold = true;
+            break;
+          case 'gold1year':
+            amountNaira = settings.goldTier1Year || 180000;
+            isGold = true;
+            break;
+          case 'gold1month':
+            amountNaira = settings.goldTier1Month || 20000;
+            isGold = true;
+            break;
+          default:
+            amountNaira = settings.tier1Month || 5000;
+            break;
+        }
+
+        console.log("Flutterwave - plan:", plan, "amount:", amountNaira, "currency:", currency, "country:", visitorCountry);
+
+        const txPrefix = isGold ? "SURETIPS-GOLD-" : "SURETIPS-FLW-";
+
+        return new Response(JSON.stringify({
+          success: true,
+          publicKey: env.FLUTTERWAVE_PUBLIC_KEY,
+          email: email || "",
+          amount: amountNaira,
+          currency: currency,
+          country: visitorCountry,
+          plan: plan || "1month",
+          tx_ref: txPrefix + Date.now()
+        }), { headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400, headers: corsHeaders });
+      }
+    }
+
+    // ============ GET PAYMENTS ============
+    if (request.method === "GET" && url.pathname === "/payments") {
+      try {
+        const list = await env.SURETIPS_KV.list({ prefix: "payment:" });
+        const payments = [];
+        for (const key of list.keys) {
+          const data = await env.SURETIPS_KV.get(key.name, "json");
+          if (data) payments.push(data);
+        }
+        payments.sort((a, b) => new Date(b.paid_at || 0) - new Date(a.paid_at || 0));
+        return new Response(JSON.stringify(payments), { headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify([]), { headers: corsHeaders });
+      }
+    }
+
+    // ============ HANDLE GET REQUESTS ============
+    if (request.method === "GET") {
+      const bucket = url.searchParams.get("bucket");
+      if (!bucket) return new Response(JSON.stringify({ error: "Missing bucket" }), { status: 400, headers: corsHeaders });
+      const allowedBuckets = ["links", "reviews", "vip", "free", "settings"];
+      if (!allowedBuckets.includes(bucket)) return new Response(JSON.stringify({ error: "Invalid bucket" }), { status: 400, headers: corsHeaders });
+      const data = await env.SURETIPS_KV.get(bucket, "json");
+      return new Response(JSON.stringify(data || {}), { headers: corsHeaders });
+    }
+
+    // ============ HANDLE POST REQUESTS ============
+    if (request.method === "POST") {
+      try {
+        const body = await request.json();
+        if (body.password !== env.ADMIN_SECRET) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+        }
+        const { bucket, data } = body;
+        const allowedBuckets = ["links", "reviews", "vip", "free", "settings"];
+        if (!allowedBuckets.includes(bucket) || data === undefined) {
+          return new Response(JSON.stringify({ error: "Invalid bucket or missing data" }), { status: 400, headers: corsHeaders });
+        }
+        await env.SURETIPS_KV.put(bucket, JSON.stringify(data));
+        return new Response(JSON.stringify({ success: true, message: `Saved to ${bucket}` }), { headers: corsHeaders });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: "Invalid JSON payload" }), { status: 400, headers: corsHeaders });
+      }
+    }
+
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: corsHeaders });
+  }
+};
