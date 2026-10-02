@@ -445,11 +445,10 @@ document.querySelectorAll('.tier-card').forEach(card => {
 document.querySelectorAll('.pay-option').forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const card = btn.closest('.tier-card');
+              const card = btn.closest('.tier-card');
         const tier = card.dataset.tier;
-        const amount = goldPrices[tier];
 
-        const url = `tiergoldpayment.html?amount=${amount}&plan=${tier}`;
+        const url = `tiergoldpayment.html?plan=${tier}`;
         window.location.href = url;
     });
 });
