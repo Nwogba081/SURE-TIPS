@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SureTips VIP — Choose Your Plan</title>
+    <meta name="description" content="Choose your SureTips VIP plan and pay securely with Flutterwave.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#0a0e1a;
+            --surface:#141a33;
+            --surface-2:#1a2140;
+            --line:rgba(255,255,255,0.08);
+            --grad-b:#7c3aed;
+            --grad-c:#f59e0b;
+            --gold:#fbbf24;
+            --gold-deep:#d97706;
+            --win:#34d399;
+            --text:#f8fafc;
+            --text-dim:#a7b0c8;
+            --text-mute:#6b7591;
+            --font-display:'Sora',sans-serif;
+            --font-body:'Inter',sans-serif;
+            --shadow:0 10px 30px -12px rgba(0,0,0,0.55);
+        }
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+        body{
+            background:var(--bg);
+            color:var(--text);
+            font-family:var(--font-body);
+            min-height:100vh;
+            padding:32px 20px 60px;
+            background:
+                radial-gradient(120% 70% at 12% 0%, rgba(124,58,237,0.25), transparent 60%),
+                radial-gradient(90% 60% at 92% 15%, rgba(245,158,11,0.15), transparent 60%),
+                var(--bg);
+        }
+        .container{max-width:1080px;margin:0 auto;}
+
+        .page-header{text-align:center;margin-bottom:44px;}
+        .brand{
+            font-family:'Permanent Marker',cursive;
+            font-size:2.4rem;
+            color:#fff;
+            margin-bottom:4px;
+            transform:rotate(-2deg);
+            display:inline-block;
+        }
+        .brand span{color:var(--gold);}
+        .page-title{
+            font-family:var(--font-display);
+            font-size:1.8rem;
+            font-weight:800;
+            margin-top:14px;
+            margin-bottom:8px;
+        }
+        .page-sub{
+            color:var(--text-mute);
+            font-size:0.95rem;
+            max-width:520px;
+            margin:0 auto;
+        }
+
+        .tiers-grid{
+            display:grid;
+            grid-template-columns:repeat(3, 1fr);
+            gap:18px;
+            align-items:start;
+        }
+        @media (max-width:860px){
+            .tiers-grid{grid-template-columns:1fr; gap:14px;}
+        }
+
+        .tier-card{
+            background:var(--surface);
+            border:1px solid var(--line);
+            border-radius:20px;
+            padding:26px 22px;
+            position:relative;
+            cursor:pointer;
+            transition:border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .tier-card:hover{
+            border-color:rgba(255,255,255,0.16);
+        }
+        .tier-card.popular{
+            border-color:rgba(251,191,36,0.5);
+            box-shadow:0 0 40px -10px rgba(251,191,36,0.3);
+        }
+        .tier-card.expanded{
+            border-color:var(--gold);
+        }
+
+        .popular-badge{
+            position:absolute;
+            top:-12px;
+            left:50%;
+            transform:translateX(-50%);
+            background:linear-gradient(135deg, var(--gold-deep), var(--gold));
+            color:#1a1206;
+            font-family:'JetBrains Mono', monospace;
+            font-size:0.68rem;
+            font-weight:800;
+            padding:5px 14px;
+            border-radius:999px;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            white-space:nowrap;
+        }
+        .tier-name{
+            font-family:var(--font-display);
+            font-size:1.05rem;
+            font-weight:700;
+            margin-bottom:14px;
+            color:var(--text);
+        }
+        .tier-price{
+            font-family:var(--font-display);
+            font-size:2.4rem;
+            font-weight:800;
+            color:var(--gold);
+            line-height:1;
+            margin-bottom:6px;
+        }
+        .tier-price small{
+            font-size:0.9rem;
+            color:var(--text-mute);
+            font-weight:400;
+            margin-left:2px;
+        }
+        .tier-save{
+            display:inline-block;
+            font-size:0.72rem;
+            font-weight:700;
+            color:var(--win);
+            background:rgba(52,211,153,0.12);
+            border:1px solid rgba(52,211,153,0.3);
+            padding:3px 10px;
+            border-radius:999px;
+            margin-bottom:18px;
+        }
+        .tier-save.hidden{visibility:hidden;}
+
+        .tier-features{
+            list-style:none;
+            margin-bottom:20px;
+        }
+        .tier-features li{
+            font-size:0.83rem;
+            color:var(--text-dim);
+            padding:7px 0;
+            border-bottom:1px solid var(--line);
+            padding-left:22px;
+            position:relative;
+        }
+        .tier-features li:last-child{border-bottom:none;}
+        .tier-features li::before{
+            content:"✓";
+            position:absolute;
+            left:0;
+            color:var(--win);
+            font-weight:700;
+        }
+
+        .choose-btn{
+            display:block;
+            width:100%;
+            padding:13px;
+            border:none;
+            border-radius:999px;
+            background:linear-gradient(135deg, var(--grad-b), var(--grad-c));
+            color:#1a1206;
+            font-weight:700;
+            font-size:0.9rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            transition:transform 0.15s ease;
+        }
+        .choose-btn:active{transform:scale(0.97);}
+
+        .payment-options{
+            max-height:0;
+            overflow:hidden;
+            transition:max-height 0.35s ease, margin-top 0.35s ease;
+            margin-top:0;
+        }
+        .tier-card.expanded .payment-options{
+            max-height:200px;
+            margin-top:14px;
+        }
+
+        .pay-option{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            width:100%;
+            padding:14px;
+            border-radius:999px;
+            font-weight:700;
+            font-size:0.9rem;
+            cursor:pointer;
+            font-family:var(--font-body);
+            text-decoration:none;
+            transition:transform 0.15s ease;
+            border:none;
+            background:linear-gradient(135deg, #f36e21, #f59e0b);
+            color:#fff;
+        }
+        .pay-option:active{transform:scale(0.97);}
+        .pay-option svg{width:16px;height:16px;}
+
+        .page-footer{
+            text-align:center;
+            margin-top:36px;
+            font-size:0.78rem;
+            color:var(--text-mute);
+            line-height:1.6;
+        }
+        .page-footer a{
+            color:var(--gold);
+            text-decoration:none;
+            font-weight:600;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="page-header">
+        <div class="brand">Sure<span>Tips</span></div>
+        <h1 class="page-title">Choose Your VIP Plan</h1>
+        <p class="page-sub">Pick the plan that fits you. Pay securely with Flutterwave — cards and mobile money accepted.</p>
+    </div>
+
+    <div class="tiers-grid" id="tiersGrid">
+
+        <!-- 1 MONTH -->
+        <div class="tier-card" data-tier="1month">
+            <div class="tier-name">1 Month</div>
+            <div class="tier-price" id="price1Month">₦5,000 <small>/ month</small></div>
+            <div class="tier-save hidden">Standard</div>
+
+            <ul class="tier-features">
+                <li>Daily VIP predictions</li>
+                <li>BTTS, Over/Under, 1X2</li>
+                <li>Kickoff alerts</li>
+                <li>WhatsApp & Telegram access</li>
+            </ul>
+
+            <button class="choose-btn" type="button">Choose Payment</button>
+
+            <div class="payment-options">
+                <a class="pay-option" href="#" data-gateway="flutterwave">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M3 12h18"/>
+                    </svg>
+                    Pay with Flutterwave
+                </a>
+            </div>
+        </div>
+
+        <!-- 3 MONTHS (POPULAR) -->
+        <div class="tier-card popular" data-tier="3months">
+            <div class="popular-badge">Most Popular</div>
+            <div class="tier-name">3 Months</div>
+            <div class="tier-price" id="price3Months">₦12,000 <small>/ 3 mo</small></div>
+            <div class="tier-save" id="save3Months">Save 20%</div>
+
+            <ul class="tier-features">
+                <li>Everything in 1 Month</li>
+                <li>Higher-odds exclusive picks</li>
+                <li>Priority support</li>
+                <li>Save 20% vs monthly</li>
+            </ul>
+
+            <button class="choose-btn" type="button">Choose Payment</button>
+
+            <div class="payment-options">
+                <a class="pay-option" href="#" data-gateway="flutterwave">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M3 12h18"/>
+                    </svg>
+                    Pay with Flutterwave
+                </a>
+            </div>
+        </div>
+
+        <!-- 1 YEAR -->
+        <div class="tier-card" data-tier="1year">
+            <div class="tier-name">1 Year</div>
+            <div class="tier-price" id="price1Year">₦40,000 <small>/ year</small></div>
+            <div class="tier-save" id="save1Year">Save 33%</div>
+
+            <ul class="tier-features">
+                <li>Everything in 3 Months</li>
+                <li>Early access — 2h before VIP</li>
+                <li>Direct analyst access</li>
+                <li>Best value overall</li>
+            </ul>
+
+            <button class="choose-btn" type="button">Choose Payment</button>
+
+            <div class="payment-options">
+                <a class="pay-option" href="#" data-gateway="flutterwave">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M3 12h18"/>
+                    </svg>
+                    Pay with Flutterwave
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="page-footer">
+        Message support for alternative payment methods — <a href="https://t.me/SURETIPS_8" target="_blank" rel="noopener">Telegram Support</a><br>
+        18+ only · Please gamble responsibly
+    </div>
+
+</div>
+
+<script>
+const WORKER_URL = "https://suretips-data.cybercatclient.workers.dev";
+
+// Default prices (fallback) — will be overwritten from Worker
+let prices = {
+    "1month": 5000,
+    "3months": 12000,
+    "1year": 40000
+};
+
+async function loadPrices(){
+    try{
+        const res = await fetch(`${WORKER_URL}?bucket=settings&_=${Date.now()}`);
+        if(!res.ok) return;
+        const data = await res.json();
+        if(data.tier1Month) prices["1month"] = data.tier1Month;
+        if(data.tier3Month) prices["3months"] = data.tier3Month;
+        if(data.tier1Year) prices["1year"] = data.tier1Year;
+    }catch(e){ /* use defaults */ }
+    renderPrices();
+}
+
+function renderPrices(){
+    document.getElementById('price1Month').innerHTML = `₦${prices["1month"].toLocaleString()} <small>/ month</small>`;
+    document.getElementById('price3Months').innerHTML = `₦${prices["3months"].toLocaleString()} <small>/ 3 mo</small>`;
+    document.getElementById('price1Year').innerHTML = `₦${prices["1year"].toLocaleString()} <small>/ year</small>`;
+
+    const monthlyBase = prices["1month"];
+    const save3 = Math.round((1 - (prices["3months"] / (monthlyBase * 3))) * 100);
+    const save12 = Math.round((1 - (prices["1year"] / (monthlyBase * 12))) * 100);
+
+    const save3El = document.getElementById('save3Months');
+    const save12El = document.getElementById('save1Year');
+    if(save3 > 0) save3El.textContent = `Save ${save3}%`;
+    else save3El.style.display = 'none';
+    if(save12 > 0) save12El.textContent = `Save ${save12}%`;
+    else save12El.style.display = 'none';
+}
+
+// Toggle expand on card click
+document.querySelectorAll('.tier-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        if(e.target.closest('.pay-option')) return;
+        if(e.target.closest('.payment-options')) return;
+        document.querySelectorAll('.tier-card').forEach(c => {
+            if(c !== card) c.classList.remove('expanded');
+        });
+        card.classList.toggle('expanded');
+    });
+});
+
+// Handle payment option clicks — pass plan + amount via URL
+document.querySelectorAll('.pay-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const card = btn.closest('.tier-card');
+        const tier = card.dataset.tier;
+        const amount = prices[tier];
+
+        const url = `flutterwave.html?amount=${amount}&plan=${tier}`;
+        window.location.href = url;
+    });
+});
+
+loadPrices();
+</script>
+
+</body>
+</html>
