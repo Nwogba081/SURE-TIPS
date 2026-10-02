@@ -449,7 +449,7 @@ document.querySelectorAll('.pay-option').forEach(btn => {
         const tier = card.dataset.tier;
         const amount = goldPrices[tier];
 
-        const url = `tiergold.html?amount=${amount}&plan=${tier}`;
+        const url = `tiergoldpaymemt.html?amount=${amount}&plan=${tier}`;
         window.location.href = url;
     });
 });
