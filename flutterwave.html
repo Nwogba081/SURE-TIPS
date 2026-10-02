@@ -222,7 +222,7 @@
     <div class="status-msg" id="statusMsg"></div>
 
     <p class="support-text">Message support for alternative payment methods</p>
-    <a href="https://t.me/SURETIPS_8" target="_blank" rel="noopener" class="telegram-btn">Message Support</a>
+    <a href="https://t.me/Suretips_9" target="_blank" rel="noopener" class="telegram-btn">Message Support</a>
 
     <a href="tiers.html" class="back-link">Back to plans</a>
 
@@ -293,18 +293,14 @@ document.getElementById('payBtn').addEventListener('click', async () => {
         FlutterwaveCheckout({
             public_key: config.publicKey,
             tx_ref: config.tx_ref,
-            amount: currentAmount,
-            currency: config.currency,
-            payment_options: "card,mobilemoney,ussd,banktransfer",
+            amount: config.amount,          // Use the amount from Worker
+            currency: config.currency,      // Use the currency from Worker
+            country: config.country,        // Add country code
+            payment_options: "card,mobilemoney,mobilemoneyfranco,banktransfer,ussd",
             customer: { email: config.email },
             customizations: {
-                title: "SureTips VIP - " + currentPlan,
-                description: currentPlan + " subscription payment"
-            },
-            meta: {
-                plan: urlPlan,
-                plan_name: currentPlan,
-                amount_naira: currentAmount
+                title: "SureTips VIP - " + currentPlanName,
+                description: currentPlanName + " subscription payment"
             },
             callback: function(response){
                 console.log("Flutterwave response:", response);
